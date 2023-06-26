@@ -1,0 +1,52 @@
+---
+title: "Intro to RMarkdown"
+author: "Katie Lankowicz"
+date: "2023-06-26"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# This is where you can load libraries, if you want to use any.
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+Look very closely at the way the code chunk is written in the text editor. Everything is important here. You need three _accent_ signs, the squiggly brackets, and _r_ written to begin a code chunk, then you end the code chunk with a second set of _accent_ signs. The code chunk also has the word _cars_, this is simply the name of the chunk. You should name chunks something that indicates their purpose.
+
+If you want a code chunk to accomplish a task but DO NOT want the actual code to be repeated in the compiled report, you can use the following syntax:
+
+```{r hidecode, echo=FALSE}
+summary(cars)
+```
+
+If you wrote a code chunk that you do not think you actually need and do not need to run, but want to keep just in case, use the following syntax to suppress both the evaluation of the chunk:
+
+```{r donotrun, eval=FALSE}
+summary(cars)
+```
+
+You can use both _echo_ and _eval_ for a single chunk to essentially make it disappear from all output.
+
+```{r hideentirely, echo=FALSE, eval=FALSE}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
