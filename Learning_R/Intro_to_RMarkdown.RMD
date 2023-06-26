@@ -6,14 +6,23 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
+# Set options for all chunks
 knitr::opts_chunk$set(echo = TRUE)
 
-# This is where you can load libraries, if you want to use any.
+# Clear old data
+rm(list=ls())
+
+# Load libraries
+library(here)
+library(tidyverse)
 ```
 
 ## R Markdown
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+To make this work, you need to download a separate software called MikTex. Please follow the instructions here:
+<https://webpages.uidaho.edu/~renaes/419/Handouts/R%20markdown%20prep.pdf>.
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
@@ -41,12 +50,104 @@ You can use both _echo_ and _eval_ for a single chunk to essentially make it dis
 summary(cars)
 ```
 
-## Including Plots
+\newpage
 
-You can also embed plots, for example:
+## Loading data
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+Loading data occurs the same way in RMarkdown as it does for regular R scripts. We will be working with data from the Behavioral Risk Factor Surveillance System (BRFSS), which is an annual telephone survey of 350,000 people in the United States. Respondends are asked about their diet and physical activity, HIV/AIDs status, tobacco use, and healthcare coverage. We will use a random sample of 20,000 people pulled from this dataset. I have saved this as a CSV file in our GitHub repository, which we can download at will.
+
+```{r loaddata}
+setwd(here("Learning_R"))
+cdc <- read.csv("cdc.csv")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Summaries
+
+Let's go over some of the concepts we learned about last week, starting with a brief summary of the data.
+
+```{r datasummary, echo=FALSE}
+# Top 6 lines of the dataframe
+head(cdc)
+
+# Mean, median, and variance of weight
+mean(cdc$weight)
+median(cdc$weight)
+var(cdc$weight)
+
+```
+
+\newpage
+
+## Tables
+ 
+We can determine the number of respondents who smoke using a table, like this. In this dataset, 0 represents non-smokers and 1 represents smokers.
+
+```{r smokertable}
+table(cdc$smoke100)
+
+```
+
+Let's say we want to look at the proportion of smokers to non-smokers. This would be equal to dividing the number of smokers by the population size (20,000 respondents) and the number of non-smokers by the population size. 
+
+```{r relfreq}
+table(cdc$smoke100) / nrow(cdc)
+```
+
+If we want to show the breakdown of smokers by gender, we can make a two-way table.
+```{r twoway-table}
+table(cdc$gender, cdc$smoke100)
+```
+
+\newpage
+
+## Plots
+
+We can turn this information into a barplot. RMarkdown is a great tool for data visualization. It easily embeds plots into your output.
+```{r barplot}
+barplot(table(cdc$smoke100))
+```
+
+\newpage
+
+Let's visualize the relationship between gender and smoking. This would make for a great mosaic plot, in which we can check the relative frequency of a dependent variable (smoking) among different categorical variables (gender)
+```{r mosaicplot}
+mosaicplot(table(cdc$gender, cdc$smoke100))
+```
+
+\newpage
+
+## Quantitative data
+
+So far, we have worked on categorical data (gender, yes or no to smoking). Let's dig in to some quantitative stuff. We can make box-and-whisker plots using the quantitative data of respondent height.
+
+```{r boxplots}
+boxplot(cdc$height)
+```
+
+\newpage
+
+We can break this into categories, as well.
+
+```{r boxplot-gender}
+boxplot(cdc$height ~ cdc$gender)
+```
+
+\newpage
+
+We can also make a histogram of respondent height
+```{r histogram}
+hist(cdc$height)
+```
+
+\newpage
+
+Or a scatterplot of respondent height vs. weight
+```{r scatterplot}
+plot(cdc$height, cdc$weight)
+```
+
+\newpage
+
+## Saving and getting output
+
+Once you're done editing the markdown document, you can save it normally. You can also "knit" it to get a nice document showing all your work and output. Click the "Knit" button above, and you'll see the "Render" tab in the console become active. RStudio will then work with MikTex to create whatever kind of document you have specified (html, pdf, or microsoft word). You can then navigate to your working directory and view the output.
