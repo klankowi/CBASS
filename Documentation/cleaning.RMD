@@ -1,0 +1,1125 @@
+---
+title: "CBASS Data cleaning"
+author: "Katie Lankowicz"
+date: "2023-06-13"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning= FALSE)
+```
+
+```{r libraries}
+# Clear workspace
+rm(list=ls())
+
+# Load packages
+library(reprex, quietly=T, verbose=F)
+suppressPackageStartupMessages(library(tidyverse, quietly=T, verbose=F))
+suppressPackageStartupMessages(library(readxl, quietly=T, verbose=F))
+suppressPackageStartupMessages(library(here, quietly=T, verbose=F))
+suppressPackageStartupMessages(library(padr, quietly=T, verbose=F))
+suppressPackageStartupMessages(library(zoo, quietly=T, verbose=F))
+suppressPackageStartupMessages(library(sf, quietly=T, verbose=F))
+suppressPackageStartupMessages(library(vegan, quietly=T, verbose=F))
+suppressPackageStartupMessages(library(kableExtra, quietly=T, verbose=F))
+suppressPackageStartupMessages(library(reshape2, quietly=T, verbose=F))
+#suppressPackageStartupMessages(library(marmap, quietly=T, verbose=F))
+#suppressPackageStartupMessages(library(raster, quietly=T, verbose=F))
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+
+# Set GGplot auto theme
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', linewidth=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=12),
+                axis.text.y=element_text(size=12),
+                axis.title.x=element_text(size=14),
+                axis.title.y=element_text(size=14, angle=90, vjust=2),
+                plot.title=element_text(size=14, hjust = 0, vjust = 1.2),
+                plot.caption=element_text(hjust=0, face='italic', size=12)))
+```
+
+## Casco Bay Aquatic Systems Survey
+The CBASS project has been ongoing since 2014, with a seine component in the greater Portland region of Casco Bay every year. The purpose of this document is to create a protocol for data cleaning and combination for further analysis. This is in anticipation of incorporation of data from the recently-started Harpswell CBASS component.
+
+The data for 2014 - 2021 (excluding 2019) are stored in the Excel workbook `raw-seine-data.xlsx` across the sheets named `sites`, `species`, `trips`, and `fish`. The data for 2022 are stored in the Excel workbook `2022_Raw_Seine_Data.xlsx` across sheets of the same names. The data for 2019 are currently missing. The physical datasheets need to be located and entered into digital format. There are also suspiciously few sampling days recorded for 2018, so there may be yet-to-be-entered datasheets from 2018 to locate.
+
+### Data loading and combination
+Data from Excel workbooks will be loaded in such a way that the individual sheets within the workbook will become dataframes within a list item in R. We will keep only the sheets mentioned above in cases where other data are provided. It's also important to ensure that variable names (column names) are standardized so that we can merge data from all years into a single dataframe later on.
+
+```{r loading2014, results='hide', message=F, warning=F}
+# 2014-2021 data
+  # Set the name of the workbook
+  fname <- paste0(here(), '/Raw_Data/raw-seine-data_061621.xlsx')
+  # Get info about all excel sheet names in workbook
+  sheets <- readxl::excel_sheets(fname)
+  # Read in as list item, each item is a sheet
+  tibble <- invisible(lapply(sheets, 
+                             function(x) readxl::read_excel(fname, sheet = x)))
+  # Coerce list items to dataframes
+  data_frame <- lapply(tibble, as.data.frame)
+  # Name list items
+  names(data_frame) <- sheets
+  # Create temporary dataframe with all sheets
+  data.2014.temp <- data_frame
+  # Create new, empty data list
+  data.2014 <- vector(mode="list", length = 5)
+  # Name list items
+  names(data.2014) <- c('sites', 'species', 'trips', 'fish', 'abundance')
+  # Save pertinent information in matching list items
+  data.2014$sites <- data.2014.temp$sites
+  data.2014$species <- data.2014.temp$species
+  data.2014$trips <- data.2014.temp$trips
+  data.2014$fish <- data.2014.temp$fish
+  data.2014$abundance <- data.2014.temp$abundance
+  # Remove intermediates
+  rm(data.2014.temp, data_frame, tibble, fname, sheets)
+  
+  # Fix column names in each list item
+  colnames(data.2014$sites) <- c('site_id', 'site_name', 'latitude', 'longitude',
+                                 'utm_easting', 'utm_northing')
+  colnames(data.2014$species) <- c('ID', 'common_name', 'nhfg_code')
+  data.2014$trips <- dplyr::select(data.2014$trips,
+                                   trip_id, date, site_id, site_name, substrate,
+                                   gear, set, set_time, weather, tide, 
+                                   time_of_high_tide, ft_1, 
+                                   time_of_low_tide, ft_2,
+                                   temp_degc, do_percent, `do_mg/l`, conductivity,
+                                   salinity_ppt, hermit_crabs, shrimp,
+                                   macroalgae, notes)
+  colnames(data.2014$fish) <- c('fish_id', 'trip_id', 'sample_id', 'species_name',
+                                'species_code', 'sex', 'field_length_mm', 
+                                'lab_length_mm', 'weight_g', 'notes')
+  data.2014$abundance <- dplyr::select(data.2014$abundance,
+                                       trip_id, species_name,
+                                       catch)
+
+```
+
+```{r cleaning2014}
+#### Site Identification ####
+# Remove freshwater sites and Willard Beach
+data.2014$sites <- subset(data.2014$sites,
+                          site_name %notin% c('Highland Lake Association Boat Ramp',
+                                              'Public Boat Ramp at Highland Lake',
+                                              'Cottage Road at Highland Lake',
+                                              'Family House - Highland',
+                                              'Willard Beach'))
+
+# Rename Gilsland Farm to Audubon and correct spelling of Skitterygusset
+data.2014$sites$site_name[data.2014$sites$site_name == "Gilsland Farm"] <- 'Audubon'
+data.2014$sites$site_name[data.2014$sites$site_name == 'Scitterygusset'] <- 
+  'Skitterygusset'
+
+# Assign bay locations
+bay_locations <- data.frame(
+  site_name = c('Presumpscot Moorings', 'Skitterygusset', 'Audubon',
+                'Mussel Cove', 'The Brothers - North', 'Mackworth Island - North',
+                               'Mackworth Island - Beach', 'Back Cove',
+                'Great Diamond Island', 'SMCC', 'Cushing Island', 'Alewife Cove',
+                'The Brothers - South'),
+  bay_location = c(rep('Inner', 3),
+                   rep('Mid', 5),
+                   rep('Outer', 4),
+                   'Mid')
+)
+data.2014$sites <- left_join(bay_locations, data.2014$sites, 
+                             by=c('site_name'))
+
+# Assign new site_id numbers
+data.2014$sites$site_id <- NULL
+data.2014$sites$site_id <- seq(1:nrow(data.2014$sites))
+
+# Order
+data.2014$sites <- data.2014$sites[with(data.2014$sites,
+                                        order(site_id)),]
+rownames(data.2014$sites) <- NULL
+data.2014$sites$site_id <- str_pad(data.2014$sites$site_id, 2, "left", "0")
+
+#### Trip Identification #####
+# Strip trip info from data list
+trips <- data.2014$trips
+
+# Remove blank rows
+trips <- trips[!is.na(trips$date),]
+
+# Remove freshwater and Willard Beach sites
+trips <- trips[trips$site_name %notin% c('Cottage Road at Highland',
+                                         'Cottage Road at Highland Lake',
+                                         'Family House - Highland',
+                                         'Highland Lake Association Boat Ramp',
+                                         'Public Boat Ramp at Highland Lake',
+                                         'Willard Beach'),]
+# Fix some spelling errors
+trips$site_name[trips$site_name == "Cushing"] <- "Cushing Island"
+trips$site_name[trips$site_name == "Gilsland Farm"] <- "Audubon"
+trips$site_name[trips$site_name == "Mackworth Island-Beach"] <- 
+  "Mackworth Island - Beach"
+trips$site_name[trips$site_name == "Mackworth Island-North"] <-
+  "Mackworth Island - North"
+trips$site_name[trips$site_name == "Scitterygusset"] <- "Skitterygusset"
+trips$site_name <- as.factor(trips$site_name)
+
+# Re-assign site_id
+trips$site_id <- NULL
+trips <- left_join(trips, dplyr::select(data.2014$sites, site_name, site_id),
+                   by=c('site_name'))
+
+# Fix substrate data type
+trips$substrate <- as.factor(trips$substrate)
+
+# Remove instances where seine was not set
+trips <- subset(trips, set == 'yes')
+
+# Remove gear and set columns, no longer needed
+trips <- dplyr::select(trips, -gear, -set)
+
+# Fix set time
+trips$set_time <- substr(trips$set_time, start = 12, stop=19)
+trips$set_time <- paste0(trips$date, " ", trips$set_time)
+trips$set_time <- as.POSIXct(trips$set_time,
+                               format = "%Y-%m-%d %H:%M:%S")
+
+# Remove tide information, will need to look it up and add it back.
+trips <- dplyr::select(trips, -time_of_high_tide, -time_of_low_tide,
+                       -ft_1, -ft_2, -tide)
+
+# Fix weather info
+trips$weather[trips$weather %in% c('calm/cloudy/70',
+                                   'calm/cloudy/74',
+                                   'cloudy',
+                                   'overcast')] <- 'overcast'
+
+trips$weather[trips$weather %in% c('calm/partlycloudy/70',
+                                   'partly cloudy',
+                                   'partly sunny',
+                                   'sun/clouds',
+                                   'sunny, slightly overcast')] <- 'partly cloudy'
+
+trips$weather[trips$weather %in% c('calm/sunny',
+                                   'calm/sunny/75',
+                                   'hot, sunny',
+                                   'mild, breezy',
+                                   'sun',
+                                   'sunny, calm',
+                                   'sunny, east wind',
+                                   'sunny/70',
+                                   'sunny/calm',
+                                   'sunny/little windy',
+                                   'sunny/warm',
+                                   'sunny/warm/calm',
+                                   'sunny/windy',
+                                   'sunny/windy (north wind = exposure)',
+                                   'suny')] <- 'sunny'
+
+trips$weather[trips$weather %in% c('cloudy, stormy',
+                                   'rain',
+                                   'rain/fog')] <- 'rain'
+
+trips$weather[trips$weather %in% c('fog',
+                                   'foggy, partly cloudy',
+                                   'sun, fog')] <- 'foggy'
+
+trips$weather <- as.factor(trips$weather)
+
+# Remove conductivity, macroalgae
+trips <- dplyr::select(trips, -conductivity, -macroalgae)
+
+# Fix hermit crabs 
+trips$hermit_crabs[trips$hermit_crabs == 2] <- 1
+trips$hermit_crabs <- as.numeric(trips$hermit_crabs)
+
+# Fix shrimp
+trips$shrimp <- as.numeric(trips$shrimp)
+
+# Create year column
+trips$year <- substr(trips$date, start=1, stop = 4)
+trips$year <- as.numeric(trips$year)
+
+# Create new trip_id based on date
+trips$new_trip_id <- as.numeric(as.factor(trips$date))
+
+# Create new overall information identification
+trips$loc_id <- paste0(trips$year, "_",
+                                 str_pad(trips$new_trip_id, 3, "left", "0"),
+                                 "_",
+                                 str_pad(trips$site_id, 2, "left", "0"))
+
+# Assign bay location
+trips <- left_join(trips, bay_locations, by=c('site_name'))
+trips$bay_location <- as.factor(trips$bay_location)
+trips$site_name <- as.factor(trips$site_name)
+
+# Reorder
+trips <- dplyr::select(trips, loc_id, year, date, trip_id, new_trip_id, 
+                       site_id, site_name, bay_location,
+                       substrate, set_time, weather, temp_degc, 
+                       `do_mg/l`, salinity_ppt, hermit_crabs, shrimp,
+                       notes)
+# Save
+trips <- trips[!is.na(trips$loc_id),]
+data.2014$trips <- trips
+rm(trips)
+
+#### Fish Biological Information ####
+bio <- data.2014$fish
+
+# Remove anything that doesn't have a trip_id in the trips dataframe
+bio <- bio[bio$trip_id %in% data.2014$trips$trip_id,]
+bio <- bio[!is.na(bio$trip_id),]
+
+# Coerce trip id to character
+bio$trip_id <- as.character(bio$trip_id)
+
+# Remove unnecessary columns
+bio <- dplyr::select(bio, trip_id, species_name, sex, 
+                     field_length_mm, lab_length_mm, notes)
+
+# Assign site_name and location info
+bio <- left_join(bio, dplyr::select(data.2014$trips, trip_id, new_trip_id,
+                                    loc_id, site_name, site_id, bay_location,
+                                    date),
+                 by=c('trip_id'))
+
+# Re-order
+bio <- dplyr::select(bio, loc_id, date, trip_id, new_trip_id, site_name, site_id,
+                     bay_location, species_name, sex, field_length_mm, 
+                     lab_length_mm, notes)
+
+# Fix data types
+bio$site_name <- as.factor(bio$site_name)
+bio$bay_location <- as.factor(bio$bay_location)
+
+# Fix species names
+bio$species_name[bio$species_name == "blue fish"] <- 'bluefish'
+bio$species_name[bio$species_name == "blueback"] <- 'blueback herring'
+bio$species_name[bio$species_name == "grubby scuplin"] <- 'grubby sculpin'
+bio$species_name[bio$species_name == "pogie"] <- 'atlantic menhaden'
+bio$species_name[bio$species_name == "sand lance"] <- 'sandlance'
+bio$species_name[bio$species_name == "shad"] <- 'american shad'
+bio$species_name[bio$species_name == "silverside"] <- 'atlantic silverside'
+bio$species_name[bio$species_name == "tom cod"] <- 'tomcod'
+
+bio$species_name[bio$species_name == "shiner"] <- 'unID shiner'
+bio$species_name[bio$species_name == "sculpin"] <- 'unID sculpin'
+bio$species_name[bio$species_name == 'sturgeon'] <- 'unID sturgeon'
+bio$species_name[bio$species_name == "stickleback"] <- 'unID stickleback'
+bio$species_name[bio$species_name == "unIDgunnel"] <- 'unID gunnel'
+bio$species_name <- as.factor(bio$species_name)
+
+# Remove instances of no catch
+bio <- bio[bio$species_name %notin% c('no fish', 'no catch'),]
+
+# Fix sex
+bio$sex <- as.factor(bio$sex)
+
+# Remove information on fish with no lengths
+for(i in 1:nrow(bio)){
+  if(is.na(bio$field_length_mm[i]) & is.na(bio$lab_length_mm[i])){
+    bio$notes[i] <- 'Sample lost'
+  }
+}
+bio$notes <- as.factor(bio$notes)
+bio <- bio[bio$notes %notin% c('Sample lost'),]
+
+# Finalize length information - if both lab and field measurements exist, use lab
+for(i in 1:nrow(bio)){
+  if(!is.na(bio$field_length_mm[i]) & is.na(bio$lab_length_mm[i])){
+    bio$length_mm[i] <- bio$field_length_mm[i]
+  }
+  if(!is.na(bio$lab_length_mm[i]) & is.na(bio$field_length_mm[i])){
+    bio$length_mm[i] <- bio$lab_length_mm[i]
+  }
+  if(!is.na(bio$field_length_mm[i]) & !is.na(bio$lab_length_mm[i])){
+    bio$lab_length_mm[i] <- bio$lab_length_mm[i]
+  }
+}
+
+# There is definitely not a 1mm horseshoe crab or periwinkle
+bio <- subset(bio, bio$length_mm != 1)
+
+# Finalize dataframe
+bio <- dplyr::select(bio,
+                     loc_id, date, site_name, site_id, bay_location, 
+                     species_name, sex, length_mm, notes)
+bio <- bio[!is.na(bio$species_name),]
+
+data.2014$fish <- bio
+rm(bio)
+
+#### Abundance information ####
+abund <- data.2014$abundance
+
+# Coerce trip id to character
+abund$trip_id <- as.character(abund$trip_id)
+
+# Remove anything that doesn't have a trip_id in the trips dataframe
+abund <- abund[abund$trip_id %in% data.2014$trips$trip_id,]
+abund <- abund[!is.na(abund$trip_id),]
+
+# Assign site_name and location info
+abund <- left_join(abund, dplyr::select(data.2014$trips, trip_id, new_trip_id,
+                                    loc_id, site_name, site_id, bay_location,
+                                    date),
+                 by=c('trip_id'))
+
+# Re-order
+abund <- dplyr::select(abund, loc_id, date, trip_id, new_trip_id, site_name, 
+                       site_id, bay_location, 
+                       species_name, catch)
+abund <- abund[complete.cases(abund),]
+
+# Fix data types
+abund$site_name <- as.factor(abund$site_name)
+abund$bay_location <- as.factor(abund$bay_location)
+
+# Coerce non-numerics to numerics
+abund$catch2 <- abund$catch
+abund$catch[abund$catch == "~50"] <- 50
+abund$catch[abund$catch == "20+"] <- 20
+abund$catch[abund$catch == "25+"] <- 25
+abund$catch[abund$catch == "6+"] <- 6
+abund$catch[abund$catch == "9+"] <- 9
+
+# Remove 0 catch instances
+abund <- abund[abund$catch != '0',]
+
+# Remove useless information (I'm so angry about these)
+abund <- abund[abund$catch %notin% c('lots', 'x'),]
+abund$catch <- as.numeric(abund$catch)
+abund$catch2 <- NULL
+
+# Fix species names
+abund <- abund[abund$species_name %notin% c('?', 
+                                            'cusk? hake?',
+                                            'unid'),]
+
+abund$species_name[abund$species_name == "blue fish"] <- 'bluefish'
+abund$species_name[abund$species_name == "blueback"] <- 'blueback herring'
+#abund$species_name[abund$species_name == "grubby scuplin"] <- 'grubby sculpin'
+abund$species_name[abund$species_name == "pogie"] <- 'atlantic menhaden'
+abund$species_name[abund$species_name == "pogy"] <- 'atlantic menhaden'
+abund$species_name[abund$species_name == "sand lance"] <- 'sandlance'
+abund$species_name[abund$species_name == "shad"] <- 'american shad'
+abund$species_name[abund$species_name == "silverside"] <- 'atlantic silverside'
+#abund$species_name[abund$species_name == "tom cod"] <- 'tomcod'
+
+abund$species_name[abund$species_name == "shiner"] <- 'unID shiner'
+abund$species_name[abund$species_name == "sculpin"] <- 'unID sculpin'
+abund$species_name[abund$species_name == 'sturgeon'] <- 'unID sturgeon'
+abund$species_name[abund$species_name == "stickleback"] <- 'unID stickleback'
+abund$species_name[abund$species_name == "unIDgunnel"] <- 'unID gunnel'
+abund$species_name <- as.factor(abund$species_name)
+
+# Finalize
+abund <- dplyr::select(abund, -trip_id, -new_trip_id)
+data.2014$abundance <- abund
+
+#str(data.2014$sites)
+data.2014$sites$site_name <- as.factor(data.2014$sites$site_name)
+data.2014$sites$bay_location <- as.factor(data.2014$sites$bay_location)
+data.2014$trips <- dplyr::select(data.2014$trips, -trip_id, -new_trip_id)
+
+```
+
+```{r loading2022, results='hide', message=F, warning=F}
+# 2022 data
+  # Get info about all excel sheets in workbook
+  fname <- paste0(here(), '/Raw_Data/2022_Raw_Seine_Data.xlsx')
+  sheets <- readxl::excel_sheets(fname)
+  # Read in as list item, each item is a sheet
+  tibble <- invisible(lapply(sheets, 
+                             function(x) readxl::read_excel(fname, sheet = x)))
+  # Coerce list items to dataframes
+  data_frame <- lapply(tibble, as.data.frame)
+  # Name list items
+  names(data_frame) <- sheets
+  # Create temporary dataframe with all sheets
+  data.2022.temp <- data_frame
+  # Cut to new data list
+  data.2022 <- vector(mode="list", length = 5)
+  names(data.2022) <- c('sites', 'species', 'trips', 'fish', 'abundance')
+  data.2022$sites <- data.2022.temp$Sites
+  data.2022$species <- data.2022.temp$Species
+  data.2022$trips <- data.2022.temp$Trips
+  data.2022$fish <- data.2022.temp$`Fish Length`
+  data.2022$abundance <- data.2022.temp$`Fish Abundance`
+  # Remove intermediates
+  rm(data.2022.temp, data_frame, tibble, fname, sheets)
+  
+    # Fix names
+  colnames(data.2022$sites) <- c('site_id', 'site_name', 'latitude', 'longitude',
+                                 'utm_easting', 'utm_northing')
+  colnames(data.2022$species) <- c('common_name', 'nhfg_code')
+  data.2022$species <- left_join(data.2022$species, data.2014$species,
+                                 by=c('common_name', 'nhfg_code'))
+  data.2022$trips <- dplyr::select(data.2022$trips,
+                                   trip_id, date, site_id, site_name, substrate,
+                                   gear, set, set_time, weather, tide, 
+                                   time_of_high_tide, ft_1, 
+                                   time_of_low_tide, ft_2,
+                                   temp_degc, do_percent, `do_mg/l`, conductivity,
+                                   salinity_ppt, hermit_crabs, shrimp,
+                                   notes)
+  data.2022$trips$macroalgae <- NA
+  colnames(data.2022$fish) <- c('fish_id', 'trip_id', 'sample_id', 'species_name',
+                                'species_code', 'sex', 'field_length_mm', 
+                                'lab_length_mm', 'weight_g', 'notes')
+  colnames(data.2022$abundance) <- c('trip_id', 'species_name', 'catch')
+
+```
+
+```{r cleaning2022}
+#### Site Identification ####
+# Sites will be the same year to year.
+# What is called "Brothers" in 2022 is the same as "The Brothers - North" in 
+# previous years.
+data.2022$sites <- data.2014$sites
+
+#### Trip Identification #####
+# Strip trip info from data list
+trips <- data.2022$trips
+
+# Remove blank rows
+trips <- trips[!is.na(trips$date),]
+
+# Fix some spelling errors
+trips$site_name[trips$site_name == "Cushing"] <- "Cushing Island"
+trips$site_name[trips$site_name == "Mack Beach"] <- 
+  "Mackworth Island - Beach"
+trips$site_name[trips$site_name == "Mack North"] <-
+  "Mackworth Island - North"
+trips$site_name[trips$site_name == "Scitterygusset"] <- "Skitterygusset"
+trips$site_name[trips$site_name == "Presumpscot"] <- "Presumpscot Moorings"
+trips$site_name[trips$site_name == "Brothers"] <- "The Brothers - North"
+trips$site_name[trips$site_name == "Great Diamond"] <- "Great Diamond Island"
+
+trips$site_name <- as.factor(trips$site_name)
+
+# Re-assign site_id
+trips$site_id <- NULL
+trips <- left_join(trips, dplyr::select(data.2022$sites, site_name, site_id),
+                   by=c('site_name'))
+
+# Fix substrate data type
+trips$substrate <- as.factor(trips$substrate)
+
+# Remove instances where seine was not set
+trips <- subset(trips, set == 'yes')
+
+# Remove gear and set columns, no longer needed
+trips <- dplyr::select(trips, -gear, -set)
+
+# Fix set time
+trips$set_time <- substr(trips$set_time, start = 12, stop=19)
+trips$set_time <- paste0(trips$date, " ", trips$set_time)
+trips$set_time <- as.POSIXct(trips$set_time,
+                               format = "%Y-%m-%d %H:%M:%S")
+
+# Remove tide information, will need to look it up and add it back.
+trips <- dplyr::select(trips, -time_of_high_tide, -time_of_low_tide,
+                       -ft_1, -ft_2, -tide)
+
+# Fix weather info
+trips$weather[trips$weather %in% c('cloudy',
+                                   'cloudy/foggy',
+                                   'low gray clouds',
+                                   'overcast')] <- 'overcast'
+
+trips$weather[trips$weather %in% c('partly cloudy',
+                                   'partly cloudy/sun',
+                                   'partly sunny')] <- 'partly cloudy'
+
+trips$weather[trips$weather %in% c('mostly sunny',
+                                   'mostly sunny, wind picking up')] <- 
+  'mostly sunny'
+
+trips$weather[trips$weather %in% c('rain',
+                                   'rain started')] <- 'rain'
+
+trips$weather[trips$weather %in% c('clear skies',
+                                   'sunny',
+                                   'sunny, very windy',
+                                   'sunny/windy')] <- 'sunny'
+
+trips$weather <- as.factor(trips$weather)
+
+# Remove conductivity, macroalgae
+trips <- dplyr::select(trips, -conductivity, -macroalgae)
+
+# Fix hermit crabs 
+trips$hermit_crabs[trips$hermit_crabs == 'present'] <- 1
+trips$hermit_crabs[trips$hermit_crabs == 'absent'] <- 0
+trips$hermit_crabs[trips$hermit_crabs == 'not circled'] <- NA
+trips$hermit_crabs <- as.numeric(trips$hermit_crabs)
+
+# Fix shrimp
+trips$shrimp[trips$shrimp == 'absent'] <- 0
+trips$shrimp[trips$shrimp == 'low'] <- 1
+trips$shrimp[trips$shrimp == 'medium'] <- 2
+trips$shrimp[trips$shrimp == 'high'] <- 3
+trips$shrimp[trips$shrimp == 'very, very high'] <- 3
+trips$shrimp[trips$shrimp == 'not circled'] <- NA
+trips$shrimp <- as.numeric(trips$shrimp)
+
+# Create year column
+trips$year <- substr(trips$date, start=1, stop = 4)
+trips$year <- as.numeric(trips$year)
+
+# Create new trip_id based on date
+trips$new_trip_id <- as.numeric(as.factor(trips$date)) +
+  max(as.numeric(as.factor(data.2014$trips$date)))
+
+# Create new overall information identification
+trips$loc_id <- paste0(trips$year, "_",
+                                 str_pad(trips$new_trip_id, 3, "left", "0"),
+                                 "_",
+                                 str_pad(trips$site_id, 2, "left", "0"))
+
+# Assign bay location
+trips <- left_join(trips, bay_locations, by=c('site_name'))
+
+# Reorder
+trips <- dplyr::select(trips, loc_id, year, date, trip_id, new_trip_id, 
+                       site_id, site_name, bay_location,
+                       substrate, set_time, weather, temp_degc, 
+                       `do_mg/l`, salinity_ppt, hermit_crabs, shrimp,
+                       notes)
+# Save
+trips <- trips[!is.na(trips$loc_id),]
+data.2022$trips <- trips
+rm(trips)
+
+#### Fish Biological Information ####
+bio <- data.2022$fish
+
+# Remove anything that doesn't have a trip_id in the trips dataframe
+bio <- bio[bio$trip_id %in% data.2022$trips$trip_id,]
+bio <- bio[!is.na(bio$trip_id),]
+
+# Remove unnecessary columns
+bio <- dplyr::select(bio, trip_id, species_name, sex, 
+                     field_length_mm, lab_length_mm, notes)
+
+# Assign site_name and location info
+bio <- left_join(bio, dplyr::select(data.2022$trips, trip_id, new_trip_id,
+                                    loc_id, site_name, site_id, bay_location,
+                                    date),
+                 by=c('trip_id'))
+
+# Re-order
+bio <- dplyr::select(bio, loc_id, date, trip_id, new_trip_id, site_name, site_id,
+                     bay_location, species_name, sex, field_length_mm, 
+                     lab_length_mm, notes)
+
+# Fix data types
+bio$site_name <- as.factor(bio$site_name)
+bio$bay_location <- as.factor(bio$bay_location)
+
+# Fix species names
+bio$species_name[bio$species_name == "pipefish"] <- 'northern pipefish'
+bio$species_name[bio$species_name == "sand lance"] <- 'sandlance'
+bio$species_name[bio$species_name == "silverside"] <- 'atlantic silverside'
+
+bio$species_name[bio$species_name == "sculpin"] <- 'unID sculpin'
+bio$species_name[bio$species_name == 'sturgeon'] <- 'unID sturgeon'
+bio$species_name <- as.factor(bio$species_name)
+
+# Remove instances of no catch
+bio <- bio[bio$species_name %notin% c('no fish', 'no catch'),]
+
+# Fix sex
+bio$sex <- as.factor(bio$sex)
+
+# Remove information on fish with no lengths
+for(i in 1:nrow(bio)){
+  if(is.na(bio$field_length_mm[i]) & is.na(bio$lab_length_mm[i])){
+    bio$notes[i] <- 'Sample lost'
+  }
+}
+bio$notes <- as.factor(bio$notes)
+bio <- bio[bio$notes %notin% c('Sample lost'),]
+
+# Finalize length information - if both lab and field measurements exist, use lab
+for(i in 1:nrow(bio)){
+  if(!is.na(bio$field_length_mm[i]) & is.na(bio$lab_length_mm[i])){
+    bio$length_mm[i] <- bio$field_length_mm[i]
+  }
+  if(!is.na(bio$lab_length_mm[i]) & is.na(bio$field_length_mm[i])){
+    bio$length_mm[i] <- bio$lab_length_mm[i]
+  }
+  if(!is.na(bio$field_length_mm[i]) & !is.na(bio$lab_length_mm[i])){
+    bio$lab_length_mm[i] <- bio$lab_length_mm[i]
+  }
+}
+
+# Finalize dataframe
+bio <- dplyr::select(bio,
+                     loc_id, date, site_name, site_id, bay_location, 
+                     species_name, sex, length_mm, notes)
+bio <- bio[!is.na(bio$species_name),]
+
+data.2022$fish <- bio
+rm(bio)
+
+#### Abundance information ####
+abund <- data.2022$abundance
+
+# Remove anything that doesn't have a trip_id in the trips dataframe
+abund <- abund[abund$trip_id %in% data.2022$trips$trip_id,]
+abund <- abund[!is.na(abund$trip_id),]
+
+# Assign site_name and location info
+abund <- left_join(abund, dplyr::select(data.2022$trips, trip_id, new_trip_id,
+                                    loc_id, site_name, site_id, bay_location,
+                                    date),
+                 by=c('trip_id'))
+
+# Re-order
+abund <- dplyr::select(abund, loc_id, date, trip_id, new_trip_id, site_name, 
+                       site_id, bay_location, 
+                       species_name, catch)
+abund <- abund[complete.cases(abund),]
+
+# Fix data types
+abund$site_name <- as.factor(abund$site_name)
+abund$bay_location <- as.factor(abund$bay_location)
+
+# Coerce non-numerics to numerics
+abund$catch <- as.numeric(abund$catch)
+
+# Fix species names
+abund$species_name[abund$species_name == "pipefish"] <- 'northern pipefish'
+abund$species_name[abund$species_name == "sand lance"] <- 'sandlance'
+abund$species_name[abund$species_name == "silverside"] <- 'atlantic silverside'
+abund$species_name[abund$species_name == 'squid'] <- 'shortfin squid'
+
+abund$species_name[abund$species_name == "sculpin"] <- 'unID sculpin'
+abund$species_name[abund$species_name == 'sturgeon'] <- 'unID sturgeon'
+abund$species_name <- as.factor(abund$species_name)
+
+# Finalize
+abund <- dplyr::select(abund, -trip_id, -new_trip_id)
+data.2022$abundance <- abund
+rm(abund)
+
+#str(data.2022$sites)
+#str(data.2022$trips)
+data.2022$trips$site_name <- as.factor(data.2022$trips$site_name)
+data.2022$trips$bay_location <- as.factor(data.2022$trips$bay_location)
+data.2022$trips <- dplyr::select(data.2022$trips, -trip_id, -new_trip_id)
+#str(data.2022$fish)
+#str(data.2022$abundance)
+
+
+```
+
+```{r abundcheck, echo=F, results='hide'}
+#### Present in biological information but not in abundance ####
+# 2014
+as.character(data.2014$fish$species_name[data.2014$fish$species_name %notin%
+                              data.2014$abundance$species_name])
+date.check <- unique(data.2014$fish$loc_id[data.2014$fish$species_name == 
+                                      "shortnose sculpin"])
+data.2014$abundance[data.2014$abundance$loc_id == paste0(date.check),]
+# So this is a typo. What is in the biological data as "shortnose" should actually
+# be "shorthorn".
+data.2014$fish$species_name[data.2014$fish$species_name == "shortnose sculpin"] <- 
+  "shorthorn sculpin"
+
+date.check <- unique(data.2014$fish$loc_id[data.2014$fish$species_name == 
+                                      "unID stickleback"])
+data.2014$abundance[data.2014$abundance$loc_id == paste0(date.check[1]),]
+data.2014$abundance[data.2014$abundance$loc_id == paste0(date.check[2]),]
+# This is also a typo. unID stickleback here should be threespine stickleback.
+data.2014$fish$species_name[data.2014$fish$species_name == "unID stickleback"] <- 
+  "threespine stickleback"
+data.2014$fish$species_name <- droplevels(data.2014$fish$species_name)
+
+# 2022
+as.character(data.2022$fish$species_name[data.2022$fish$species_name %notin%
+                              data.2022$abundance$species_name])
+# No typos like this.
+
+#### Present in abundance information but not biological ####
+as.character(data.2014$abundance$species_name[data.2014$abundance$species_name %notin%
+                              data.2014$fish$species_name])
+# This makes sense, we cannot measure sturgeon and probably didn't have a preferred
+# method of measuring periwinkle.
+
+as.character(data.2022$abundance$species_name[data.2022$abundance$species_name %notin%
+                              data.2022$fish$species_name])
+# Yeah same here, we're missing some horseshoe crabs and sturgeon.
+```
+
+```{r combination}
+# Create blank list to collate data
+data.all <- vector(mode="list", length = 5)
+# Name list items
+names(data.all) <- c('sites', 'species', 'trips', 'fish', 'abundance')
+
+#### Sites ####
+# Merge information from both data lists, save in combined data list
+data.all$sites <- rbind(data.2014$sites, data.2022$sites)
+data.all$sites <- unique(data.all$sites)
+
+#### Species ####
+data.all$species <- rbind(data.2014$species, data.2022$species)
+data.all$species <- unique(data.all$species)
+data.all$species <- data.all$species[data.all$species$common_name %notin%
+                                       c('Add new species found in September',
+                                         'Add Plankton'),]
+data.all$species$ID <- NULL
+data.all$species$common_name[data.all$species$common_name == "pogy"] <- 
+  'atlantic menhaden'
+
+data.all$species <- data.all$species[with(data.all$species,
+                                          order(common_name)),]
+rownames(data.all$species) <- NULL
+
+#### Trips ####
+data.all$trips <- rbind(data.2014$trips, data.2022$trips)
+#nrow(data.all$trips)
+#length(unique(data.all$trips$loc_id))
+# There's one duplicate. Find and remove
+#data.all$trips[data.all$trips$loc_id == "2017_042_08",]
+# Can't tell why this was done. Remove both and any associated data in other tabs.
+data.all$trips <- data.all$trips[data.all$trips$loc_id != "2017_042_08",]
+
+#### Biological information ####
+data.all$fish <- rbind(data.2014$fish, data.2022$fish)
+data.all$fish <- data.all$fish[data.all$fish$loc_id != "2017_042_08",]
+
+#### Abundance ####
+data.all$abundance <- rbind(data.2014$abundance, data.2022$abundance)
+data.all$abundance <- data.all$abundance[data.all$abundance$loc_id != "2017_042_08",]
+
+```
+
+## Site information
+The `sites` tab includes site name and geospatial location information (lat-lon, UTM northing-easting) for each sampling location. There are 13 potential sites in the greater Portland area of the survey. These are grouped into categories based on proximity to open ocean- "Inner Bay" being within the Presumpscot River region, "Mid-Bay" being north of Portland, and "Outer Bay" being closest to open ocean. We will plot these locations.
+
+```{r portland-siteplots, message=F, warning=F}
+data.all$sites <- dplyr::select(data.all$sites,
+                                site_name, latitude, longitude, bay_location)
+data.all.goodcoords <- data.all$sites[complete.cases(data.all$sites),]
+# Convert to sf (spatial features) object
+sites.sf <- st_as_sf(data.all.goodcoords, coords=c('longitude', 'latitude'))
+# Set CRS (coordinate reference system)
+st_crs(sites.sf) <- "EPSG:4326"
+colnames(sites.sf) <- c('Site name', 'Bay location', 'geometry')
+# Call coastline shapefile
+coast <- st_read(here("GIS/us_medium_shoreline_poly.shp"), quiet=T)
+coast <- st_transform(coast, st_crs(sites.sf))
+# Plot
+ggplot() +
+  geom_sf(data=coast, fill='gray') +
+  geom_sf(data=sites.sf, cex=1.1,
+          aes(col=`Bay location`)) +
+  coord_sf(xlim=c(-70.35, -70.15),
+           ylim=c(43.55, 43.75)) +
+  theme(axis.text.x = element_text(angle = 45, vjust=0.6))
+
+rm(sites.sf, data.all.goodcoords, coast, date.check, i, bay_locations)
+```
+
+\newpage
+
+## Data exploration 
+We will take the clean dataset and do some quick analysis and visualizations. This is always an important step for the start of a project; it helps to make sure your cleaning process went as planned, there are no obvious data gaps that will hinder your progress, and can even showcase any clear trends that may make for an interesting story.
+
+### Most-encountered species
+
+We will start by determining the top 8 species with the highest encounter ratio-- number of encounters divided by total number of net hauls. This metric gives us more information than just total abundance OR raw number of encounters. Raw number of encounters does not account for varying number of sampling events year-to-year. Total abundance does not take into account the behavioral aspect of schooling fish. We want to know what species we're most likely to pull up in the seine while accounting for these factors. 
+
+```{r find-top8, fig.pos= 'H'}
+#### Assign week/month/year ####
+data.all$trips$week <- lubridate::isoweek(data.all$trips$date)
+data.all$trips$month <- lubridate::month(data.all$trips$date)
+data.all$trips$year <- lubridate::year(data.all$trips$date)
+
+data.all$fish$week <- lubridate::isoweek(data.all$fish$date)
+data.all$fish$month <- lubridate::month(data.all$fish$date)
+data.all$fish$year <- lubridate::year(data.all$fish$date)
+
+data.all$abundance$week <- lubridate::isoweek(data.all$abundance$date)
+data.all$abundance$month <- lubridate::month(data.all$abundance$date)
+data.all$abundance$year <- lubridate::year(data.all$abundance$date)
+
+#### Call data ####
+abund <- data.all$abundance
+bio <- data.all$fish
+
+#### Most often encountered fish by percentage ####
+fishenc2 <- as.data.frame(table(abund$species_name))
+colnames(fishenc2) <- c('species_name', 'encounter_prct')
+fishenc2$encounter_prct <- fishenc2$encounter_prct /
+  nrow(data.all$trips)
+fishenc2$encounter_prct <- round(fishenc2$encounter_prct * 100, 1)
+fishenc2 <- fishenc2[with(fishenc2, order(encounter_prct, decreasing=TRUE)),]
+rownames(fishenc2) <- NULL
+fishenc2 <- fishenc2[1:8,]
+fishenc2 %>%
+  kable(caption = "Top 8 most abundant fish by encounter percentage",
+        col.names = c('Species', 'Encounter ratio')) %>%
+  row_spec(0, background="black", color="white") %>% 
+  kable_styling(latex_options = "HOLD_position")
+
+#### Top 8 fish by encounter percentage ####
+top8.abund <- abund[abund$species_name %in%
+                      c('atlantic herring',
+                        'atlantic silverside', 
+                        'mummichog',
+                        'alewife',
+                        'sandlance',
+                        'green crab',
+                        'winter flounder',
+                        'tomcod'),]
+top8.abund$species_name <- droplevels(top8.abund$species_name)
+
+top8.bio <- bio[bio$species_name %in%
+                  unique(top8.abund$species_name),]
+top8.bio$species_name <- droplevels(top8.bio$species_name)
+
+rm(fishenc2)
+```
+
+\newpage
+
+### Encounter ratios 
+
+Next, we will plot the encounter ratios for every species across bay location, year, month, and week of year categories.
+
+```{r week-pctplot}
+#### Encounter percentage per week/month/year/bay_location ####
+trip <- data.all$trips
+
+week.enc <- as.data.frame(table(top8.abund$species_name, top8.abund$week))
+colnames(week.enc) <- c('species_name', 'week', 'encounter')
+week.num <- as.data.frame(table(trip$week))
+colnames(week.num) <- c('week', 'n_samples')
+week.enc <- left_join(week.enc, week.num, by=c('week'))
+week.enc$pres <- (week.enc$encounter / week.enc$n_samples)
+week.enc$abs  <- 1 - week.enc$pres
+
+ggplot(week.enc, aes(x= week,  group=species_name)) + 
+    geom_bar(aes(y = pres), stat="identity") +
+    labs(y = "Percent", fill="day") +
+    facet_wrap(vars(species_name),
+               ncol=2) +
+    ylim(c(0,1)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(
+       x='Week of year',
+       y='Encounter ratio')
+```
+
+```{r month-pctplot}
+month.enc <- as.data.frame(table(top8.abund$species_name, top8.abund$month))
+colnames(month.enc) <- c('species_name', 'month', 'encounter')
+month.num <- as.data.frame(table(trip$month))
+colnames(month.num) <- c('month', 'n_samples')
+month.enc <- left_join(month.enc, month.num, by=c('month'))
+month.enc$pres <- (month.enc$encounter / month.enc$n_samples)
+month.enc$abs  <- 1 - month.enc$pres
+
+ggplot(month.enc, aes(x= month,  group=species_name)) + 
+    geom_bar(aes(y = pres), stat="identity") +
+    labs(y = "Percent", fill="day") +
+    facet_wrap(vars(species_name),
+               ncol=2) +
+    ylim(c(0,1)) +
+  #theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x='Month',
+       y='Encounter ratio')
+```
+
+```{r year-pctplot}
+year.enc <- as.data.frame(table(top8.abund$species_name, top8.abund$year))
+colnames(year.enc) <- c('species_name', 'year', 'encounter')
+year.num <- as.data.frame(table(trip$year))
+colnames(year.num) <- c('year', 'n_samples')
+year.enc <- left_join(year.enc, year.num, by=c('year'))
+year.enc$pres <- (year.enc$encounter / year.enc$n_samples)
+year.enc$abs  <- 1 - year.enc$pres
+
+ggplot(year.enc, aes(x= year,  group=species_name)) + 
+    geom_bar(aes(y = pres), stat="identity") +
+    labs(y = "Percent", fill="day") +
+    facet_wrap(vars(species_name),
+               ncol=2) +
+    ylim(c(0,1)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(y='Encounter ratio',
+       x='Year') 
+```
+
+```{r bay-pctplot}
+bay_location.enc <- as.data.frame(table(top8.abund$species_name, top8.abund$bay_location))
+colnames(bay_location.enc) <- c('species_name', 'bay_location', 'encounter')
+bay_location.num <- as.data.frame(table(trip$bay_location))
+colnames(bay_location.num) <- c('bay_location', 'n_samples')
+bay_location.enc <- left_join(bay_location.enc, bay_location.num, by=c('bay_location'))
+bay_location.enc$pres <- (bay_location.enc$encounter / bay_location.enc$n_samples)
+bay_location.enc$abs  <- 1 - bay_location.enc$pres
+
+ggplot(bay_location.enc, aes(x= bay_location,  group=species_name)) + 
+    geom_bar(aes(y = pres), stat="identity") +
+    labs(y = "Percent", fill="day") +
+    facet_wrap(vars(species_name),
+               ncol=2) +
+    ylim(c(0,1)) +
+  #theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x='Bay location',
+       y='Encounter ratio')
+
+rm(month.enc, month.num, week.enc, week.num, year.enc, year.num,
+   bay_location.enc, bay_location.num)
+
+```
+
+\newpage
+
+### Abundance periods
+
+We can plot the abundance of each species over the survey period for each year. This will highlight any obvious trends in residence time.
+
+```{r reshape-abundance, message=F, warning=F}
+#### Assign top 8 abundance to every trip ####
+trip <- data.all$trips
+
+for(i in 1:length(unique(top8.abund$species_name))){
+  spec.use <- unique(top8.abund$species_name)[i]
+  spec.catch <- subset(top8.abund, species_name == paste0(spec.use))
+  spec.catch <- dplyr::select(spec.catch, loc_id, catch)
+  colnames(spec.catch) <- c('loc_id', paste0(spec.use))
+  trip <- left_join(trip, spec.catch, by=c("loc_id"))
+  rm(spec.use, spec.catch)
+}
+
+# Replace NA with 0 for catch info
+for(i in 1:nrow(trip)){
+  for(j in 17:ncol(trip)){
+    if(is.na(trip[i, j])){
+      trip[i,j] <- 0
+    }
+  }
+}
+
+# Make another version
+trip2 <- melt(trip,
+  id.vars = c("date"),
+  measure.vars = c("green crab", "tomcod", "winter flounder",
+                   "sandlance", "mummichog", "atlantic silverside",
+                   "alewife", "atlantic herring"),
+  variable.name = "Species", value.name = "Abundance"
+)
+
+trip2 <- trip2 %>% 
+  group_by(date, Species) %>% 
+  summarise(catch = sum(Abundance))
+
+trip2 <- as.data.frame(trip2)
+
+trip2$week <- lubridate::isoweek(trip2$date)
+trip2$month <- lubridate::month(trip2$date)
+trip2$year <- lubridate::year(trip2$date)
+
+blanks <- data.frame(
+  species = unique(trip2$Species),
+  week = NA,
+  year = NA
+)
+
+weeks <- seq(22, 39)
+years <- seq(2014, 2022)
+
+for(i in 1:length(weeks)){
+  blanks2 <- data.frame(
+    species = unique(trip2$Species),
+    week = rep(weeks[i], length(unique(trip2$Species))),
+    year = 2014
+  )
+  blanks <- rbind(blanks, blanks2)
+}
+
+blanks <- blanks[complete.cases(blanks),]
+
+for(i in 1:length(years)){
+  blanks2 <- blanks
+  blanks2$year <- years[i]
+  
+  blanks <- rbind(blanks, blanks2)
+  
+}
+
+blanks <- unique(blanks)
+
+trip2 <- dplyr::select(trip2,
+                       Species, catch, week, year)
+colnames(trip2)[1] <- 'species'
+blanks <- left_join(blanks, trip2, by=c('species', 'week', 'year'))
+
+rm(blanks2, trip2, i, j, weeks, years)
+```
+
+```{r, fig.width=10,fig.height=11, warning=F, message=F}
+ggplot(data = blanks) +
+  geom_raster(aes(y = as.factor(year), x = week, 
+                  fill=log(catch + 1)
+                  )) +
+  scale_fill_viridis_c(na.value = NA,
+                       ) +
+  facet_wrap(vars(species),
+             ncol=2) +
+  labs(x = 'Week of year',
+       y = 'Year')
+```
+
+\newpage
+
+### Size
+
+Next, we'll see if we can track growth of our most-encountered species by plotting lengths of sub-sampled individuals by week of the year.
+
+Honestly, the resulting plots look pretty terrible. It is likely that species with no clear growth over the summer period are constantly recruiting new individuals to the gear (spawning, and the babies take a few weeks to be big enough to be caught by the net). This looks to be the case for green crabs in particular.
+
+It's also possible that species with rapid declines in average length from early summer to mid summer are mixed cohorts-- older individuals have overwintered in the nearshore area, are immediately available to the gear in June, and then it appears as though average size drops dramatically when the young-of-year cohort recruits to the gear in July. This is clearly what we see for alewife in a few years.
+
+It would be beneficial to separate cohorts during analysis, if we want to look at growth rates. As is, we are still exploring and we'll keep them for now.
+
+```{r length-week, warning=F, message=F}
+#### Length ####
+for(i in 1:length(unique(top8.bio$species_name))){
+  spec.use <- unique(top8.bio$species_name)[i]
+  spec.use <- subset(top8.bio,
+                     top8.bio$species_name == paste0(spec.use))
+  spec.use$month <- as.factor(spec.use$month)
+  
+  p <- ggplot(data=spec.use) +
+    geom_point(data=spec.use,
+                   aes(y=length_mm, x=(week))) +
+    facet_wrap(vars(year),
+               ncol=2) +
+    ggtitle(paste0(spec.use$species_name[1], 
+                   ' lengths (mm)')) +
+    labs(y='Length (mm)',
+         x='Week of year') +
+    geom_smooth(data=spec.use,
+                aes(y=length_mm, x=(week)))
+  
+  plot(p)
+  
+  rm(p, spec.use)
+  
+}
+```
+
+
