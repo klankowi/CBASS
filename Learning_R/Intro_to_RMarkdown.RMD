@@ -84,7 +84,6 @@ We can determine the number of respondents who smoke using a table, like this. I
 
 ```{r smokertable}
 table(cdc$smoke100)
-
 ```
 
 Let's say we want to look at the proportion of smokers to non-smokers. This would be equal to dividing the number of smokers by the population size (20,000 respondents) and the number of non-smokers by the population size. 
@@ -96,6 +95,8 @@ table(cdc$smoke100) / nrow(cdc)
 If we want to show the breakdown of smokers by gender, we can make a two-way table.
 ```{r twoway-table}
 table(cdc$gender, cdc$smoke100)
+
+table(cdc$gender)
 ```
 
 \newpage
