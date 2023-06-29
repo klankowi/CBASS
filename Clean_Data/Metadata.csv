@@ -1,0 +1,44 @@
+Sheet,Variable,Explanation
+Sites,site_name,Name of site
+,latitude,"Latitude, decimal degrees"
+,longitude,"Longitude, decimal degrees"
+,bay_location,"Location inside Casco Bay, categorical: Inner, Mid, Outer"
+Trips,loc_id,Unique identifier of station and day. Year_tripnumber_sitenumber
+,year,"Year, 2014-2022 (excluding 2019)"
+,date,Date
+,site_id,Site ID number
+,site_name,Name of site
+,bay_location,"Location inside Casco Bay, categorical: Inner, Mid, Outer"
+,substrate,"Substrate type: gravel, mud, sand, etc."
+,set_time,Time net went out of boat
+,weather,"Weather conditions: cloudy, sunny, etc."
+,temp_degc,"Surface water temp, degrees C"
+,do_mg/l,"Surface water dissolve oxygen content, milligrams per liter"
+,salinity_ppt,"Surface water salinity, parts per thousand"
+,hermit_crabs,"Hermit crabs: absent (0), present (1)"
+,shrimp,"Shrimp: absent (0), low abundance (1) … high abundance (3)"
+,notes,Notes about net set conditions or surrounding environment
+,week,Week of year
+,month,Month of year
+Bio_inf,loc_id,Unique identifier of station and day. Year_tripnumber_sitenumber
+,date,Date
+,site_name,Name of site
+,site_id,Site ID number
+,bay_location,"Location inside Casco Bay, categorical: Inner, Mid, Outer"
+,species_name,Species common name
+,sex,"Sex, only used for green crabs. Male/Female"
+,length_mm,Total length of organism
+,notes,Notes on organism
+,week,Week of year
+,month,Month of year
+,year,"Year, 2014-2022 (excluding 2019)"
+Abundance,loc_id,Unique identifier of station and day. Year_tripnumber_sitenumber
+,date,Date
+,site_name,Name of site
+,site_id,Site ID number
+,bay_location,"Location inside Casco Bay, categorical: Inner, Mid, Outer"
+,species_name,Species common name
+,catch,Number of conspecifics caught in haul
+,week,Week of year
+,month,Month of year
+,year,"Year, 2014-2022 (excluding 2019)"
