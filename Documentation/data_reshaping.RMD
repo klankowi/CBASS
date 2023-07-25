@@ -1,0 +1,215 @@
+---
+title: "Diversity Indices"
+author: "Katie Lankowicz"
+date: "2023-07-05"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning= FALSE)
+```
+
+```{r libraries}
+# Clear workspace
+rm(list=ls())
+
+# Load packages
+# Please remember that you will need to install these packages, since it is
+# unlikely you already have them. Use this syntax IN THE CONSOLE, NOT HERE IN 
+# THE TEXT FILE.
+# install.packages("reprex")
+library(reprex, quietly=T, verbose=F)
+suppressPackageStartupMessages(library(tidyverse, quietly=T, verbose=F))
+#suppressPackageStartupMessages(library(readxl, quietly=T, verbose=F))
+suppressPackageStartupMessages(library(here, quietly=T, verbose=F))
+#suppressPackageStartupMessages(library(padr, quietly=T, verbose=F))
+#suppressPackageStartupMessages(library(zoo, quietly=T, verbose=F))
+#suppressPackageStartupMessages(library(sf, quietly=T, verbose=F))
+suppressPackageStartupMessages(library(vegan, quietly=T, verbose=F))
+#suppressPackageStartupMessages(library(kableExtra, quietly=T, verbose=F))
+suppressPackageStartupMessages(library(reshape2, quietly=T, verbose=F))
+#suppressPackageStartupMessages(library(marmap, quietly=T, verbose=F))
+#suppressPackageStartupMessages(library(raster, quietly=T, verbose=F))
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+
+# Set GGplot auto theme
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', linewidth=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=12),
+                axis.text.y=element_text(size=12),
+                axis.title.x=element_text(size=14),
+                axis.title.y=element_text(size=14, angle=90, vjust=2),
+                plot.title=element_text(size=14, hjust = 0, vjust = 1.2),
+                plot.caption=element_text(hjust=0, face='italic', size=12)))
+```
+
+## Motivation
+
+This document serves as an example for how to reshape field data to quantify biodiversity in each net haul for CBASS. We will calculate two indices: Shannon and Simpson. The Shannon index is defined as S-WI = -sum(p_i_) * ln(p_i_), or the sum of the proportion of the entire community made up of species i multiplied by the natural log of the proportion of the entire community made up of species i. High Shannon index values indicate high biodiversity. An index value of 0 indicates that a community only has one species. The index is sensitive to rare species, and is generally better at providing quantitative measures of species richness. Shannon assumes random sampling and that all species are represented in each net haul, which is likely a poor assumption for shore-based seines that occur in different habitats of Casco Bay. 
+
+The second diversity index is the Simpson index. This index is defined as 1 - sum(p_i_)^2, or 1 minus the sum of the proportion of the entire community made up of species i squared. The index will range between 0 and 1, with 0 indicating no diversity and 1 indicating infinite diversity. The Simpson index is not as sensitive to rare species, and does a better job of quantifying relative abundance.
+
+## Data loading
+
+Before calculating the indices, the data need to be loaded. We also need to determine which species were caught in at least one seine haul of the 509 seine hauls that caught fish.
+
+```{r dataloading}
+# Load data
+trips <- read.csv(here('Clean_Data/trips_cleaned.csv'))
+abund <- read.csv(here('Clean_Data/abundance_cleaned.csv'))
+
+# Determine which species have been caught
+# Create a table that shows number of net hauls in which each species was seen
+table(abund$species_name)
+
+# Create a vector of species names which were seen at least once in CBASS seine
+species <- unique(abund$species_name)
+```
+
+## Data reshaping
+
+Now the data need to be merged and reshaped. Currently, the abundance dataframe has a row for each species caught in each seine haul. We want to reshape this so we have one row for each seine haul, and each species is represented as its own column.
+
+```{r reshaping}
+# Pull apart abundance info
+abund.list <- split(abund, f=abund$loc_id)
+# Should be a list of length 509-- this is the number of sites sampled in which we caught fish.
+
+# Make blank df to copy all species abundance for each site
+outer.blank <- matrix(nrow=1, ncol=(8 + length(species)))
+outer.blank <- as.data.frame(outer.blank)
+# Force column names to match trip information and species names
+colnames(outer.blank) <- c('loc_id', 'date', 'site_name', 'site_id', 'bay_location',
+                        'week', 'month', 'year', species)
+
+# Outer loop- looking through each seine haul
+for(i in 1:length(abund.list)){
+  # Pull out seine haul
+  temp <- abund.list[[i]]
+  # Save temporary dataframe
+  blank.df <- outer.blank 
+  # Save static information in temporary dataframe
+  blank.df$loc_id <- temp$loc_id[1]
+  blank.df$date <- temp$date[1]
+  blank.df$site_name <- temp$site_name[1]
+  blank.df$site_id <- temp$site_id[1]
+  blank.df$bay_location <- temp$bay_location[1]
+  blank.df$week <- temp$week[1]
+  blank.df$month <- temp$month[1]
+  blank.df$year <- temp$year[1]
+  
+  # Inner loop- looking through each species caught (within each seine haul)
+  for(j in 1:length(species)){
+    # If that species was caught, copy over abundance information
+    if(species[j] %in% temp$species_name){
+      temp2 <- subset(temp, temp$species_name == paste0(species[j]))
+      blank.df[,paste0(species[j])] <- temp2$catch
+      rm(temp2)
+    }
+    # If that species was not caught, set abundance to 0
+    if(species[j] %notin% temp$species_name){
+      blank.df[,paste0(species[j])] <- 0
+    }
+  }
+  
+  # Bind altered dataframe back to list
+  abund.list[[i]] <- blank.df
+  # Remove temporary dataframes
+  rm(temp, blank.df)
+}
+
+# Rebind to df
+abund2 <- do.call(rbind, abund.list)
+rownames(abund2) <- NULL
+
+# Merge other trip information
+trips <- dplyr::select(trips, loc_id, substrate, do_mg.l, salinity_ppt,
+                       temp_degc)
+abund2 <- left_join(abund2, trips, 
+                    by=c('loc_id'))
+
+```
+
+## Diversity index calculation
+
+That was the hard part. Now that the data have been reshaped, we can calculate our diversity indices. There is a built-in function for this within the `vegan` package.
+
+```{r}
+# Calculate Shannon index using all species abundance information
+abund2$shannon <- vegan::diversity(abund2[,9:61],
+                                   index='shannon')
+# Calculate Simpson index using all species abundance information
+abund2$simpson <- vegan::diversity(abund2[,9:61],
+                                   index='simpson')
+
+```
+
+## Models
+
+Eventually, we will use this information to build a Generalized Additive Model to test the relationship between green crab abundance and species diversity. For now, we will check some model assumptions and do some less-complicated test models to confirm that we have enough data to address our research questions.
+
+### Assumptions
+
+For a linear model, there are four major assumptions that must be met. Call your variables X (indepenent variable) and Y (dependent variable). These assumptions are:
+
+Linearity: The relationship between X and the mean of Y is linear.
+Homoscedasticity: The variance of residuals is the same for any value of X.
+Independence: Observations are independent of each other.
+Normality: For any fixed value of X, Y is normally distributed.
+
+Let's check this now. The X variable will be the catch of green crabs and the Y variable will be the Shannon index.
+
+```{r assumptions}
+# Check the distribution of X and Y 
+qqplot(abund2$`green crab`, abund2$shannon)
+hist(abund2$`green crab`, breaks=c(seq(0, 300, 5)))
+hist(abund2$shannon)
+plot(abund2$`green crab`, abund2$shannon)
+
+# There are clearly issues. Let's try a transformation to meet normality and linearity.
+# Use function transformTukey from rcompanion package to determine the best transformation
+# for the data (get it closest to normality) using Tukey's Law of Powers.
+abund2$logcrab <- rcompanion::transformTukey(abund2$`green crab`)
+abund2$logshannon <- rcompanion::transformTukey(abund2$shannon)
+
+# Check the distribution of X and Y
+qqplot(abund2$logcrab, abund2$logshannon)
+hist(abund2$logcrab, breaks=c(seq(0, 6, 0.1)))
+hist(abund2$logshannon, breaks=c(seq(0, 1.6, 0.1)))
+plot(abund2$logcrab, abund2$shannon)
+
+```
+
+There are clearly violations of assumptions here, but we'll continue with the exercise anyway.
+
+## Linear models
+
+We'll use our transformed data to build a linear model that relates green crab abundance to Shannon diversity indices at each of our sites.
+
+```{r linearmodels}
+crabmodel <- lm(logshannon ~ logcrab, data=abund2)
+crabmodel
+summary(crabmodel)
+plot(crabmodel)
+```
+
+This is a bad model! We already knew the assumptions were likely to be violated due to the weird distributions of both the green crab catch and the Shannon diversity index. The model results indicate that green crab abundance explains only 11% of the variance in Shannon diversity index (this is the R-squared value). The plots show the residuals have unequal variance along the range of X values. Let's try adding a few more terms to see what happens.
+
+```{r newmodel}
+crabmodel2 <- lm(logshannon ~ logcrab + temp_degc + salinity_ppt + do_mg.l,
+                 data=abund2)
+crabmodel2
+summary(crabmodel2)
+plot(crabmodel2)
+```
+
+That didn't help very much. In fact, the model summary indicates that temperature and salinity do not contribute anything of value to the model (note that the Pr(>|t|) column gives them both high t-scores, so they aren't significant). We can remove them. However, we didn't add much explanatory power to the model by using dissolved oxygen as another independent variable. Maybe this is because we do not have DO values for 176 of our 509 seine hauls.
+
+At any rate, this is the rough process we will follow later on. We will use a more flexible model (Generalized Additive Model) that will relax some of the strict assumptions of a linear model. We will also test other potential covariates for inclusion.

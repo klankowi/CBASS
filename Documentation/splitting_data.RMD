@@ -1,0 +1,243 @@
+---
+title: "Splitting data by site"
+author: "Katie Lankowicz"
+date: "2023-07-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning= FALSE)
+```
+
+```{r libraries}
+# Clear workspace
+rm(list=ls())
+
+# Load packages
+library(tidyverse)
+library(here)
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+
+# Set GGplot auto theme
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', linewidth=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=12),
+                axis.text.y=element_text(size=12),
+                axis.title.x=element_text(size=14),
+                axis.title.y=element_text(size=14, angle=90, vjust=2),
+                plot.title=element_text(size=14, hjust = 0, vjust = 1.2),
+                plot.caption=element_text(hjust=0, face='italic', size=12)))
+```
+
+## Motivation
+
+This document serves as an example for how to split field data by site, or any other variable in which you are interested. You can choose to either keep these data separate in R alone, or re-save as separate .csv files.
+
+## Data loading
+
+We have previously interacted with the trips_cleaned file and abundance_cleaned file to create the Diversity_Index_Calculation file. We will load all three files.
+
+```{r dataloading}
+# Load data
+trips <- read.csv(here('Clean_Data/trips_cleaned.csv'))
+abund <- read.csv(here('Clean_Data/abundance_cleaned.csv'))
+diversity <- read.csv(here('Clean_Data/Diversity_Index_Calculation.csv'))
+
+```
+
+## Data merging
+
+We have so much information encapsulated across these three files. To make things easier for ourselves, we will create a master file that has only the information we care about. Fow now, we'll say that we care about our two diversity indices (Shannon and Simpson), the environmental variables for each site (temperature, salinity, dissolved oxygen, and substrate type), the site name, the temporal characteristics (year sampled, month of year sampled, week of year sampled), the spatial characteristics (location in bay-- inner, middle, or outer), and the number of individuals caught for our top 8 species (green crab, alewife, herring, silverside, mummichog, winter flounder, tomcod, and sandlance). We will also keep the loc_ID column, as this will help us merge more data in the future if we want to; this will probably happen in the near future when I fix and re-add the tides information.
+
+Turns out, we saved all these data within the Diversity_Index_Calculation file. Let's use the `select` function from the `dplyr` package (loaded when we loaded `tidyverse`, which is a collection of commonly-used packages) to keep only these variables and remove the rest.
+
+```{r reshaping}
+# Check column names of diversity dataset
+colnames(diversity)
+
+# Extract only the variables we care about
+newdata <- dplyr::select(diversity,                      # The name of the dataframe
+                         loc_id,                         # Sample ID
+                         site_name, bay_location,        # Spatial information
+                         year, month, week,              # Temporal information
+                         green.crab, tomcod,             # Top 8 species
+                         winter.flounder, sandlance,     # Top 8 species
+                         mummichog, atlantic.silverside, # Top 8 species 
+                         alewife, atlantic.herring,      # Top 8 species
+                         shannon, simpson,               # Diversity indices
+                         substrate, do_mg.l,             # Environmental information
+                         salinity_ppt, temp_degc         # Environmental information
+                         )
+
+# View result
+glimpse(newdata)
+
+```
+
+## Checking a variable by site
+
+You're interested in looking at the number of crabs found at each site. Let's make a some plots and do some testing to see if there is a difference. Keep in mind these very simple models DO NOT ACCOUNT FOR VARIANCE CAUSED BY ANY OTHER POTENTIAL EXPLANATORY VARIABLES. Clearly, the abundance of crabs will rely not only on site (which is an indicator of spatial variation, as the sites are at different and separated locations), but probably also on temperature, substrate, etc.
+
+### Plotting
+
+Start by making a boxplot to check the distribution of your response variable across the range of explanatory variables. In this case, response variable is number of crabs and explanatory variable is the site name.
+
+```{r crabspersite-boxplot}
+# Make a table of results-- characterize crabs by site
+crabtable <- newdata %>%
+  group_by(site_name) %>%                         # Group results by site
+  summarise(times_sampled = n(),                  # Count number of times we visited each site
+            min.crab = min(green.crab),           # Minimum number of crabs caught
+            q1.crab = quantile(green.crab, 0.25), # 1st quartile
+            mean.crab = mean(green.crab),         # Mean
+            median.crab = median(green.crab),     # Median
+            q3.crab = quantile(green.crab, 0.75), # 3rd quartile
+            max.crab = max(green.crab)            # Maximum number of crabs caught
+            )
+crabtable
+
+# Make a histogram for each site
+ggplot(newdata, aes(x=green.crab)) +
+  geom_histogram() +
+  labs(x="Number of crabs", y='Frequency', title="Crabs per site") +
+  facet_wrap(~site_name,
+             scales = 'free') 
+
+# Scales = "free" means we let the x and y axes vary in range.
+# The default option is to fix the axes ranges so they encompass the minimum and maximum
+# number of crabs seen at any site. This makes it hard to see the data at, for example,
+# Alewife Cove, which typically has a much lower possible range of crabs than the average site.
+# You can remove the ", scales = 'free'" part of the code and re-run to see what I mean.
+
+```
+
+It looks like we have a LOT of observations where number of crabs is low (0-3 crabs) and very FEW observations where number of crabs is high (>10 crabs). This is likely a good candidate for transformation using the natural log. 
+
+Also of note: we only have three observations at the site called The Brothers - South. This is too few observations to make robust inferences on the site. Let's just remove those three observations.
+
+```{r logtransform}
+# Filter out observations at site The Brothers - South
+# The != operator here means "does not equal." So we are subsetting to remove Brothers South.
+newdata <- subset(newdata, site_name != "The Brothers - South")
+
+# Log transform crab abundance
+# Remember that log(0) is negative infinity. We cannot plot or model with negative infinity.
+# So we add 1 to all observations to prevent this.
+newdata$log.crab <- log(newdata$green.crab + 1)
+
+# Make a new histogram plot of log-transformed crab abundance by site
+ggplot(newdata, aes(x=log.crab)) +
+  geom_histogram() +
+  labs(x="Log-transformed number of crabs", y='Frequency', title="Crabs per site") +
+  facet_wrap(~site_name,
+             scales = 'free') 
+```
+
+Ok, that looks better. Let's proceed with some hypothesis testing. Our research question is: Is there a difference in mean crab abundance at any of these 12 sites?
+
+The null hypothesis is: No, all 12 sites have the same mean crab abundance.
+The alternative hypothesis is: Yes, at least one pair of these 12 sites have significantly different crab abundance.
+
+You have probably run an ANOVA before, or ANalysis Of VAriance test. This test is a parametric method of determining difference in means among three or more groups. It requires normality, equal variance among groups, and independence of samples. We have a clear violation for the independence assumption-- we sample same 12 sites over and over again in time. We'll just ignore that for now to get a better sense of possible patterns of crab abundance in space. ANOVA can be fairly accomodating to the other two assumptions-- normality and equality of variance-- if you have a large sample size and the same number of samples per group. We have a pretty large sample size (>500 samples), but our group sizes are not equal. 
+
+Instead of an ANOVA, we will use a non-parametric method to test for a difference in means among groups. The non-parametric version of ANOVA is called Kruskal-Wallis. It does not assume normality or equal variance. The null and alternative hypotheses will be the same. Our confidence level will be 95% (0.95), and so our alpha level will be 0.05. If the p-value is less than our alpha level, we have enough evidence to reject the null hypothesis and accept the alternative hypothesis.
+
+```{r kruskalwallis}
+# Run Kruskal-Wallis test relating log-transformed abundance of crabs to site
+kruskal.test(log.crab ~ site_name, data=newdata)
+```
+
+Our p-value is very low, which means we have enough evidence to reject the null hypothesis. At least one pair of sites here has significantly differenc mean crab abundance. The difficult is, this test does not tell us WHICH sites have different means. 
+
+To make this determination, we have to run a post-hoc ("after the fact") test. The post-hoc extension for the Kruskal-Wallis test is called the Dunn test of multiple comparisons. We will use this test with Bonferroni's correction for multiple comparisons. The correction is necessary because the more pairs of means that are compared, the greater the chance that a difference between means will be found simply by chance.
+
+```{r dunntest}
+# YOU MUST INSTALL A PACKAGE HERE. DO SO IN THE CONSOLE, NOT THE TEXT EDITOR.
+# type in install.packages('FSA')
+
+# Run Dunn test
+FSA::dunnTest(newdata$log.crab, newdata$site_name,   # Input response and explanatory vars
+                     method="bonferroni",                   # Input multiple comparisons adjustment
+                     kw=TRUE,                               # Tell it to output results of KW test
+                     table=FALSE,                           # Do not create table (too messy)
+                     list=TRUE,                             # Instead, create list (easier)
+                     alpha=0.05)                            # Alpha 0.05 (Confidence 0.95)
+
+
+```
+
+The Dunn test tells us we have multiple pairs that are significantly different-- it's every pair with a star after it. We can create a boxplot of log-transformed crab abundance by site to visualize the direction of each pairwise comparison, or in other words which site in each significant pair has more crabs.
+
+```{r boxplot}
+# Create boxplot
+ggplot(newdata, aes(x=site_name, y=log.crab)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+# The line that starts with "theme" rotates x-axis labels so they don't write over each other.
+
+```
+
+Now we can check or significant pairs and see the direction of the difference. For example, the first significant pair is Alewife Cove and Audobon. It looks like Alewife Cove has significantly fewer crabs than Audobon. We could go through this by hand OR we could use another package to determine groupings of similar sites. Let's do that.
+
+```{r dunn.groups}
+# Again, you have to install a package. DO THIS IN THE CONSOLE. 
+# Type in install.packages("agricolae")
+
+d <- agricolae::kruskal(newdata$log.crab, newdata$site_name, 
+                        alpha=0.5, 
+                        p.adj='bonferroni', 
+                        group=TRUE,
+                        console=TRUE)
+
+# We are running the same test, but using a function that tells us groups.
+```
+So now we have each of our 12 sites AND a letter associated with the site. Sites with the same letter are not statistically significantly different to each other. For example, both Mackworth Island - North and Cushing Island are labelled b. They do not have different mean abundance of crabs. Notice that Audubon is labeled as bc. This means it is not siginificantly different to sites with "b" or "c" in the group, and so Audubon is similar to both Cushing Island ("b"), SMCC ("bc"), Skitterygusset ("cd"), and so on.
+
+## Saving our split results to new CSV files.
+
+If you don't want to play around in R like this yet, you can split your results by site name and then save each site to its own data object or CSV file. Let's do this now.
+
+```{r saving-separations}
+# Remove everyting but "newdata" from R environment
+rm(list=setdiff(ls(), "newdata"))
+
+# Remind yourself of site names
+table(newdata$site_name)
+
+# Split newdata by site_name and save, one by one
+alewife <- subset(newdata, site_name == "Alewife Cove")
+# Now you have an object in your environment which is all samples at Alewife cove.
+# Save this to a new csv file
+write.csv(alewife, 'alewife.csv', row.names = F)
+# It has saved to the working directory that you are currently in. Check where that is.
+getwd()
+```
+
+You can also do this quicker by making it into a list, indexing the list, and saving a CSV for each item in the list.
+
+```{r saving-lists}
+# Make list
+newlist <- split(newdata, f=newdata$site_name)
+
+# Do a for loop to save a csv for each site name
+for(i in 1:length(newlist)){
+  # Determine which site we are looking at, save
+  use.name <- newlist[[i]]$site_name[1]
+  
+  # Write csv
+  write.csv(newlist[[i]],
+            paste0(use.name, ".csv"),
+            row.names = F)
+}
+
+# This has, as a loop, created 12 separate CSV files. One for each site name.
+
+```
