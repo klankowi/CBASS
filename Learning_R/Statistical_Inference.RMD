@@ -1,0 +1,453 @@
+---
+title: "Statistical Inference"
+author: "Katie Lankowicz"
+date: "2023-07-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Libraries
+library(tidyverse)
+```
+
+## Descriptive statistics
+
+So, you have a lot of data and you can load it into R. Now what? You need to be able to understand and interpret your data to answer any hypotheses or research questions you may have. Typically, the first thing you should do is run some descriptive statistics. These include measures of central tendency, spead, and variablility-- things like mean, median, standard deviation, inter-quartile range, minimum, and maximum values. 
+
+We will practice calculating descriptive statistics on a datset called `credit`, which is a prediction of monthly credit card balance for 400 people based on a number of quantitative and categorical variables. It's hosted online for free, so we don't have to mess around with me emailing you files, setting a working directory, or using GitHub today. Begin by calling the data and taking a peek at what's inside.
+
+```{r loadcredit}
+# Call credit dataset from website that hosts it
+credit <- read.csv("http://bit.ly/33a5A8P")
+
+# View contents-- this is an alternative to the head() or tail() functions.
+glimpse(credit)
+```
+
+### Types of data
+
+We have a lot of data here. Let's talk about types of data. First, we have categorical variables. These are things like "Gender" or "Ethnicity." The examples we have of categorical data in this dataset are all _nominal categorical variables_, which means they have no clear order. The other type of categorical data is _ordinal categorical_, in which there are set levels. An example of an ordinal categorical variable would be if you binned our "Rating" category into low, medium, and high levels. There's information held in the order for ordinal categorical variables, whereas for categorical variables the order does not matter.
+
+We also have numeric variables. These are things like "Income" and "Balance." Numeric variables can be either continuous or discrete. _Continuous numeric variables_ can assume any value between two numbers-- think of temperature. If you had the best thermometer in the world, you could get down to like 10000 decimal places and exactly pinpoint how hot it is. _Discrete numeric variables_ can only take on specific numeric values. The number of crabs we have in a single trap is discrete, as a crab either exists or doesn't. Most of the numeric variables we have in this dataset are best described as discrete, as most currency systems in the world only count down to 0.01 unit, and credit ratings typically only are given as whole numbers. We don't have 0.000001 cent, nor do we have a credit rating of 500.023234. 
+
+Now that we understand what we have in this dataset, let's trim it down so it only includes the variables we want to use.
+
+```{r trimming}
+# Use the "select" function to pul out the variables we want
+newcredit <- select(credit, Balance, Limit, Income, Age, Gender)
+
+# Examine contents
+glimpse(newcredit)
+
+# I really hate when variables (column names) are in capital letters.
+# Let's make them all lower case so they're easier to type.
+colnames(newcredit) <- tolower(colnames(newcredit))
+
+```
+
+### Measures of center and spread
+
+Great. Now, let's run some descriptive statistics to see what Income (a discrete numeric variable) looks like by gender (a nominal categorical variable). Please note that Income is reported as thousands of dollars, so earning \$1,000 a year will be reported as 1 and earning \$100,000 per year will be reported as 100.
+
+We'll use some new functions from the `dplyr` package. You may have noticed that we did not directly load the `dplyr` package from our library. It is actually contained within the `tidyverse` package, which is a collection of commonly-used data manipulation and visualization packages. We save a few lines of code by loading `tidyverse` instead of `dplyr` AND `ggplot2` AND `maggitr`, etc.
+
+```{r incomebygender}
+# Determine number of respondents by gender
+table(newcredit$gender)
+
+# Group data by gender and calculate mean, median, and range.
+newcredit %>% 
+  group_by(gender) %>% 
+  summarise(mean_income = mean(income),
+            median_income = median(income),
+            min_income = min(income),
+            max_income = max(income),
+            range = max(income) - min(income),
+            q1 = quantile(income, 0.25),
+            q3 = quantile(income, 0.75),
+            iqr = quantile(income, 0.75) - quantile(income, 0.25))
+
+```
+
+Let's talk about this code a little bit. You'll see the weird percent sign symbol thing. This is called a "pipe." It's essentially a way to group and order a number of functions that you will be running on the same dataset. In language, it is equivalent to a conjunction like "AND" or "BUT." We could totally write this code as three to five separate lines, but using the pipe functionality makes it a little more intuitive to understand what we are doing-- grouping income by gender, then calculating mean, median, and range for each group. The output is still essentially a dataframe (called a "tibble"). If you don't like using pipes, you don't have to use them in your own code.
+
+Anyway, the table of results gives us a lot of information. It looks like males, based on both mean and median, earn a little more than females. Mean and median are both measures of center, or where the average falls. Measures of center explain where we would expect to see a random datapoint taken out of the larger dataset. 
+
+The 1st and 3rd quartiles (q1 and q3, respectively) for income are closer together for females than males, resulting in a smaller interquartile range for females. However, the range of possible incomes is wider for females than males, and both the total minimum and total maximum income within the dataset are both for females. It looks like most women earn an income somewhere within a fairly tight range of 21.9 thousand dollars to 57.2 thousand dollars, but there may be several outliers on either end earning far less or far more than the average. These are all measures of spread, which tell us about the distribution of values around the mean.
+
+### Visualizations
+
+All this information would be easier to understand if we visualized it, so let's do that. Once again, we'll rely on piping, `dplyr`, and `ggplot`.
+
+```{r incomevis}
+# Basic histogram of income regardless of gender
+hist(newcredit$income)
+
+# Group income by gender and create a histogram to show data spread
+newcredit %>% 
+  group_by(gender) %>% 
+  ggplot() +
+    geom_histogram(aes(x=income),
+                   breaks=c(seq(10, 190, 10))) +
+    facet_wrap(~gender)
+
+# Group income by gender and create a boxplot to show data spread
+newcredit %>% 
+  #group_by(gender) %>% 
+  ggplot() +
+    geom_boxplot(aes(y=income)) +
+    facet_wrap(~gender)
+
+```
+
+The histogram takes our possible range of incomes, organizes them into equal-sized "bins" of discrete values, and then shows us the number of respondents who earned an income within each bin. We set our bins using the "breaks" argument, so we know that each bin has a width of 10 thousand dollars. We also know that our minimum salary for any gender is about 10 thousand dollars and the maximum salary for any gender is about 190 thousand dollars. You can see that one male earned between 180 and 190 thousand dollars on the histogram. You can also see that both histograms are what we would call right-skewed. This means the right tail is much longer than it should be. Most people earn low salaries, but there are at least a few people that earn much higher salaries than the average.
+
+The boxplot (or box-and-whisker plot) also shows us the center and spread of our data, but does a slightly better job of visualizing the center of the data and showing us any outliers. You can see the black line in the middle of the box-- this is the median income per gender. You can also see lots of black dots at the top end of each whisker-- these are outliers, or people who earn much more than the average for their gender. Let's calculate our quantiles by hand and look at these outliers in the female category.
+
+```{r outliers}
+# Rule of thumb for finding outliers-- less than 1.5 Interquartile range from
+# quartile 1 (bottom of box) or more than 1.5 interquartile range from quartile 3
+# (top of box)
+
+# Calculate female IQR
+fem.cred <- newcredit %>% 
+  filter(gender=="Female") %>% 
+  summarise(q1 = quantile(income, 0.25),
+            q3 = quantile(income, 0.75),
+            iqr = q3-q1,
+            lower = q1 - (1.5 * iqr),
+            upper = q3 + (1.5 * iqr))
+
+fem.cred
+
+# Filter data to look at female outliers
+newcredit %>% 
+  filter(gender=="Female") %>% 
+  filter(income < fem.cred$lower | income > fem.cred$upper)
+```
+
+So, out of our 207 female respondents, 15 are outliers. This may be important to us later, when we move into analysis.
+
+## Sampling distributions
+
+### Population vs. sample
+In most sub-fields of science, we collect information on a sample of a population and use it to understand the entire population. You can think of it this way-- if you want to know the flavor of a cake, you don't need to eat the whole cake. You can take a slice and eat that to determine the flavor. In this example, the slice is the "sample" and the entire cake is the "population." 
+
+Think about our credit data. We only have 400 people represented, not the billions of people who have credit cards. So what we have is a sample of the greater population. But! For the purposes of learning, we will pretend that these are the only 400 people in the world with credit cards. We will now sample our population to figure out what the average credit balance of the population is, regardless of gender. Let's start by randomly sampling 50 people out of our 400 total. We'll first "set a seed" so that our computers do random generation in the same order. If we did not do this, our computers would do random generation in a random order and we would get different results.
+
+```{r sampling}
+# Set seed - for other purposes, you can put any number in here. 
+# For now, stick with 123 so we all have matching random generations.
+set.seed(123)
+
+# Sample 50 people's credit card balance
+samp.1 <- sample(newcredit$balance, 50)
+
+# Calculate mean balance of sample
+mean(samp.1)
+
+# Calculate mean balance of population, compare
+mean(newcredit$balance)
+
+```
+
+Because we set a seed, we should all have the same random sample of the population. Notice that our sample has a mean balance below what the population at large has. Let's do another sample.
+
+```{r sampling2}
+# You don't need to set a seed again. It's a once-per-session thing.
+
+# Sample 50 more credit balances
+samp.2 <- sample(newcredit$balance, 50)
+
+# Calculate mean balance of sample
+mean(samp.2)
+```
+
+Wow look, that's a much different value. Because we drew 50 people again randomly, we didn't get the same 50 people as the first time, and therefore the mean value was different. This helps us understand how much variability we can get when sampling from a bigger population. The distribution of sample means is called the sampling distribution, and is a measure of this variability. Let's generate 5000 samples of size 50 from the population, calculate the mean of each sample, and visualize the result.
+
+```{r samplingvariability}
+# Create blank vector which we will save results in
+sample_means <- rep(NA, 5000)
+
+# Use a loop function to draw 5000 random samples from our population
+for(i in 1:5000){
+  samp <- sample(newcredit$balance, 50)
+  sample_means[i] <- mean(samp)
+}
+
+# Create histogram
+hist(sample_means)
+
+```
+
+Let's talk about this code. You just used a for loop! We used that loop to run 5000 iterations of the same command--sample. That would have taken so long by hand, but by utilizing the loop it only takes a second. For loops work by indexing. In this case, _i_ is our index. We are telling R to randomly sample our population 5000 times, and that our starting index value is 1. Then, we run through the loop for each index value _i_ between 1 and 5000. We save our results to our blank vector-- it has 5000 spaces in it and also uses indexing. So in loop 561, we sample for the 561st time and save to space number 561 in our vector.
+
+Back to sampling distribution. We now have 5000 estimates of MEAN CREDIT BALANCE. This will tell us a lot about estimating the average balance of the whole population. Sample mean is an unbiased estimator, and will be centered at the true mean balance of the population. Here, it looks like the mean balance is somewhere between \$500 and \$550. The spread of the data indicates how much variability is induced by sampling only 50 credit balances. As a proof of concept, let's calculate mean credit balance for our whole 400-person population.
+
+```{r balance}
+mean(newcredit$balance)
+mean(sample_means)
+```
+
+That's exactly what we had expected!
+
+## Inference
+
+Now, let's move on to some inferential statistics. We'll go back to reality, which is knowing that way more than 400 people on earth have credit cards. We will treat our dataset as a sample, not as the population. And we will use our sample to address a research question: does the population of males have a significantly different average credit balance than the population of females? The process we will use to address this question is called hypothesis testing.
+
+### Hypothesis testing
+
+Let's talk about hypothesis testing. We need to define both a null hypothesis and an alternative hypothesis. The null hypothesis proposes no statistical significance exists in a set of observations. In this case then, the null hypothesis is that males and females do not have different average balances. The alternative hypothesis proposes whatever outcome is against the stated null hypothesis. In this case, the alternative hypothesis is that there IS a different average balance between males and females. We will test our sample distributions against each other using a set confidence level to determine whether the null or alternative hypothesis is more likely to be true. It is important to note that we cannot ever "prove" a null hypothesis. Instead, we "fail to reject" it, which simply means that we do not have enough evidence to accept the alternative hypothesis.
+
+Please install the `statsr` package before continuing. Click into the console (NOT the text editor) and type install.packages('statsr'). 
+
+We need to check that we have enough samples before continuing. Typically, to do inferential stats we need at least 30 samples per group. We also need to check for outliers, as outliers will affect the sample mean and variance.
+
+```{r samplenumber}
+# Check number of balance samples per gender
+by(newcredit$balance, newcredit$gender, length)
+
+# Check for outliers using boxplot
+boxplot(balance ~ gender, data=newcredit)
+```
+
+This looks pretty decent. We have more than 30 samples per category and we do not appear to have any outliers. 
+
+We will now address our hypothesis using a function called `inference` from the `statsr` package. The function will construct a confidence interval for the entire population based on our sample population, then test our hypothesis. 
+
+Let's talk about what we need to run this code. The `inference` function has many arguments. First, we define our input variables. Income is the response variable, so it is assigned to be the y-variable. Gender is the explanatory variable, so it is assigned to be the x-variable. All data come from our newcredit object, which we have been using this whole time. 
+
+Next we define which statistic we want to test; in this case, we want to look at the population mean. Then we have to decide the type of inference we want, which could be either a confidence interval "ci" or hypothesis test "ht". We want to run a hypothesis test, so we chose "ht". When performing a hypothesis test, we also need to supply the null value, which in this case is 0, since the null hypothesis sets the two population means equal to each other. The alternative hypothesis can be "less", "greater", or "twosided". Our hypothesis is that average credit balance between males and females is just different, and we didn't specify if this difference needed to have direction. If we cared only to test if males had a higher balance than females, we would have selected the "greater" option. The method of inference can be "theoretical" or "simulation" based. Here, we use theoretical inference using an existing dataset-- we don't need to simulate anything.
+
+To set the confidence level, we use conf_level. Industry standard is a 95% confidence interval. This means we want to be 95% sure that our sample values are also true for the population values. Why not a higher value? Well, we can never be 100% sure of the population mean based on our sample mean-- what if some random outlier person out there has a balance of $999,999,999?? Also, the higher we go with our confidence interval, the lower our precision gets. Think about it this way. If I wanted to guess the temperature in Harpswell, Maine with 99% confidence on any day of the year, I'd say the temperature would be between -5 degrees F and 95 degrees F. That's a huge range. If I wanted to guess the temperature with 95% confidence, I could narrow that range significantly to be 40 degrees F to 80 degrees F.
+
+Finally, we set the order of the categories and run the function.
+
+```{r hypothesistest}
+statsr::inference(y=balance, x=gender, data=newcredit,
+                  statistic= "mean",
+                  type="ht",
+                  null=0,
+                  alternative="twosided",
+                  method="theoretical",
+                  conf_level = 0.95
+                  #order=c("female", "male")
+                  )
+
+```
+
+There are two parts to this output. First is a chunk of text, which gives us the sample mean and standard deviation for both our categories. Then, it reiterates our null and alternative hypotheses. Next, we get a bunch of values: the t-statistic, the degrees of freedom (df), and the p-value. The t-statistic is the ratio of departure of the estimated value of a parameter from its hypothesized value to its standard error. In other words, it's a likelihood of if your value is extreme compared to the population mean. Larger t-statistics are evidence that your value is significantly different from the average. You won't want to calculate this by hand, as it's super tedious. Degrees of freedom here are the number of samples in the smallest group minus 1. You can actually do a rough calculation of the p-value given the t-stat and the degrees of freedom, but that's also super tedious. So let's just move right on to the p-value.
+
+The p-value gives us the likelihood that you would obtain your results or more extreme results assuming that the null hypothesis is true. In other words, if we took another 207 women and 193 men with credit cards, how likely is it that their average credit card balances would be the same? Low p-values indicate a low likeihood, which indicates that our results do not support the null hypothesis. High p-values indicate a high likelihood, which indicates that our results DO support the null hypothesis.
+
+Here, the p-value is given as 0.66. Recall that our confidence level was set to 0.95. This means that to indicate that there is enough evidence to reject the null hypothesis of no difference between male and female credit balance, the p-value has to be less than (1-0.95 =) 0.05. We are way above that value, so we fail to reject the null hypothesis. Average credit balance for all men and women with credit cards is likely the same.
+
+The other part of the output is plots. These tell us the same thing as the text. The blue plots visualize credit balance by gender, with the thick vertical blue lines indicating mean balance. The red plot is the inference plot. The curve here is a normal distribution of results expected from our population. The red shaded portions are results similar or more extreme than ours. The thick red line is where our results stand. The entire area under the curve here is 1, and if we ran some calculus we could figure out that the area within the red shading is equal to 0.66. This is another way to visualize our p-value and overall results-- that male and female credit balances are not significantly different in the worldwide population.
+
+## Regression
+
+We'll end with linear regression, which is one of the most commonly-used approaches to modeling. You can model to _predict_ an outcome based on the information in a set of predictor variables, or you can model to _explain_ the relationship between an outcome and a set of explanatory variables. We will use linear regression to explain the relationship between credit balance (the response variable) and a set of explanatory variables.
+
+In linear regression, the response variable needs to be a continuous numeric variable. Credit balance isn't exactly continuous (we can't realistically measure money down to a bunch of decimal places), but we'll pretend here so we can use the same dataset. The explanatory variables can be numerical or categorical. In a simple linear regression, there is only one explanatory variable. In multiple linear regression, there are many explanatory variables. We can use any combination of numeric and categorical variables in multiple linear regression, and we can also use interaction terms. For this example, we'll use income, credit limit, age, and gender as explanatory variables.
+
+Let's view a brief summary of our data.
+
+```{r creditsummary}
+# Force gender to be a factor variable (R understands it has levels)
+newcredit$gender <- as.factor(newcredit$gender)
+
+# Summarize
+summary(newcredit)
+```
+
+### Correlation
+
+What's great here is that we have no missing values. Let's view the correlation between our numeric variables. Correlation values show us the strength of any possible linear relationship between variables. Correlation values must fall between -1 and 1.
+
+We would expect some variables to have a strong positive relationship-- for example, the number of apples grown on a farm should have a strong positive association with the number of trees on that farm. Strong positive relationships will have a correlation value close to 1.
+
+Other variables will have a strong negative relationship-- the number of rainy days in the summer will have a strong negative relationship with how tan you get. Strong negative relationships will have a correlation value close to -1.
+
+Other variables may have no relationship at all. The number of apples grown on a farm will have no affect on your summer tan. So, the correlation value here will be close to 0.
+
+```{r correlation}
+# View correlations between numeric variables
+newcredit %>% 
+  select(balance, limit, income, age) %>% 
+  cor()
+```
+
+This table shows us that there is a stong positive linear association (0.862) bbetween balance and limit. Limit and income are also strongly associated (0.792), and balance and income have a medium-strength positive association (0.464). There are a few pairs that do not have any correlation: balance and age (0.002), limit and age (0.100), and income and age (0.175). Variables paired to themselves have a correlation coefficient of 1, of course.
+
+We can visualize these variable pairings with ggplot or basic R commands.
+
+```{r correlationvis}
+ggplot(newcredit, aes(x = age, y = balance)) +
+  geom_point() +
+  labs(x = "Age", y = "Credit card balance (in $)", title = "Relationship between balance and age") +
+  geom_smooth(method = "lm", se = FALSE, col='red')
+
+plot(newcredit$age, newcredit$balance)
+
+ggplot(newcredit, aes(x = income, y = balance)) +
+  geom_point() +
+  labs(x = "Income (in $1000)", y = "Credit card balance (in $)", title = "Relationship between balance and income") +
+  geom_smooth(method = "lm", se = FALSE)
+
+plot(newcredit$income, newcredit$balance)
+
+ggplot(newcredit, aes(x = limit, y = balance)) +
+  geom_point() +
+  labs(x = "Limit", y = "Credit card balance (in $)", title = "Relationship between balance and limit") +
+  geom_smooth(method = "lm", se = FALSE)
+
+plot(newcredit$limit, newcredit$balance)
+
+
+```
+
+### Numeric explanatory variable models
+
+Let's fit some models with linear regression. We'll start by only using numeric variables as our explanatory variables. In this first case, Balance is our response variable and Age and Income will be our explanatory variables. 
+
+We run a regression using the lm function (stands for linear model). We first indicate the dependent variable (i.e., Balance) and then explanatory variables (Income + Age), followed by the name of the data. To obtain a summary of the results, you can use summary(). 
+
+```{r model1}
+Balance_model <- lm(balance ~ income + age, data = newcredit)
+summary(Balance_model)
+```
+
+So, how do we interpret these three values presented in the regression output?
+
+Call: This is the formula for our model and the dataset we pull out information from.
+
+Residuals: This is a basic summary of all residuals. Residuals are the difference between the actual value and the value predicted by the model for any given point. The range of the residuals looks really large, but we can't interpret what these results mean unless we pair them with the model predictions. We'll do that later.
+
+
+Coefficient estimates:
+Intercept: 359.67. It is the predicted value of the dependent variable when all explanatory variables take a value of zero. In our case, when income is zero and when age is zero. The intercept is used to situate the regression plane in 3D space. Obviously we don't expect a newborn baby to have a credit card balance at all.
+
+Income: 6.24. Now that we have multiple variables to consider, we have to add an important statement to our interpretation: all other things being equal, for every unit increase in annual income (which is measured in thousands of dollars), there is an associated increase of, on average, \$6.24 in monthly credit card balance. So, this also says that every \$84 (\$1000 a year /12 months in a year) increase in monthly income would lead to around \$6.24 increase in monthly credit card balance, all else being constant.
+
+Note that we are not making any causal statements here, only statements relating to the association between income and balance. The all other things being equal statement addresses all other explanatory variables, in this case only one: Age. This is equivalent to saying “holding Age constant, we observed an associated increase of \$6.24 in monthly credit card balance for every \$1000 increase in annual income.”
+
+Age: -2.18. Similarly, all other things being equal, when someone gets a year older, there is an associated decrease of on average \$2.18 in credit card balance.
+
+Also note the p-values of income and age here. Income has a very low p-value, which indicates that it is a significant predictor of balance. Age has a borderline p-value-- it contributes a little bit to predicting balance, but not nearly as much as income.
+
+Our R-squared value for this model is 0.2176, which means income and balance explain about 22% of the variance in credit card balance in our sample.
+
+### Numeric and categorical explanatory variable models
+
+Now we'll move on to a multiple linear regression using both numeric and categorical variables. Once again, balance will be our response variable. We'll re-use income and age as numeric explanatory variables, and also add gender as a categorical explanatory variable.
+
+```{r model2}
+Balance_model2 <- lm(balance ~ income + age + gender, data=newcredit)
+summary(Balance_model2)
+```
+
+In this model, males are treated as the baseline for comparison. The estimated difference in credit card balance of women is 24.75 units greater than it is for men. As you see from very high p-value, this coefficient is not significant - i.e., gender has no significant effect on credit card balance. We have already seen this in hypothesis testing.
+
+Accordingly, the intercepts are (although there is no practical interpretation of the intercept here, as discussed in Scenario 1):
+
+For men= 346.92
+For women= 346.92 + 24.75 = 371.67
+
+Both men and women have the same slope for income and age. In other words, in this model the associated effects of income and age are the same for men and women.
+
+All other output regarding income and age is the same as our previous model. Note that our R-squared value has actually decreased-- we already knew that gender was not a significant predictor of credit card balance, and now we can see that adding that insignificant term actually decreased the performance of our model!
+
+### Interaction term models
+
+We say a model has an interaction effect if the associated effect of one variable depends on the value of another variable. Let’s now fit a model where we want to investigate whether there is a gender pay gap.
+
+```{r model3}
+Balance_model3 <- lm(balance ~ income * gender + age, data = newcredit)
+summary(Balance_model3)
+```
+
+Although not significant, the associated effect of income for women is less than males (i.e., interaction term). All other things being equal, for every 1,000 dollars increase in income, a man might decrease his credit card balance by a dollar, but women will only decrease their credit card balance by (1 - 0.4756=) 52 cents.
+
+### Assumptions
+
+Now, we know how to perform a regression analysis. However, the key question still remains: can we actually perform regression analysis? Do we comply with conditions that allow us to perform a regression analysis?
+
+There are four conditions that need to be met to perform a linear regression:
+
+* Linearity between the numeric dependent and numeric explanatory variables.
+* Normal or nearly normally distributed error terms
+* Constant variance of the error
+* Independence of the observations in the data, and thus errors.
+
+We will check these assumptions for our first model prior to certifying the results as realistic.
+
+#### Linearity
+
+We will generate the residuals plot to test linearity. In multiple regression, the residual plot accommodates for other variables in the model to see the trend in the relationship between the dependent and explanatory variables. In a simple linear regression where we have only one explanatory variable, a scatter plot would have been sufficient to test the linearity of the relationship.
+
+```{r linearity}
+# Rerun model
+Balance_model <- lm(balance ~ income + age, data = newcredit)
+
+# Residual plots
+plot(Balance_model$residuals ~ newcredit$age)
+plot(Balance_model$residuals ~ newcredit$income)
+```
+
+What we are looking for is a random scatter around zero. It seems like we are more or less meeting this condition for both variables, perhaps better for age than for income. When variables are not normal, we typically transform the data. For example, for variables like income, we take the logarithm of the variables so that the distribution of the transformed data pushes the data closer to a normal distribution.
+
+```{r transformation}
+# Transform income variable
+log_transform <- newcredit %>% mutate(logincome = log(income))
+# Run regression using the log(income)
+Balance_model_log <- lm(balance ~ logincome + age, data = log_transform)
+# Residual plot for log(income)
+plot(Balance_model_log$residuals ~ log_transform$logincome)
+```
+
+It seems like the log-transformation scattered the data points around the zero a little bit more. So, let’s use the logincome in our regression for the tests below as well.
+
+#### Normal residuals
+
+We can investigate the normality of the residuals via a normal probability plot (QQ-plot). We're looking for adherence of our residuals to a proposed line of normality (`qqline`). If the residuals are not normal and our sample size is small, we may be concerned that our data are not acceptable for a linear regression.
+
+```{r normality}
+# Histogram of residuals
+hist(Balance_model_log$residuals)
+
+# QQ plot of residuals
+qqnorm(Balance_model_log$residuals)
+qqline(Balance_model_log$residuals)
+```
+
+We see a little bit of a right skew in the histogram and some data points are not on the straight line, especially those at the lower and upper tails, but otherwise we are not seeing massive deviations from the mean. So, we can say that this condition is somewhat satisfied. Note that if you did not take the logarithm of the income and run the regression and test this, you would have similar results.
+
+#### Constant variability of residuals
+
+We basically want our residuals to have same variability for lower and higher values of the predicted outcome variable. So, we need to check the plot of residuals versus the predicted credit card balance. Note that this is not the plot of residuals versus x, but takes into account all explanatory variables in the model at once by finding the predicted balance. What we expect from this plot is randomly scattered residuals around zero without any obvious pattern, like a fan-shape.
+
+```{r variance}
+plot(Balance_model_log$residuals ~ Balance_model_log$fitted)
+abline(h=0, col='red')
+````
+
+We have residuals on y-axis and fitted-values on the x-axis. The assumption of constant variance does not seem to be satisfied as we see a pattern where residuals have a smaller distribution around the mean at low balances and a large distribution around the mean at high balances. We should have expected this, as credit card balance is not really a true continuous numeric variable. We also know that its distribution must be truncated at 0-- it's not normal for the credit card company to owe YOU money. So this is a concern for the interpretation of our linear model! We will go over what to do in this situation at a later date.
+
+#### Independent residuals 
+
+This means that observations are independent from each other, rather than being from related subjects (the same person over a long period of time). We know that we have 400 different, randomly-sampled people here, so this is not a concern.
+
+### Interpretation
+
+So let's just pretend that our model diagnostics (the thing we literally just did) came back clean and we met all the assumptions of a linear model. What have we learned?
+
+* Income is a strong predictor of balance
+* Age is not a predictor of balance
+* Gender is not a predictor of balance
+* The interaction between gender and income is not a predictor of balance
+
+## Wrapup
+
+In this lesson, we learned about types of data, how to describe the center and spread of data, how to visualize the center and spread of data, sampling distributions, hypothesis testing, correlation, and linear models. Please take these concepts to your own data. Before you do anything else, you should always explore your data and visualize it to see if there are any obvious problems or patterns to address.
