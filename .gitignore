@@ -4,3 +4,4 @@
 *.Ruserdata
 schema.ini
 .Rproj.user
+Raw_Data/Portland_tides_byminute.csv
