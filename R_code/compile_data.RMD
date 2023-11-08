@@ -1132,7 +1132,7 @@ test.bad <- test.bad[test.bad$dif > 0,]
 # These are not typos. They are noted on the datasheets as samples missing.
 
 # No issues with catch-bio discrepancies
-rm(bay_locations, test.abund, test.bio, test.combo, i, test.bad)
+rm(test.abund, test.bio, test.combo, i, test.bad)
 ```
  
 As a final check, we will ensure that species names are represented correctly between biological information and abundance datasets.
@@ -1148,6 +1148,289 @@ as.character(data.2018$fish$species_name[data.2018$fish$species_name %notin%
 as.character(data.2018$abundance$species_name[data.2018$abundance$species_name %notin%
                               data.2018$fish$species_name])
 # no typos
+rm(date.check)
+
+```
+
+#### Load and clean 2023
+2023 data were digitally entered in November and can now be included.
+
+```{r loading2023, results='hide', message=F, warning=F}
+# 2022 data
+  # Get info about all excel sheets in workbook
+  fname <- paste0(here(), '/Raw_Data/2023_Raw_Seine_Data.xlsx')
+  sheets <- readxl::excel_sheets(fname)
+  # Read in as list item, each item is a sheet
+  tibble <- invisible(lapply(sheets, 
+                             function(x) readxl::read_excel(fname, sheet = x)))
+  # Coerce list items to dataframes
+  data_frame <- lapply(tibble, as.data.frame)
+  # Name list items
+  names(data_frame) <- sheets
+  # Create temporary dataframe with all sheets
+  data.2023.temp <- data_frame
+  # Cut to new data list
+  data.2023 <- vector(mode="list", length = 5)
+  names(data.2023) <- c('sites', 'species', 'trips', 'fish', 'abundance')
+  data.2023$sites <- data.2014$sites
+  data.2023$species <- data.2022$species
+  data.2023$trips <- data.2023.temp$trips
+  data.2023$fish <- data.2023.temp$bio
+  data.2023$abundance <- data.2023.temp$abund
+  # Remove intermediates
+  rm(data.2023.temp, data_frame, tibble, fname, sheets)
+
+```
+
+The species and sites dataframes do not need to be cleaned. The remainder need a quick look.
+
+```{r siteclean2023}
+#### Site Identification ####
+# Sites will be the same year to year.
+# What is called "Brothers" in 2022 is the same as "The Brothers - North" in 
+# previous years.
+```
+
+The trip information will be cleaned similar to the 2014-2021 dataset. Freshwater sites do not exist in these years. The site numbers and loc_id variables will be merged to match the patterns that exist in the 2014-2021 dataset.
+
+```{r tripclean2023}
+#### Trip Identification #####
+# Strip trip info from data list
+trips <- data.2023$trips
+
+# Remove blank rows
+trips <- trips[!is.na(trips$date),]
+
+# Convert to factor
+trips$site_name <- as.factor(trips$site_name)
+
+# Re-assign site_id
+trips$site_id <- NULL
+trips <- left_join(trips, dplyr::select(data.2023$sites, site_name, site_id),
+                   by=c('site_name'))
+
+# Fix substrate data type
+trips$substrate[is.na(trips$substrate) & trips$site_name == 'Alewife Cove'] <- 'sand/gravel'
+trips$substrate[is.na(trips$substrate) & trips$site_name == 'Audubon'] <- 'mud/sand'
+trips$substrate[is.na(trips$substrate) & trips$site_name == 'Back Cove'] <- 'mud/gravel'
+trips$substrate[is.na(trips$substrate) & trips$site_name == 'Cushing Island'] <- 'mud/sand'
+trips$substrate[is.na(trips$substrate) & trips$site_name == 'Great Diamond Island'] <- 'sand/gravel'
+trips$substrate[is.na(trips$substrate) & trips$site_name == 'Mackworth Island - Beach'] <- 'sand/shell'
+trips$substrate[is.na(trips$substrate) & trips$site_name == 'Mackworth Island - North'] <- 'mud/shell'
+trips$substrate[is.na(trips$substrate) & trips$site_name == 'Mussel Cove'] <- 'mud'
+trips$substrate[is.na(trips$substrate) & trips$site_name == 'Presumpscot Moorings'] <- 'mud/gravel'
+trips$substrate[is.na(trips$substrate) & trips$site_name == 'Skitterygusset'] <- 'mud'
+trips$substrate[is.na(trips$substrate) & trips$site_name == 'SMCC'] <- 'sand/gravel'
+trips$substrate[is.na(trips$substrate) & trips$site_name == 'The Brothers - North'] <- 'sand/gravel'
+
+trips$substrate <- as.factor(trips$substrate)
+summary(trips$substrate)
+
+# Fix set time
+trips$set_time <- substr(trips$set_time, start = 12, stop=19)
+trips$set_time <- paste0(trips$date, " ", trips$set_time)
+trips$set_time <- as.POSIXct(trips$set_time,
+                               format = "%Y-%m-%d %H:%M:%S")
+
+# Fix weather info
+trips$weather <- as.factor(trips$weather)
+
+# Fix hermit crabs 
+trips$hermit_crabs[trips$hermit_crabs == 'present'] <- 1
+trips$hermit_crabs[trips$hermit_crabs == 'absent'] <- 0
+trips$hermit_crabs[trips$hermit_crabs == 'not circled'] <- NA
+trips$hermit_crabs <- as.numeric(trips$hermit_crabs)
+
+# Fix shrimp
+trips$shrimp[trips$shrimp == 'absent'] <- 0
+trips$shrimp[trips$shrimp == 'low'] <- 1
+trips$shrimp[trips$shrimp == 'medium'] <- 2
+trips$shrimp[trips$shrimp == 'high'] <- 3
+trips$shrimp[trips$shrimp == 'very, very high'] <- 3
+trips$shrimp[trips$shrimp == 'not circled'] <- NA
+trips$shrimp <- as.numeric(trips$shrimp)
+
+# Create year column
+trips$year <- substr(trips$date, start=1, stop = 4)
+trips$year <- as.numeric(trips$year)
+
+# Create new trip_id based on date
+#table(data.2022$trips$loc_id)
+# Ended 2022 at 101, start missing data at 102
+trips$new_trip_id <- as.numeric(as.factor(trips$date)) +
+  max(as.numeric(as.factor(data.2023$trips$date))) + 89
+#table(trips$new_trip_id)
+
+# Create new overall information identification
+trips$loc_id <- paste0(trips$year, "_",
+                                 str_pad(trips$new_trip_id, 3, "left", "0"),
+                                 "_",
+                                 str_pad(trips$site_id, 2, "left", "0"))
+
+# Assign bay location
+trips$bay_location <- NULL
+trips <- left_join(trips, bay_locations, by=c('site_name'))
+
+# Reorder
+trips <- dplyr::select(trips, loc_id, year, date, new_trip_id, 
+                       site_id, site_name, bay_location,
+                       substrate, set_time, weather, temp_degc, 
+                       `do_mg/l`, salinity_ppt, hermit_crabs, shrimp,
+                       notes)
+# QA-QC
+trips$bay_location <- as.factor(trips$bay_location)
+trips$site_name <- as.factor(trips$site_name)
+
+# Save
+trips <- trips[!is.na(trips$loc_id),]
+data.2023$trips <- trips
+rm(trips)
+```
+
+Biological subsample information will be cleaned, but it is generally correct and doesn't need much adjustment.
+
+```{r bioclean2023}
+#### Fish Biological Information ####
+bio <- data.2023$fish
+
+# Create trip ID
+bio$date <- as.POSIXct(bio$date, format='%Y-%m-%d')
+pull <- dplyr::select(data.2023$trips, date, site_name, site_id, new_trip_id)
+bio <- left_join(bio, pull,
+                         by=c('date', 'site_name'))
+bio$year <- lubridate::year(bio$date)
+bio$loc_id <- paste0(bio$year, "_", bio$new_trip_id, "_", str_pad(bio$site_id, 2, 'left', '0'))
+
+# Remove anything that doesn't have a trip_id in the trips dataframe
+bio <- bio[bio$loc_id %in% data.2023$trips$loc_id,]
+bio <- bio[!is.na(bio$loc_id),]
+
+# Remove unnecessary columns
+bio <- dplyr::select(bio, loc_id, species_name, sex, 
+                     length_mm)
+
+# Assign site_name and location info
+bio <- left_join(bio, dplyr::select(data.2023$trips, loc_id, new_trip_id,
+                                    loc_id, site_name, site_id, bay_location,
+                                    date),
+                 by=c('loc_id'))
+
+# Re-order
+bio <- dplyr::select(bio, loc_id, date, loc_id, new_trip_id, site_name, site_id,
+                     bay_location, species_name, sex, length_mm)
+
+# Fix data types
+bio$site_name <- as.factor(bio$site_name)
+bio$bay_location <- as.factor(bio$bay_location)
+
+# Fix species names
+bio$species_name[bio$species_name == "sculpin"] <- 'unID sculpin'
+bio$species_name <- as.factor(bio$species_name)
+
+# Remove instances of no catch
+bio <- bio[bio$species_name %notin% c('no fish', 'no catch'),]
+
+# Fix sex
+bio$sex <- as.factor(bio$sex)
+
+# Finalize dataframe
+bio <- dplyr::select(bio,
+                     loc_id, date, site_name, site_id, bay_location, 
+                     species_name, sex, length_mm)
+bio <- bio[!is.na(bio$species_name),]
+
+data.2023$fish <- bio
+data.2023$fish$notes <- NA
+rm(bio)
+```
+
+The same is true of the abundance information.
+
+```{r abundclean2023}
+#### Abundance information ####
+abund <- data.2023$abundance
+
+# Assign loc_id
+abund$loc_id <- NULL
+abund <- left_join(abund, pull, by=c('date', 'site_name'))
+abund$year <- lubridate::year(abund$date)
+abund$loc_id <- paste0(abund$year, "_", abund$new_trip_id, "_",
+                       str_pad(abund$site_id, 2, 'left', '0'))
+
+# Remove anything that doesn't have a trip_id in the trips dataframe
+abund <- abund[abund$loc_id %in% data.2023$trips$loc_id,]
+abund <- abund[!is.na(abund$loc_id),]
+
+# Assign site_name and location info
+abund <- left_join(abund, dplyr::select(data.2023$trips, loc_id, bay_location),
+                 by=c('loc_id'))
+
+# Re-order
+abund <- dplyr::select(abund, loc_id, date, new_trip_id, site_name, 
+                       site_id, bay_location, 
+                       species_name, catch)
+abund <- abund[complete.cases(abund),]
+
+# Fix data types
+abund$site_name <- as.factor(abund$site_name)
+abund$bay_location <- as.factor(abund$bay_location)
+
+# Coerce non-numerics to numerics
+abund$catch <- as.numeric(abund$catch)
+
+# Fix species names
+abund$species_name[abund$species_name == "sculpin"] <- 'unID sculpin'
+abund$species_name <- as.factor(abund$species_name)
+
+# Finalize
+abund <- dplyr::select(abund, -new_trip_id)
+data.2023$abundance <- abund
+rm(abund)
+```
+
+```{r finalclean2023}
+data.2023$trips$site_name <- as.factor(data.2023$trips$site_name)
+data.2023$trips$bay_location <- as.factor(data.2023$trips$bay_location)
+data.2023$trips <- dplyr::select(data.2023$trips, -new_trip_id)
+
+test.bio <- data.2023$fish
+test.bio <- dplyr::select(test.bio,
+                          loc_id, date, species_name, length_mm)
+test.bio <- test.bio %>%
+  count(loc_id, species_name)
+
+test.abund <- data.2023$abundance
+test.abund <- dplyr::select(test.abund,
+                            loc_id, date, species_name, catch)
+
+test.combo <- left_join(test.abund, test.bio, by=c("loc_id", "species_name"))
+
+test.bad <- test.combo[test.combo$n != test.combo$catch,]
+test.bad <- test.bad[test.bad$n %notin% c(24,25, 26),]
+test.bad$dif <- test.bad$n - test.bad$catch
+
+test.bad <- test.bad[with(test.bad, order(dif)),]
+test.bad <- test.bad[complete.cases(test.bad),]
+test.bad <- test.bad[test.bad$dif > 0,]
+# These are not typos. They are noted on the datasheets as samples missing.
+
+# No issues with catch-bio discrepancies
+rm(test.abund, test.bio, test.combo, i, test.bad)
+```
+ 
+As a final check, we will ensure that species names are represented correctly between biological information and abundance datasets.
+
+```{r abundcheck2, echo=F, results='hide'}
+#### Present in biological information but not in abundance ####
+# 2023
+as.character(data.2023$fish$species_name[data.2023$fish$species_name %notin%
+                              data.2023$abundance$species_name])
+# No typos.
+
+#### Present in abundance information but not biological ####
+as.character(data.2023$abundance$species_name[data.2023$abundance$species_name %notin%
+                              data.2023$fish$species_name])
+# no typos, we just don't measure horseshoe crabs
 rm(date.check)
 
 ```
@@ -1181,7 +1464,7 @@ data.all$species <- data.all$species[with(data.all$species,
 rownames(data.all$species) <- NULL
 
 #### Trips ####
-data.all$trips <- rbind(data.2014$trips, data.2018$trips, data.2022$trips)
+data.all$trips <- rbind(data.2014$trips, data.2018$trips, data.2022$trips, data.2023$trips)
 #nrow(data.all$trips)
 #length(unique(data.all$trips$loc_id))
 # There's one duplicate. Find and remove
@@ -1190,11 +1473,11 @@ data.all$trips <- rbind(data.2014$trips, data.2018$trips, data.2022$trips)
 data.all$trips <- data.all$trips[data.all$trips$loc_id != "2017_042_08",]
 
 #### Biological information ####
-data.all$fish <- rbind(data.2014$fish, data.2018$fish, data.2022$fish)
+data.all$fish <- rbind(data.2014$fish, data.2018$fish, data.2022$fish, data.2023$fish)
 data.all$fish <- data.all$fish[data.all$fish$loc_id != "2017_042_08",]
 
 #### Abundance ####
-data.all$abundance <- rbind(data.2014$abundance, data.2018$abundance, data.2022$abundance)
+data.all$abundance <- rbind(data.2014$abundance, data.2018$abundance, data.2022$abundance, data.2023$abundance)
 data.all$abundance <- data.all$abundance[data.all$abundance$loc_id != "2017_042_08",]
 
 ```
