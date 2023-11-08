@@ -1488,27 +1488,27 @@ Combined data can be saved as a new master seine spreadsheet.
 ```{r savedata, eval=F}
 library(xlsx)
 write.xlsx2(data.all$sites, 
-            here('Clean_Data/compiled_clean.xlsx'),
+            here('Clean_Data/seine_compiled_clean.xlsx'),
             sheetName = 'sites',
             append=FALSE,
             row.names = FALSE)
 write.xlsx2(data.all$species, 
-            here('Clean_Data/compiled_clean.xlsx'),
+            here('Clean_Data/seine_compiled_clean.xlsx'),
             sheetName = 'species',
             append=TRUE,
             row.names = FALSE)
 write.xlsx2(data.all$trips, 
-            here('Clean_Data/compiled_clean.xlsx'),
+            here('Clean_Data/seine_compiled_clean.xlsx'),
             sheetName = 'trips',
             append=TRUE,
             row.names = FALSE)
 write.xlsx2(data.all$fish, 
-            here('Clean_Data/compiled_clean.xlsx'),
+            here('Clean_Data/seine_compiled_clean.xlsx'),
             sheetName = 'bio',
             append=TRUE,
             row.names = FALSE)
 write.xlsx2(data.all$abundance, 
-            here('Clean_Data/compiled_clean.xlsx'),
+            here('Clean_Data/seine_compiled_clean.xlsx'),
             sheetName = 'abund',
             append=TRUE,
             row.names = FALSE)

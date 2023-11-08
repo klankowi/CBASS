@@ -1274,6 +1274,7 @@ It is expected that sites within the same bay location level will have similar h
 trip <- data.all$trips
 # Remove The Brothers - South (low sampling effort)
 trip <- trip[trip$site_name != "The Brothers - South",]
+trip$site_name <- as.factor(trip$site_name)
 trip$site_name <- droplevels(trip$site_name)
 
 newnames <- data.frame(
