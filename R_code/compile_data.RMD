@@ -56,6 +56,309 @@ The data for 2014 - 2021 (excluding 2019) are stored in the Excel workbook `raw-
 ### Data loading and combination
 Data from Excel workbooks will be loaded in such a way that the individual sheets within the workbook will become dataframes within a list item in R. We will keep only the sheets mentioned above in cases where other data are provided. It's also important to ensure that variable names (column names) are standardized so that we can merge data from all years into a single dataframe later on.
 
+#### Load and clean QBC data
+You may or may not want to include data collected from the Harpswell side of Casco Bay. Toggle those inclusions in the next chunk of code.
+```{r harpswell, results='hide', message=F, warning=F}
+# 2023 QBC data
+  # Set the name of the workbook
+  fname <- paste0(here(), '/Raw_Data/2023_QBC_Raw_Seine_Data.xlsx')
+  # Get info about all excel sheet names in workbook
+  sheets <- readxl::excel_sheets(fname)
+  # Read in as list item, each item is a sheet
+  tibble <- invisible(lapply(sheets, 
+                             function(x) readxl::read_excel(fname, sheet = x)))
+  # Coerce list items to dataframes
+  data_frame <- lapply(tibble, as.data.frame)
+  # Name list items
+  names(data_frame) <- sheets
+  # Create temporary dataframe with all sheets
+  data.qbc.temp <- data_frame
+  # Create new, empty data list
+  data.qbc <- vector(mode="list", length = 5)
+  # Name list items
+  names(data.qbc) <- c('sites', 'species', 'trips', 'fish', 'abundance')
+  # Save pertinent information in matching list items
+  data.qbc$sites <- data.qbc.temp$Sites
+  data.qbc$species <- data.qbc.temp$Species
+  data.qbc$trips <- data.qbc.temp$Trips
+  data.qbc$fish <- data.qbc.temp$`Fish Length`
+  data.qbc$abundance <- data.qbc.temp$`Fish Abundance`
+  # Remove intermediates
+  rm(data.2014.temp, data_frame, tibble, fname, sheets)
+  
+  # Fix column names in each list item
+  colnames(data.qbc$sites) <- c('site_id', 'site_name', 'latitude',
+                                'longitude',
+                                 'utm_easting', 'utm_northing')
+  colnames(data.qbc$species) <- c('common_name', 'nhfg_code')
+  data.qbc$trips <- dplyr::select(data.qbc$trips,
+                                   trip_id, date, site_id, site_name,
+                                  substrate,
+                                   gear, set, set_time, weather, tide, 
+                                   time_of_high_tide, #ft_1, 
+                                   time_of_low_tide, #ft_2,
+                                   temp_degc, #do_percent, 
+                                  `do_mg/l`,
+                                  #conductivity,
+                                   salinity_ppt, hermit_crabs, shrimp,
+                                   #macroalgae, 
+                                  notes)
+  data.qbc$fish <- dplyr::select(data.qbc$fish,
+                                 fish_id, trip_id, site_number,
+                                 species_name,
+                                 sex, field_length_mm, notes)
+  data.qbc$abundance <- dplyr::select(data.qbc$abundance,
+                                       trip_id, site_number,
+                                      species_name,
+                                       total_catch)
+  colnames(data.qbc$abundance)[4] <- 'catch'
+  
+  # Remove example rows from trips sheet
+  data.qbc$trips <- data.qbc$trips[data.qbc$trips$trip_id != 'Example 1',]
+  
+  # Pull trips
+  trips <- data.qbc$trips
+  
+  # Change trip_id
+  trips$trip_id <- paste0('q', str_pad(as.numeric(trips$trip_id),
+                                           2,'left', '0'))
+  
+  
+  # Re-assign site_id
+  trips$site_id <- NULL
+  trips <- left_join(trips, dplyr::select(data.qbc$sites, site_name, site_id),
+                   by=c('site_name'))
+
+  # Fix substrate data type
+  trips$substrate <- as.factor(trips$substrate)
+
+  # Remove instances where seine was not set
+  trips$set <- as.factor(trips$set)
+  trips <- subset(trips, set == 'yes')
+
+  # Remove gear and set columns, no longer needed
+  trips <- dplyr::select(trips, -gear, -set)
+
+  # Fix set time
+  trips$set_time <- substr(trips$set_time, start = 12, stop=19)
+  trips$set_time <- paste0(trips$date, " ", trips$set_time)
+  trips$set_time <- as.POSIXct(trips$set_time,
+                               format = "%Y-%m-%d %H:%M:%S")
+
+  # Remove tide information, will need to look it up and add it back.
+  trips <- dplyr::select(trips, -time_of_high_tide, -time_of_low_tide,
+                         #-ft_1, -ft_2, 
+                         -tide)
+
+# Fix weather info
+  trips$weather[trips$weather %in% c('cloudy/windy',
+                                     'cloudy',
+                                     'overcast')] <- 'overcast'
+
+  trips$weather[trips$weather %in% c('partly cloudy',
+                                     'partly sunny')] <- 'partly cloudy'
+
+  trips$weather[trips$weather %in% c('sunny')] <- 'sunny'
+
+  trips$weather[trips$weather %in% c('fog')] <- 'foggy'
+
+  trips$weather <- as.factor(trips$weather)
+
+  # Fix hermit crabs 
+  trips$hermit_crabs[trips$hermit_crabs == 'absent'] <- 0
+  trips$hermit_crabs[trips$hermit_crabs == 'present'] <- 1
+  trips$hermit_crabs <- as.numeric(trips$hermit_crabs)
+
+  # Fix shrimp
+  trips$shrimp[trips$shrimp == 'absent'] <- 0
+  trips$shrimp[trips$shrimp == 'low'] <- 1
+  trips$shrimp[trips$shrimp == 'medium'] <- 2
+  trips$shrimp[trips$shrimp == 'high'] <- 3
+  trips$shrimp <- as.numeric(trips$shrimp)
+  
+  # Create year column
+  trips$year <- substr(trips$date, start=1, stop = 4)
+  trips$year <- as.numeric(trips$year)
+
+  # Create new overall information identification
+  trips$loc_id <- paste0(trips$year, "_",
+                                   str_pad(trips$trip_id, 3, "left", "0"),
+                                   "_",
+                                   str_pad(trips$site_id, 2, "left", "0"))
+
+  # Assign bay location
+  trips$bay_location <- 'north'
+  trips$bay_location <- as.factor(trips$bay_location)
+  trips$site_name <- as.factor(trips$site_name)
+
+# Reorder
+trips <- dplyr::select(trips, loc_id, year, date, trip_id, 
+                       site_id, site_name, bay_location,
+                       substrate, set_time, weather, temp_degc, 
+                       `do_mg/l`, salinity_ppt, hermit_crabs, shrimp,
+                       notes)
+# Save
+trips <- trips[!is.na(trips$loc_id),]
+data.qbc$trips <- trips
+rm(trips)
+
+#### Fish Biological Information ####
+bio <- data.qbc$fish
+
+# Create trip ID
+bio$trip_id <- paste0('q', 
+                      str_pad(as.numeric(bio$trip_id), 2, 'left', '0'))
+
+# Add date
+datepull <- dplyr::select(data.qbc$trips, trip_id, date)
+datepull <- unique(datepull)
+bio <- left_join(bio, datepull, by=c('trip_id'))
+
+# Add loc id
+bio$year <- lubridate::year(bio$date)
+bio$loc_id <- paste0(bio$year, "_", bio$trip_id, "_", 
+                     str_pad(bio$site_number, 2, 'left', '0'))
+
+# Remove anything that doesn't have a trip_id in the trips dataframe
+bio <- bio[bio$loc_id %in% data.qbc$trips$loc_id,]
+bio <- bio[!is.na(bio$loc_id),]
+
+# Remove unnecessary columns
+bio <- dplyr::select(bio, loc_id, species_name, sex, 
+                     field_length_mm, notes)
+
+# Assign site_name and location info
+bio <- left_join(bio, dplyr::select(data.qbc$trips, loc_id, trip_id,
+                                    loc_id, site_name, site_id, bay_location,
+                                    date),
+                 by=c('loc_id'))
+
+# Re-order
+bio <- dplyr::select(bio, loc_id, date, loc_id, trip_id, site_name, site_id,
+                     bay_location, species_name, sex, field_length_mm, notes)
+
+# Fix data types
+bio$site_name <- as.factor(bio$site_name)
+bio$bay_location <- as.factor(bio$bay_location)
+bio$length_mm <- as.numeric(bio$field_length_mm)
+
+# Fix sex
+bio$sex[bio$sex == 'F'] <- 'f'
+bio$sex[bio$sex == 'M'] <- 'm'
+bio$sex <- as.factor(bio$sex)
+
+# Remove fish with missing values
+bio <- bio[!is.na(bio$length_mm),]
+
+# Fix species names
+bio$species_name[bio$species_name == "tom cod"] <- 'tomcod'
+bio$species_name[bio$species_name == "fourspine stickelback"] <- 
+  "fourspine stickleback"
+bio$species_name[bio$species_name == 'ninespine stickelback'] <- 
+  'ninespine stickleback'
+
+# Remove unID species
+bio <- bio[bio$species_name != 'unidentified',]
+bio$species_name <- as.factor(bio$species_name)
+
+# Remove instances of no catch
+bio <- bio[bio$species_name %notin% c('no fish', 'no catch'),]
+
+# Finalize dataframe
+bio <- dplyr::select(bio,
+                     loc_id,
+                     date, site_name, site_id, bay_location, 
+                     species_name, sex, length_mm, notes)
+bio <- bio[!is.na(bio$species_name),]
+
+data.qbc$fish <- bio
+rm(bio)
+
+#### Abundance information ####
+abund <- data.qbc$abundance
+
+# Assign loc_id
+abund$loc_id <- NULL
+abund$trip_id <- paste0('q', str_pad(as.numeric(abund$trip_id),
+                                     2, 'left', '0'))
+abund <- left_join(abund, datepull, by=c('trip_id'))
+abund$year <- lubridate::year(abund$date)
+abund$loc_id <- paste0(abund$year, "_", abund$trip_id, "_",
+                       str_pad(abund$site_number, 2, 'left', '0'))
+
+# Remove anything that doesn't have a trip_id in the trips dataframe
+abund <- abund[abund$loc_id %in% data.qbc$trips$loc_id,]
+abund <- abund[!is.na(abund$loc_id),]
+
+# Assign site_name and location info
+abund <- left_join(abund, dplyr::select(data.qbc$trips, loc_id, site_name),
+                 by=c('loc_id'))
+abund$bay_location <- as.factor('north')
+
+# Re-order
+abund <- dplyr::select(abund, loc_id, date, trip_id, site_name, 
+                       site_number, bay_location, 
+                       species_name, catch)
+abund <- abund[abund$species_name %notin% c("no catch",
+                                            "unidentified"),]
+
+# Fix data types
+abund$site_name <- as.factor(abund$site_name)
+abund$bay_location <- as.factor(abund$bay_location)
+
+# Coerce non-numerics to numerics
+abund$catch <- as.numeric(abund$catch)
+
+# Fix species names
+abund$species_name[abund$species_name == "nine spine stickelback"] <- 
+  'ninespine stickleback'
+abund$species_name[abund$species_name== 'pipefish'] <- 'northern pipefish'
+abund$species_name <- as.factor(abund$species_name)
+
+# Finalize
+data.qbc$abundance <- abund
+rm(abund)
+
+# Check quality
+data.qbc$trips <- dplyr::select(data.qbc$trips, -trip_id)
+
+test.bio <- data.qbc$fish
+test.bio <- dplyr::select(test.bio,
+                          loc_id, date, species_name, length_mm)
+test.bio <- test.bio %>%
+  count(loc_id, species_name)
+
+test.abund <- data.qbc$abundance
+test.abund <- dplyr::select(test.abund,
+                            loc_id, date, species_name, catch)
+
+test.combo <- left_join(test.abund, test.bio, by=c("loc_id", "species_name"))
+
+test.bad <- test.combo[test.combo$n != test.combo$catch,]
+test.bad <- test.bad[test.bad$n %notin% c(24,25, 26),]
+test.bad$dif <- test.bad$n - test.bad$catch
+
+test.bad <- test.bad[with(test.bad, order(dif)),]
+test.bad <- test.bad[complete.cases(test.bad),]
+test.bad <- test.bad[test.bad$dif > 0,]
+# These are not typos. They are noted on the datasheets as samples missing
+# or accidental over-measures.
+
+# No issues with catch-bio discrepancies
+rm(test.abund, test.bio, test.combo, i, test.bad)
+
+#### Present in biological information but not in abundance ####
+as.character(data.qbc$fish$species_name[data.qbc$fish$species_name %notin%
+                              data.qbc$abundance$species_name])
+# No typos.
+
+#### Present in abundance information but not biological ####
+as.character(data.qbc$abundance$species_name[data.qbc$abundance$species_name %notin%
+                              data.qbc$fish$species_name])
+# no typos
+rm(date.check, datepull, data.qbc.temp)
+```
+
 #### Load and clean 2014-2021 data
 The bulk of the data are stored in this Excel sheet. There are extra sheets to remove, quality control issues to address, and site names to standardize. The first step is to load the data as a list of dataframes, one dataframe for each Excel sheet in the Excel workbook. Necessary dataframes will be saved, and extraneous (blank) columns in these dataframes will be removed.
 
@@ -106,7 +409,6 @@ The bulk of the data are stored in this Excel sheet. There are extra sheets to r
   data.2014$abundance <- dplyr::select(data.2014$abundance,
                                        trip_id, species_name,
                                        catch)
-
 ```
 
 The sites dataframe needs to be cleaned to ensure sites are referred to in the same way across the years of the dataset. We will also remove freshwater sites at Highland Lake and any sites that were sampled fewer than 10 times across the 8 years of the survey.
@@ -1446,11 +1748,15 @@ names(data.all) <- c('sites', 'species', 'trips', 'fish', 'abundance')
 
 #### Sites ####
 # Merge information from both data lists, save in combined data list
-data.all$sites <- rbind(data.2014$sites, data.2022$sites)
+data.qbc$sites$bay_location <- as.factor('north')
+data.all$sites <- rbind(data.2014$sites, data.2022$sites, data.qbc$sites)
 data.all$sites <- unique(data.all$sites)
 
 #### Species ####
-data.all$species <- rbind(data.2014$species, data.2022$species)
+data.2014$species$ID <- NULL
+data.2022$species$ID <- NULL
+data.all$species <- rbind(data.2014$species, data.2022$species,
+                          data.qbc$species)
 data.all$species <- unique(data.all$species)
 data.all$species <- data.all$species[data.all$species$common_name %notin%
                                        c('Add new species found in September',
@@ -1464,7 +1770,7 @@ data.all$species <- data.all$species[with(data.all$species,
 rownames(data.all$species) <- NULL
 
 #### Trips ####
-data.all$trips <- rbind(data.2014$trips, data.2018$trips, data.2022$trips, data.2023$trips)
+data.all$trips <- rbind(data.2014$trips, data.2018$trips, data.2022$trips, data.2023$trips, data.qbc$trips)
 #nrow(data.all$trips)
 #length(unique(data.all$trips$loc_id))
 # There's one duplicate. Find and remove
@@ -1473,11 +1779,14 @@ data.all$trips <- rbind(data.2014$trips, data.2018$trips, data.2022$trips, data.
 data.all$trips <- data.all$trips[data.all$trips$loc_id != "2017_042_08",]
 
 #### Biological information ####
-data.all$fish <- rbind(data.2014$fish, data.2018$fish, data.2022$fish, data.2023$fish)
+data.all$fish <- rbind(data.2014$fish, data.2018$fish, data.2022$fish, data.2023$fish, data.qbc$fish)
 data.all$fish <- data.all$fish[data.all$fish$loc_id != "2017_042_08",]
 
 #### Abundance ####
-data.all$abundance <- rbind(data.2014$abundance, data.2018$abundance, data.2022$abundance, data.2023$abundance)
+data.qbc$abundance$trip_id <- NULL
+data.qbc$abundance <- data.qbc$abundance %>% 
+  rename(site_id = site_number)
+data.all$abundance <- rbind(data.2014$abundance, data.2018$abundance, data.2022$abundance, data.2023$abundance, data.qbc$abundance)
 data.all$abundance <- data.all$abundance[data.all$abundance$loc_id != "2017_042_08",]
 
 ```
