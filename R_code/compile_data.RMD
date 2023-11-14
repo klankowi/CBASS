@@ -652,18 +652,16 @@ for(i in 1:nrow(bio)){
 bio$notes <- as.factor(bio$notes)
 bio <- bio[bio$notes %notin% c('Sample lost'),]
 
-# Finalize length information - if both lab and field measurements exist, use lab
-for(i in 1:nrow(bio)){
-  if(!is.na(bio$field_length_mm[i]) & is.na(bio$lab_length_mm[i])){
-    bio$length_mm[i] <- bio$field_length_mm[i]
-  }
-  if(!is.na(bio$lab_length_mm[i]) & is.na(bio$field_length_mm[i])){
-    bio$length_mm[i] <- bio$lab_length_mm[i]
-  }
-  if(!is.na(bio$field_length_mm[i]) & !is.na(bio$lab_length_mm[i])){
-    bio$lab_length_mm[i] <- bio$lab_length_mm[i]
+# Finalize length information - if field measurements lost, use lab
+bio$length_mm <- bio$field_length_mm
+bads <- bio[is.na(bio$length_mm),]
+for(i in 1:nrow(bads)){
+  if(!is.na(bads$lab_length_mm[i])){
+    bads$length_mm[i] <- bads$lab_length_mm[i]
   }
 }
+bio <- bio[!is.na(bio$length_mm),]
+bio <- rbind(bio, bads)
 
 # There is definitely not a 1mm horseshoe crab or periwinkle
 bio <- subset(bio, bio$length_mm != 1)
@@ -1039,18 +1037,16 @@ for(i in 1:nrow(bio)){
 bio$notes <- as.factor(bio$notes)
 bio <- bio[bio$notes %notin% c('Sample lost'),]
 
-# Finalize length information - if both lab and field measurements exist, use lab
-for(i in 1:nrow(bio)){
-  if(!is.na(bio$field_length_mm[i]) & is.na(bio$lab_length_mm[i])){
-    bio$length_mm[i] <- bio$field_length_mm[i]
-  }
-  if(!is.na(bio$lab_length_mm[i]) & is.na(bio$field_length_mm[i])){
-    bio$length_mm[i] <- bio$lab_length_mm[i]
-  }
-  if(!is.na(bio$field_length_mm[i]) & !is.na(bio$lab_length_mm[i])){
-    bio$lab_length_mm[i] <- bio$lab_length_mm[i]
+# Finalize length information - if field measurements lost, use lab
+bio$length_mm <- bio$field_length_mm
+bads <- bio[is.na(bio$length_mm),]
+for(i in 1:nrow(bads)){
+  if(!is.na(bads$lab_length_mm[i])){
+    bads$length_mm[i] <- bads$lab_length_mm[i]
   }
 }
+bio <- bio[!is.na(bio$length_mm),]
+bio <- rbind(bio, bads)
 
 # Finalize dataframe
 bio <- dplyr::select(bio,
@@ -1722,7 +1718,7 @@ rm(test.abund, test.bio, test.combo, i, test.bad)
  
 As a final check, we will ensure that species names are represented correctly between biological information and abundance datasets.
 
-```{r abundcheck2, echo=F, results='hide'}
+```{r abundcheck3, echo=F, results='hide'}
 #### Present in biological information but not in abundance ####
 # 2023
 as.character(data.2023$fish$species_name[data.2023$fish$species_name %notin%
@@ -1794,7 +1790,7 @@ data.all$abundance <- data.all$abundance[data.all$abundance$loc_id != "2017_042_
 ## Save data
 Combined data can be saved as a new master seine spreadsheet.
 
-```{r savedata, eval=F}
+```{r savedata, eval=T}
 library(xlsx)
 write.xlsx2(data.all$sites, 
             here('Clean_Data/seine_compiled_clean.xlsx'),

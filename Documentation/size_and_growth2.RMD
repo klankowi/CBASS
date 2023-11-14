@@ -1,0 +1,251 @@
+---
+title: ""
+header-includes:
+- \usepackage{titling}
+- \pretitle{\begin{center}}
+- \posttitle{\end{center}}
+output: 
+  pdf_document:
+    toc: false
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(
+  echo = FALSE, warning = FALSE, message = FALSE, error = TRUE,
+  dev = "png", dpi = 144
+)
+
+library(data.table); library(qgam); library(mgcViz); library(ggplot2)
+library(tidyverse); library(readxl); library(here); library(sf)
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+
+# Set GGplot auto theme
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', linewidth=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=12),
+                axis.text.y=element_text(size=12),
+                axis.title.x=element_text(size=14),
+                axis.title.y=element_text(size=14, angle=90, vjust=2),
+                plot.title=element_text(size=14, hjust = 0, vjust = 1.2),
+                plot.caption=element_text(hjust=0, face='italic', size=12),
+                strip.text.x=element_text(size=12)))
+```
+
+```{r loaddata}
+# Set the name of the workbook
+fname <- paste0(here('Clean_Data/seine_compiled_clean.xlsx'))
+# Get info about all excel sheet names in workbook
+sheets <- readxl::excel_sheets(fname)
+# Read in as list item, each item is a sheet
+data.all <- invisible(lapply(sheets, 
+                           function(x) readxl::read_excel(fname, sheet = x)))
+names(data.all) <- sheets
+# Coerce list items to dataframes
+data.all <- lapply(data.all, as.data.frame)
+
+rm(fname, sheets)
+```
+
+```{r fixnames}
+#### Join similar species ####
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('grubby sculpin',
+                                     'longhorn sculpin',
+                                     'shorthorn sculpin',
+                                     'slimy sculpin',
+                                     'striped sculpin',
+                                     'unID sculpin')
+] <- 'sculpin spp'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('atlantic herring',
+                                     'herring')
+] <- 'atlantic herring'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('banded killifish',
+                                     'killifish')
+] <- 'killifish spp'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('northern pipefish',
+                                     'pipefish')
+] <- 'northern pipefish'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('white mullet',
+                                     'mullet')
+] <- 'white mullet'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('emerald shiner',
+                                     'golden shiner',
+                                     'unID shiner')
+] <- 'shiner spp'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('rock gunnel',
+                                     'unID gunnel')
+] <- 'rock gunnel'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('threespine stickleback',
+                                     'fourspine stickleback',
+                                     'ninespine stickleback',
+                                     'unID stickelback')
+] <- 'stickleback spp'
+```
+
+```{r summary}
+lengths <- dplyr::select(data.all$bio,
+                         species_name, length_mm, date)
+
+lengths$wk <- lubridate::isoweek(lengths$date)
+lengths$year <- lubridate::year(lengths$date)
+lengths$length_mm <- as.numeric(lengths$length_mm)
+lengths <- lengths[!is.na(lengths$length_mm),]
+
+# lengths$id <- paste0(lengths$species_name,'qrst', lengths$length_mm, 'qrst',
+#                      lengths$wk, 'qrst', lengths$year)
+# lengths <- dplyr::select(lengths, id)
+# lengths <- as.data.frame(table(lengths))
+# colnames(lengths) <- c('id', 'Freq')
+# 
+# lengths <- lengths %>% 
+#   separate(id, into=c('species_name', 'length_mm', 'wk', 'year'),
+#            sep='qrst')
+
+lengths$species_name <- as.factor(lengths$species_name)
+lengths$length_mm <- as.numeric(lengths$length_mm)
+lengths$wk <- as.numeric(lengths$wk)
+lengths$year <- as.numeric(lengths$year)
+
+biolims <- lengths %>% 
+  group_by(species_name) %>% 
+  summarise(min.length = min(length_mm),
+            max.length = max(length_mm))
+
+#### Focus on top 10 ####
+lengths <- lengths[lengths$species_name %in% 
+                     c('alewife', 'atlantic silverside',
+                       'atlantic herring', 'green crab', 
+                       'winter flounder', 'mummichog', 
+                       'tomcod', 'sandlance'),]
+biolims <- biolims[biolims$species_name %in% lengths$species_name,]
+
+lengths <- lengths[with(lengths, order(species_name, wk, length_mm)),]
+```
+
+```{r plots}
+for(i in 2:2){
+    #nrow(biolims)){
+  
+  temp <- lengths[lengths$species_name == biolims$species_name[i],]
+  tempwks <- as.data.frame(table(temp$wk))
+  badwks <- tempwks[tempwks$Freq <=5,]
+  
+  temp <- temp[temp$wk %notin% badwks$Var1,]
+    
+  nrecords <- as.data.table(temp)[, .N, by = 'wk'][order(wk)]
+  times <- NULL
+  
+  for(j in 1:nrow(nrecords)){
+    if(nrecords[j]$N == 1){
+      times <- c(times, nrecords[j]$wk)
+    }else{
+      times <- c(times, rep(nrecords[j]$wk, 2 ^ 8))
+    }
+  }
+  print(
+  ggplot() +
+      geom_jitter(data = temp, aes(x = wk, y = length_mm, col=year),
+                  alpha=0.35, width=0.2, stroke=NA, cex=2) +
+      scale_color_viridis_c(option = 'viridis', name='Year') +
+      theme(legend.text = element_text(angle = 45, vjust = 0.4)) +
+      geom_density(data = temp, aes(x = after_stat(scaled) * 0.9, 
+                                    y = length_mm, group = wk),
+                   n = 2 ^ 8,
+                   position = position_nudge(x = times),
+                   trim = T, adjust = 1.5) +
+      xlab('Week of year') + ylab('Length (mm)') +
+    ggtitle(str_to_title(paste0(biolims$species_name[i]),
+                         ' raw length frequency'))
+  )
+  
+  if(temp$species_name[1] %in% c('sandlance', 'sculpin spp')){
+    next()
+  }
+  
+    temp <- lengths[lengths$species_name == biolims$species_name[i],]
+    
+    temp$id <- paste0(temp$species_name,'qrst', temp$length_mm, 'qrst',
+                         temp$wk, 'qrst', temp$year)
+    temp <- dplyr::select(temp, id)
+    temp <- as.data.frame(table(temp))
+    colnames(temp) <- c('id', 'Freq')
+    
+    temp <- temp %>%
+      separate(id, into=c('species_name', 'length_mm', 'wk', 'year'),
+               sep='qrst')
+    
+    temp <- as.data.table(temp)
+    temp[, yr_fac := as.factor(year)]
+  
+    qr <- tryCatch(
+    mqgam(list(length_mm ~ s(wk, bs = 'ad') + 
+                 s(yr_fac, bs = 're'),
+               ~s(wk, bs = 'ad')),
+          data = temp,
+          qu = seq(0.1, 0.9, 0.1),
+          multicore = T),
+    error = function(e) 'Model did not converge.')
+    
+      if(!is.character(qr)){
+    qr_vis <- getViz(qr)
+    
+    
+    print(
+      plot(qr_vis, select = 1)
+    ) 
+    
+    cat("\n")
+    
+    cat("### Size tracking\n")
+  
+    cat("\n")
+    
+    time_seq <- seq(min(temp$wk), max(temp$wk), length.out = 100)
+    preds <- sapply(qr_vis, predict,
+                    newdata = data.frame(wk = time_seq, yr_fac = '2019'),
+                    exclude = 's(yr_fac)')
+  
+    preds <- as.data.table(cbind(preds, wk = time_seq))
+    preds <- melt(preds, id.vars = 'wk', variable.name = 'quantile')
+  
+  print(
+    ggplot() +
+      geom_point(data = temp, aes(x = wk, y = length_mm)) +
+      geom_line(data = preds, aes(x = wk, y = value, 
+                                  group = quantile,
+                                  color=quantile)) +
+      scale_color_viridis_d(option='viridis', 'Quantile') +
+      geom_density(data = temp, aes(x = after_stat(scaled) * 0.9, 
+                                    y = length_mm, group = wk),
+                   n = 2 ^ 8,
+                   position = position_nudge(x = times),
+                   trim = T, adjust = 1.5) +
+      xlab('Week of year') + ylab('Length (mm)') +
+    ggtitle(str_to_title(paste0(biolims$species_name[i])))
+  )
+  
+      }
+    
+    cat("\n")
+}
+```
