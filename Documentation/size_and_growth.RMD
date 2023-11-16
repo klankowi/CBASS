@@ -53,7 +53,28 @@ rm(fname, sheets)
 ```
 
 ```{r fixnames}
-#### Join similar species ####
+#### Join similar species, lengths ####
+data.all$bio <- data.all$bio[
+  data.all$bio$species_name %notin% c('periwinkle',
+                                      'horseshoe crab'),]
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('american eel',
+                                   'glass eel elver')
+] <- 'american eel'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('hake', 
+                                   'red hake',
+                                   'spotted hake',
+                                   'white hake')
+] <- 'hake spp'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('shortnose sturgeon',
+                                   'unID sturgeon')
+] <- 'sturgeon spp'
+
 data.all$bio$species_name[
   data.all$bio$species_name %in% c('grubby sculpin',
                                      'longhorn sculpin',
@@ -100,8 +121,6 @@ data.all$bio$species_name[
                                      'ninespine stickleback',
                                      'unID stickelback')
 ] <- 'stickleback spp'
-
-
 ```
 
 ```{r summary}
@@ -112,6 +131,10 @@ lengths <- dplyr::select(data.all$bio,
 lengths <- lengths[lengths$length_mm != 385,]
 
 lengths$wk <- lubridate::isoweek(lengths$date)
+
+# Remove early weeks
+lengths <- lengths[lengths$wk >=24,]
+
 lengths$year <- lubridate::year(lengths$date)
 lengths$length_mm <- as.numeric(lengths$length_mm)
 lengths <- lengths[!is.na(lengths$length_mm),]
@@ -141,19 +164,23 @@ lengths <- lengths[lengths$species_name %in%
                      c('alewife', 'atlantic silverside',
                        'atlantic herring', 'green crab', 
                        'winter flounder', 'mummichog', 
-                       'tomcod', 'sandlance'),]
+                       'tomcod', 'sandlance',
+                       'sculpin spp'),]
 biolims <- biolims[biolims$species_name %in% lengths$species_name,]
 
 lengths <- lengths[with(lengths, order(species_name, wk, length_mm)),]
 
 #### Split by period ####
-lengths.1 <- lengths[lengths$year %in% c(2014:2018),]
-lengths.2 <- lengths[lengths$year %in% c(2019:2023),]
+lengths$period[lengths$year %in% c(2014, 2015, 2017, 2018, 2019)] <- 'cold'
+lengths$period[lengths$year %in% c(2016, 2020, 2021, 2022, 2023)] <- 'hot'
+
+lengths.1 <- lengths[lengths$period == 'cold',]
+lengths.2 <- lengths[lengths$period == 'hot',]
 ```
 
 ```{r plots}
 # Set desired quantiles
-quants <- c(0.25, 0.5, 0.75, 0.95)
+quants <- c(0.05, 0.25, 0.5, 0.75, 0.95)
 
 for(i in 1:#2){
     nrow(biolims)){
@@ -229,7 +256,7 @@ for(i in 1:#2){
                                           preds.se[[3]],
                                           preds.se[[5]],
                                           preds.se[[7]],
-                                          #preds.se[[9]],
+                                          preds.se[[9]],
                                           wk=time_seq))
     colnames(preds.se.preds) <- c(quants, 'wk')
     preds.se.preds <- melt(preds.se.preds, id.vars='wk', variable.name = 'quantile')
@@ -240,7 +267,7 @@ for(i in 1:#2){
                                           preds.se[[4]],
                                           preds.se[[6]],
                                           preds.se[[8]],
-                                          #preds.se[[10]],
+                                          preds.se[[10]],
                                        wk=time_seq))
     colnames(preds.se.se) <- c(quants, 'wk')
     preds.se.se <- melt(preds.se.se, id.vars='wk', variable.name = 'quantile')
@@ -317,26 +344,26 @@ for(i in 1:#2){
                     exclude = 's(yr_fac)')
     preds.1 <- as.data.table(cbind(preds.1, wk = time_seq))
     preds.1 <- melt(preds.1, id.vars = 'wk', variable.name = 'quantile')
-    preds.1$Period <- as.factor('2014-2018')
+    preds.1$Period <- as.factor('cold')
   
     preds.2 <- sapply(qr_vis.2, predict,
                     newdata = data.frame(wk = time_seq, yr_fac = '2020'),
                     exclude = 's(yr_fac)')
     preds.2 <- as.data.table(cbind(preds.2, wk = time_seq))
     preds.2 <- melt(preds.2, id.vars = 'wk', variable.name = 'quantile')
-    preds.2$Period <- as.factor('2019-2023')
+    preds.2$Period <- as.factor('hot')
     
     preds <- rbind(preds.1, preds.2)
     
     temp.pts <- temp
-    temp.pts$Period[temp.pts$year %in% c(2014:2018)] <- ('2014-2018')
-    temp.pts$Period[temp.pts$year %in% c(2019:2023)] <- ('2019-2023')
-    temp.pts$Period <- as.factor(temp.pts$Period)
+    temp.pts$Period <- factor(temp.pts$period, levels=c('hot', 'cold'))
+    
+    preds$Period <- factor(preds$Period, levels=c('hot', 'cold'))
       
   print(
     ggplot() +
-      geom_jitter(data = temp.pts, aes(x = wk, y = length_mm, col=Period),
-                  alpha=0.1, width=0.2, stroke=NA, cex=2) +
+      #geom_jitter(data = temp.pts, aes(x = wk, y = length_mm, col=Period),
+      #            alpha=0.1, width=0.2, stroke=NA, cex=2) +
       geom_line(data = preds, aes(x = wk, y = value, 
                                   group = Period,
                                   color=Period)) +
