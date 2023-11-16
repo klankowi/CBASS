@@ -1,0 +1,659 @@
+---
+title: 'Ecosystem Indicator Report Supporting Data'
+author: Katie Lankowicz
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex
+    includes: 
+       in_header: header1.tex
+always_allow_html: true
+header-includes:
+    - \usepackage{setspace}\onehalfspacing
+    - \usepackage{float}
+    - \usepackage{caption}
+    - \captionsetup[figure]{labelformat=empty}
+---
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+
+library(tidyverse)
+library(here)
+library(DT)
+library(pdftools)
+library(patchwork)
+library(ggiraph)
+library(here)
+library(tidyverse)
+library(sf)
+library(kableExtra)
+library(pander)
+library(pmetar)
+library(treemapify)
+library(data.table)
+library(ggnewscale)
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+
+# Set GGplot auto theme
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', size=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=11),
+                axis.text.y=element_text(size=11),
+                axis.title.x=element_text(size=12),
+                axis.title.y=element_text(size=12, angle=90, vjust=2),
+                plot.title=element_text(size=14, hjust = 0, vjust = 1.2),
+                plot.caption=element_text(hjust=0, face='italic', size=12)))
+
+library(webshot)
+if(is.null(webshot:::find_phantom())){webshot::install_phantomjs()}
+
+options(DT.options = list(pageLength = 100))
+```
+\newpage
+# Data Sources
+
+## CBASS Processed Seine Data
+
+The Ecosystem Indicator report will rely heavily on seine data collected during the course of CBASS operations. All sampling efforts through the 2023 season from both GMRI and QBC have been digitized, cleaned, and collated into a single data source. This includes trip information (date, location, environmental conditions, field crew notes), abundance information for species collected, and biological information (length, sex) for a subset of species collected.
+
+```{r loaddata}
+# Set the name of the workbook
+fname <- paste0(here('Clean_Data/seine_compiled_clean.xlsx'))
+# Get info about all excel sheet names in workbook
+sheets <- readxl::excel_sheets(fname)
+# Read in as list item, each item is a sheet
+data.all <- invisible(lapply(sheets, 
+                           function(x) readxl::read_excel(fname, sheet = x)))
+names(data.all) <- sheets
+# Coerce list items to dataframes
+data.all <- lapply(data.all, as.data.frame)
+
+rm(fname, sheets)
+
+#### Join similar species, lengths ####
+data.all$bio <- data.all$bio[
+  data.all$bio$species_name %notin% c('periwinkle',
+                                      'horseshoe crab'),]
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('american eel',
+                                   'glass eel elver')
+] <- 'american eel'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('hake', 
+                                   'red hake',
+                                   'spotted hake',
+                                   'white hake')
+] <- 'hake spp'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('shortnose sturgeon',
+                                   'unID sturgeon')
+] <- 'sturgeon spp'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('grubby sculpin',
+                                     'longhorn sculpin',
+                                     'shorthorn sculpin',
+                                     'slimy sculpin',
+                                     'striped sculpin',
+                                     'unID sculpin')
+] <- 'sculpin spp'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('atlantic herring',
+                                     'herring')
+] <- 'atlantic herring'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('banded killifish',
+                                     'killifish')
+] <- 'killifish spp'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('northern pipefish',
+                                     'pipefish')
+] <- 'northern pipefish'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('white mullet',
+                                     'mullet')
+] <- 'white mullet'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('emerald shiner',
+                                     'golden shiner',
+                                     'unID shiner')
+] <- 'shiner spp'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('rock gunnel',
+                                     'unID gunnel')
+] <- 'rock gunnel'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('threespine stickleback',
+                                     'fourspine stickleback',
+                                     'ninespine stickleback',
+                                     'unID stickelback')
+] <- 'stickleback spp'
+
+#### Join similar species, abundance ####
+data.all$abund <- data.all$abund[
+  data.all$abund$species_name %notin% c('periwinkle',
+                                      'horseshoe crab'),]
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('american eel',
+                                   'glass eel elver')
+] <- 'american eel'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('hake', 
+                                   'red hake',
+                                   'spotted hake',
+                                   'white hake')
+] <- 'hake spp'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('shortnose sturgeon',
+                                   'unID sturgeon')
+] <- 'sturgeon spp'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('grubby sculpin',
+                                     'longhorn sculpin',
+                                     'shorthorn sculpin',
+                                     'slimy sculpin',
+                                     'striped sculpin',
+                                     'unID sculpin')
+] <- 'sculpin spp'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('atlantic herring',
+                                     'herring')
+] <- 'atlantic herring'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('banded killifish',
+                                     'killifish')
+] <- 'killifish spp'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('northern pipefish',
+                                     'pipefish')
+] <- 'northern pipefish'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('white mullet',
+                                     'mullet')
+] <- 'white mullet'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('emerald shiner',
+                                     'golden shiner',
+                                     'unID shiner')
+] <- 'shiner spp'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('rock gunnel',
+                                     'unID gunnel')
+] <- 'rock gunnel'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('threespine stickleback',
+                                     'fourspine stickleback',
+                                     'ninespine stickleback',
+                                     'unID stickelback')
+] <- 'stickleback spp'
+
+```
+
+## Continuous temperature from the Portland Harbor buoy
+
+One of our main goals is connecting the ecological story of Casco Bay in the last 10 years with existing temperature data. The warming report relies on OISST data to identify temperature trends in the wider Gulf of Maine. Unfortunately, this data source will not work for Casco Bay; it is a much smaller area that is not well-covered by rasterized OISST data, especially in the extreme nearshore region where we collect our data.
+
+Temperature data taken from the NOAA tide gauge in Portland Harbor is likely to better match temperature trends seen at our seining sites. The sampling site is at the end of Ocean Gateway Pier, and thus much closer in characteristics to our beach seining sites than satellite measures of surface temperature at points several kilometers offshore. Tide, water temperature, and meterological data at 6-minute intervals can be pulled straight into \texttt{R} from NOAA's CO-OPS API using the `query_coops_data()` function within the `noaaoceans` package.
+
+We're interested in categorizing years into "hot" and "cold" to pick up on any high-level differences in nearshore ecology that may be related to temperature. As of now, this categorization has been made by calculating annual temperature anomaly compared to a 2003-2023 smoothed mean daily temperature dataset from the same buoy NOAA tide gauge data. "Cold" years are typically earlier in the time series and are best characterized by rapid drops in temperature in late winter and sustained cold temperatures until early summer. "Hot" years are typically later in the time seires and are best characterized by relatively warm waters in late winter-early summer, resulting in much hotter waters than normal in the summer. You can see these trends in the following plot, which also outlines our study season with dashed red lines.
+
+```{r portlandtemp, eval=T, fig.pos='H', fig.align='center'}
+# I'm not pasting the whole thing here. Look at extract_portland_tidegauge.R in R_Code folder.
+port.temps <- read.csv(here('Clean_Data/Meteorological/Portland_watertemp.csv'))
+
+heattab <- port.temps %>% group_by(year) %>% summarise(mean.anom = mean(anomaly, na.rm=TRUE))
+heattab$Period <- c('Cold', 'Cold', 'Hot', 'Cold', 'Cold', 'Cold', 
+                    'Hot', 'Hot', 'Hot', 'Hot')
+
+kable(heattab,
+      col.names=c('Year', 'Mean anomaly (C)', 'Period')) %>% 
+  kable_styling(position='center')
+
+
+ggplot() +
+  geom_point(data=unique(dplyr::select(port.temps, 
+                                       doy, daily.c, anomaly, year,
+                                       updif, lowdif, catper)),
+             aes(x=doy, y=anomaly, col=as.factor(year)),
+             alpha=0.8, stroke=NA) +
+  scale_color_viridis_d(option='viridis', 'Year') +
+  geom_ribbon(data=unique(dplyr::select(port.temps, 
+                                       doy, daily.c, anomaly, year,
+                                       updif, lowdif, catper)),
+              aes(x=doy, ymin=lowdif, ymax=updif),
+              fill='blue', alpha=0.3) +
+  xlab('Day of year') + ylab('SST Anomaly (C)')+
+  guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+  facet_wrap(vars(catper)) +
+  geom_vline(xintercept=151, col='red', lty=2) +
+  geom_vline(xintercept=273, col='red', lty=2)
+
+
+
+port.temps$dailyts <- as.POSIXct(port.temps$dailyts, fomat="%Y-%m-%d")
+
+ggplot() +
+   geom_point(data=unique(dplyr::select(port.temps, 
+                                       dailyts,
+                                       daily.c, anomaly, year,
+                                       updif, lowdif, catper)),
+             aes(x=dailyts, y=anomaly, pch=catper)) +
+   geom_smooth(data=unique(dplyr::select(port.temps, 
+                                       dailyts,
+                                       daily.c, anomaly, year,
+                                       updif, lowdif, catper)),
+               aes(x=dailyts, y=anomaly, col=as.factor(year))) +
+  ylab('SST Anomaly (C)') + xlab('Date') +
+  labs(color='Year', pch='Period')
+```
+
+\newpage
+## Weather from Portland airport
+
+Weather conditions are likely to affect both our ability to collect representative data AND the underlying distributions of fishes. As an example of the former, fishes are known to better evade seines when light and water clarity conditions allow them to see the net. As an example of the latter, rainfall has been shown to affect recruitment and migration patterns of diadromous fishes like alewives. The most complete and consistent dataset of weather conditions (except precipitation) within the Casco Bay region comes from the Portland International Jetport. We can pull air temperature anomaly data and compare that to our SST anomaly data. The results return the same "hot/cold" periodicity, where "cold" years are 2014-2014; 2017-2019 and "hot" years are 2016; 2020-2023. Also similar to SST anomaly, the heat category of a year is not strictly dependent on adjacent years. "Cold" years have sustained periods of anomalous cold in the winter (this can be at either end of the year or at both ends of the year). "Hot" years do not have these sustained periods of cold and/ or have sustained periods of anomalous heat in the summer. As we do not yet have complete data for 2023, it may actually shift into a cold year if temperatures continue to drop. This is not likely to be replicated in SST anomaly data, as there is a lag of several months between minimum air temperatures and minimum SST.
+
+Rainfall information can be obtained through the Wiscasset Airport and CoCoRaHS (Community Collaborative Rain Hail and Snow Network) sites in Cape Elizabeth and Harpswell, if we care to look at fine-scale differences between GMRI- and QBC-collected data in the future. I haven't been able to pull precipitation data for the entire time period of interest yet, so hang tight on that for now.
+
+```{r portlandweather, eval=T, fig.pos='H', fig.align='center'}
+# I'm not pasting the whole thing here. Look at extract_portland_airport.R in R_Code folder.
+port.air <- read.csv(here('Clean_Data/Meteorological/Portland_Met.csv'))
+
+heattab <- port.temps %>% group_by(year) %>% summarise(mean.anom = mean(anomaly, na.rm=TRUE))
+heattab$Period <- c('Cold', 'Cold', 'Hot', 'Cold', 'Cold', 'Cold', 
+                    'Hot', 'Hot', 'Hot', 'Hot')
+
+kable(heattab,
+      col.names=c('Year', 'Mean anomaly (C)', 'Period')) %>% 
+  kable_styling(position='center')
+
+ggplot() +
+  geom_point(data=unique(dplyr::select(port.air, 
+                                       doy, airtemp, anomaly, year,
+                                       updif, lowdif, catper)),
+             aes(x=doy, y=anomaly, col=as.factor(year)),
+             alpha=0.8, stroke=NA) +
+  scale_color_viridis_d(option='viridis', 'Year') +
+  geom_ribbon(data=unique(dplyr::select(port.air, 
+                                       doy, airtemp, anomaly, year,
+                                       updif, lowdif, catper)),
+              aes(x=doy, ymin=lowdif, ymax=updif),
+              fill='blue', alpha=0.3) +
+  xlab('Day of year') + ylab('Air temp Anomaly (C)')+
+  guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+  facet_wrap(vars(catper)) +
+  geom_vline(xintercept=151, col='red', lty=2) +
+  geom_vline(xintercept=273, col='red', lty=2)
+
+port.air$localdate <- as.POSIXct(port.air$localdate, 
+                                 format='%Y-%m-%d')
+
+ggplot() +
+   geom_point(data=port.air,
+             aes(x=localdate, y=anomaly, pch=catper)) +
+   geom_smooth(data=port.air,
+               aes(x=localdate, y=anomaly, col=as.factor(year))) +
+    ylab('Air Temp Anomaly (C)') + xlab('Date') +
+  labs(color='Year', pch='Period')
+```
+\newpage
+# Community Assemblage
+
+## Temporal patterns
+
+We can produce tree plots (similar to mosaic plots) of nearshore community assemblage at three temporal resolutions-- the entire sampling period (2014-2023), the two temperature periods (2014-2015;2017-2019 and 2016;2020-2023), and annually. More than 50 species were identified over the course of the surveys. For clarity, we will focus on the top 9 most frequently-encountered species and categorize all other organisms as "Other"
+
+```{r communityassemblage}
+top <- data.all$abund
+top <- as.data.frame(table(top$species_name))
+colnames(top) <- c('species_name', 'n_encounters')
+top <- top[with(top, order(n_encounters, decreasing = T)),]
+
+top.spec <- top$species_name[1:9]
+top.spec <- droplevels(top.spec)
+
+abund <- data.all$abund
+abund$year <- lubridate::year(abund$date)
+
+abund$period[abund$year %in% c(2014, 2015, 2017, 2018, 2019)] <- 'cold'
+abund$period[abund$year %in% c(2016, 2020, 2021, 2022, 2023)] <- 'hot'
+
+abund$period <- factor(abund$period, levels=c('hot', 'cold'))
+
+abund$Species <- abund$species_name
+abund$Species[abund$Species %notin% top.spec]  <- 'Other'
+
+abund$Species <- factor(abund$Species,
+                         levels=c('Other', 'atlantic silverside',
+                                  'green crab', 'atlantic herring',
+                                  'sandlance', 'winter flounder',
+                                  'mummichog', 'alewife', 'tomcod',
+                                  'sculpin spp'))
+```
+
+```{r all1, fig.height=10, fig.width=7, eval=F}
+# abund0 <- abund %>% 
+#   group_by(species_name) %>% 
+#   summarise(catch=sum(catch))
+#
+# ggplot(data=abund0) +
+#   geom_treemap(aes(area=catch, fill=species_name)) +
+#   geom_treemap_text(aes(area = catch, fill = species_name, 
+#                         label = species_name))+
+#   ggtitle('Whole time, all species')+
+#   theme(legend.position = 'bottom',
+#         legend.text = element_text(size=6),
+#         legend.title = element_text(size=8),
+#         legend.key.size = unit(0.5, 'cm')) +
+#   labs(fill='Species')
+```
+
+```{r all2, fig.height=8, fig.width=7, eval=F}
+# abund0.0 <- abund0[abund0$species_name %in% top.spec,]
+# 
+# abund0.0$species_name <- factor(abund0.0$species_name,
+#                          levels=c('atlantic silverside',
+#                                   'green crab', 'atlantic herring',
+#                                   'sandlance', 'winter flounder',
+#                                   'mummichog', 'alewife', 'tomcod',
+#                                   'sculpin spp'))
+# ggplot(data=abund0.0)+
+#   geom_treemap(aes(area=catch, 
+#                    fill=species_name
+#                    )) +
+#   scale_fill_viridis_d(option='viridis',
+#                        direction=-1,
+#                        begin=0, end=0.9) +
+#   geom_treemap_text(aes(area = catch, fill = species_name, 
+#                         label = species_name))+
+#   ggtitle('Whole time, just top 9 species') +
+#   theme(legend.position = 'bottom',
+#         legend.text = element_text(size=8),
+#         legend.title = element_text(size=10),
+#         legend.key.size = unit(0.5, 'cm')) +
+#   labs(fill='Species')
+```
+
+```{r all3, fig.height=8, fig.width=7}
+abund0.1 <- abund %>% 
+  group_by(Species) %>% 
+  summarise(catch=sum(catch))
+
+ggplot(data=abund0.1) +
+  geom_treemap(aes(area=catch, fill=Species)) +
+  scale_fill_viridis_d(option='viridis',
+                       direction=-1,
+                       begin=0.1, end=1) +
+  geom_treemap_text(aes(area = catch, fill = Species, 
+                        label = Species))+
+  ggtitle('Whole time, top 9 + other')+
+  theme(legend.position = 'bottom',
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=10),
+        legend.key.size = unit(0.5, 'cm')) +
+  labs(fill='Species')
+```
+
+```{r period1, fig.height=9, fig.width=7, eval=F}
+# abund0 <- abund %>% 
+#   group_by(species_name, period) %>% 
+#   summarise(catch=sum(catch))
+# 
+# ggplot(data=abund0) +
+#   geom_treemap(aes(area=catch, fill=species_name)) +
+#   geom_treemap_text(aes(area = catch, fill = species_name, 
+#                         label = species_name))+
+#   facet_wrap(vars(period)) +
+#   ggtitle('Periods, top 9 + other')+
+#   theme(legend.position = 'bottom',
+#         legend.text = element_text(size=8),
+#         legend.title = element_text(size=10),
+#         legend.key.size = unit(0.5, 'cm')) +
+#   labs(fill='Species')
+```
+
+```{r period2, fig.height=7, fig.width=7, eval=F}
+# 
+# abund0.0 <- abund0[abund0$species_name %in% top.spec,]
+# 
+# abund0.0$species_name <- factor(abund0.0$species_name,
+#                          levels=c('atlantic silverside',
+#                                   'green crab', 'atlantic herring',
+#                                   'sandlance', 'winter flounder',
+#                                   'mummichog', 'alewife', 'tomcod',
+#                                   'sculpin spp'))
+# 
+# ggplot(data=abund0.0)+
+#   geom_treemap(aes(area=catch, 
+#                    fill=species_name
+#                    )) +
+#   scale_fill_viridis_d(option='viridis',
+#                        direction=-1,
+#                        begin=0, end=0.9) +
+#   geom_treemap_text(aes(area = catch, fill = species_name, 
+#                         label = species_name)) +
+#   facet_wrap(vars(period))  +
+#   ggtitle('Periods, top 9 + other')+
+#   theme(legend.position = 'bottom',
+#         legend.text = element_text(size=8),
+#         legend.title = element_text(size=10),
+#         legend.key.size = unit(0.5, 'cm')) +
+#   labs(fill='Species')
+```
+
+```{r period3, fig.height=7, fig.width=7}
+abund0.1 <- abund %>% 
+  group_by(Species, period) %>% 
+  summarise(catch=sum(catch))
+
+ggplot(data=abund0.1) +
+  geom_treemap(aes(area=catch, fill=Species)) +
+  scale_fill_viridis_d(option='viridis',
+                       direction=-1,
+                       begin=0.1, end=1) +
+  geom_treemap_text(aes(area = catch, fill = Species, 
+                        label = Species))+
+  facet_wrap(vars(period))  +
+  ggtitle('Periods, top 9 + other')+
+  theme(legend.position = 'bottom',
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=10),
+        legend.key.size = unit(0.5, 'cm')) +
+  labs(fill='Species')
+```
+
+```{r years1, fig.height=10, fig.width=7, eval=F}
+# abund0 <- abund %>% 
+#   group_by(species_name, year) %>% 
+#   summarise(catch=sum(catch))
+# 
+# ggplot(data=abund0) +
+#   geom_treemap(aes(area=catch, fill=species_name)) +
+#   geom_treemap_text(aes(area = catch, fill = species_name, 
+#                         label = species_name))+
+#   facet_wrap(vars(year))+
+#   ggtitle('Years, all species')+
+#   theme(legend.position = 'bottom',
+#         legend.text = element_text(size=6),
+#         legend.title = element_text(size=8),
+#         legend.key.size = unit(0.5, 'cm')) +
+#   labs(fill='Species')
+```
+
+```{r years2, fig.height=9, fig.width=7, eval=F}
+# abund0.0 <- abund0[abund0$species_name %in% top.spec,]
+# 
+# abund0.0$species_name <- factor(abund0.0$species_name,
+#                          levels=c('atlantic silverside',
+#                                   'green crab', 'atlantic herring',
+#                                   'sandlance', 'winter flounder',
+#                                   'mummichog', 'alewife', 'tomcod',
+#                                   'sculpin spp'))
+# 
+# ggplot(data=abund0.0)+
+#   geom_treemap(aes(area=catch, 
+#                    fill=species_name
+#                    )) +
+#   scale_fill_viridis_d(option='viridis',
+#                        direction=-1,
+#                        begin=0, end=0.9) +
+#   geom_treemap_text(aes(area = catch, fill = species_name, 
+#                         label = species_name))+
+#   facet_wrap(vars(year)) +
+#   ggtitle('Years, just top 9 species')+
+#   theme(legend.position = 'bottom',
+#         legend.text = element_text(size=8),
+#         legend.title = element_text(size=10),
+#         legend.key.size = unit(0.5, 'cm')) +
+#   labs(fill='Species')
+```
+
+```{r years3, fig.height=9, fig.width=7}
+abund0.1 <- abund %>% 
+  group_by(Species, year) %>% 
+  summarise(catch=sum(catch))
+
+ggplot(data=abund0.1) +
+  geom_treemap(aes(area=catch, fill=Species)) +
+  scale_fill_viridis_d(option='viridis',
+                       direction=-1,
+                       begin=0.1, end=1) +
+  geom_treemap_text(aes(area = catch, fill = Species,
+                        label = Species))+
+  facet_wrap(vars(year)) +
+  ggtitle('Years, top 9 + other')+
+  theme(legend.position = 'bottom',
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=10),
+        legend.key.size = unit(0.5, 'cm')) +
+  labs(fill='Species')
+```
+
+# Phenology
+
+Before I can make any further statements about phenology, it is important to note that our survey programs typically run from the first week of June through the last week of August. This window does not extend through enough of the year to fully capture the seasonal use of Casco Bay by migratory species. However, we can take a look at how patterns of annual abundance shift through every week of our sampling season.
+
+VERY IMPORTANT NOTE: There is a slight difference in the width of our temporal range for hot vs. cold periods. In "cold" years, the earliest week sampled was the 24th week of the year (mid-June, around the 12-15th, in 2015/18/19). In "hot" years, we started sampling in the 22nd week of the year (May 31st in 2023 and June 1st in 2022). This two week difference could shift our perception of the temporal distribution of abundances. I'm a little loath to drop data but I will here, for the sake of consistency.
+
+```{r phenology}
+data.all$abund$id <- 
+  paste0(data.all$abund$loc_id, 'qrst',
+         data.all$abund$species_name)
+
+pullinfo <- data.all$abund
+
+data.all$abund <- data.all$abund %>% 
+  group_by(id) %>% 
+  summarise(catch = sum(catch))
+
+data.all$abund <- data.all$abund %>% 
+  separate(id, into=c('loc_id', 'species_name'),
+           sep = "qrst")
+
+pullinfo <- dplyr::select(pullinfo, -catch, -id)
+pullinfo <- unique(pullinfo)
+
+data.all$abund <- left_join(data.all$abund, pullinfo, 
+                            by=c('loc_id', 'species_name'))
+data.all$abund <- as.data.frame(data.all$abund)
+
+#### Residence time and phenology ####
+tot.abund <- data.all$abund 
+tot.abund$year <- lubridate::year(tot.abund$date)
+tot.abund$period[tot.abund$year %in% c(2014, 2015, 2017:2019)] <- 'cold'
+tot.abund$period[tot.abund$year %in% c(2016, 2020:2023)] <- 'hot'
+tot.abund$period <- factor(tot.abund$period, levels=c('hot', 'cold'))
+tot.abund$id <- paste0(tot.abund$species_name, "_", tot.abund$period)
+tot.abund$doy <- lubridate::yday(tot.abund$date)
+tot.abund$wk <- lubridate::isoweek(tot.abund$date)
+tot.abund <- tot.abund[tot.abund$wk >=24,]
+
+big.catch <- tot.abund %>% 
+  group_by(id) %>% 
+  summarise(total.catch = sum(catch))
+
+big.catch <- big.catch %>% 
+  separate(id, c('species_name', 'period'), "_")
+
+big.catch <- big.catch[with(big.catch, order(species_name)),]
+
+poss <- big.catch[big.catch$total.catch >= 10,]
+spc <- as.data.frame(table(poss$species_name))
+spc <- spc[spc$Freq == 2,]
+spc <- spc[spc$Var1 %notin% c('bluefish', 'northern pipefish',
+                              'stickleback spp'),]
+
+top <- tot.abund[tot.abund$species_name %in% spc$Var1,]
+top$wk <- lubridate::isoweek(top$date)
+
+for(i in 1:nrow(spc)){
+  
+  temp <- top[top$species_name == spc$Var1[i],]
+  temp$catch <- log(temp$catch)
+  tempwks <- as.data.frame(table(temp$wk))
+  #badwks <- tempwks[tempwks$Freq <=5,]
+  
+  #temp <- temp[temp$wk %notin% badwks$Var1,]
+    
+  nrecords <- as.data.table(temp)[, .N, by = 'wk'][order(wk)]
+  times <- NULL
+  
+  for(j in 1:nrow(nrecords)){
+    if(nrecords[j]$N == 1){
+      times <- c(times, nrecords[j]$wk)
+    }else{
+      times <- c(times, rep(nrecords[j]$wk, 2 ^ 8))
+    }
+  }
+  print(
+  ggplot() +
+      geom_jitter(data = temp, aes(x = wk, y = catch, col=year),
+                  alpha=0.35, width=0.2, stroke=NA, cex=2) +
+      scale_color_viridis_c(option = 'viridis', name='Year') +
+      theme(legend.text = element_text(angle = 45, vjust = 0.4)) +
+      geom_density(data = temp, aes(x = after_stat(scaled) * 0.9, 
+                                    y = catch, group = wk),
+                   n = 2 ^ 8,
+                   position = position_nudge(x = times),
+                   trim = T, adjust = 1.5) +
+      new_scale_fill() + new_scale_color() +
+      geom_smooth(data=temp,
+                  aes(x=wk, y=catch, col=period,
+                  fill = stage(period, after_scale = alpha(fill, .15)))) +
+      xlab('Week of year') + ylab('log(Catch)') +
+      xlim(c(23, 39)) +
+      ggtitle(str_to_title(paste0(spc$Var1[i]),
+                            ' weekly catch'))
+  )
+}
+
+
+```
