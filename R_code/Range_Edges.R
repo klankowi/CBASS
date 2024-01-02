@@ -213,7 +213,7 @@ fullspec <- fullspec[fullspec$Species %notin%
                          'Alosa chrysochloris'),]
 
 # Map data
-for(i in 25:nrow(fullspec)
+for(i in 1:nrow(fullspec)
     #5 # use for testing
     ){
   # Set species name, replace spaces with underscores
@@ -274,48 +274,48 @@ for(i in 25:nrow(fullspec)
   centr.sf <- st_as_sf(centr.df, coords=c('x', 'y'))
   st_crs(centr.sf) <- st_crs(pf.sf)
   
-  # Plot occurrence along NWA Continental Shelf
-  occur <- 
-    ggplot() +
-     geom_raster(data=pr,
-                 aes(x=x, y=y, fill=Freq)) +
-     scale_fill_viridis_c(na.value=NA) +
-     geom_sf(data=coast) +
-     geom_sf(data=centr.sf,
-             col='red',
-             cex=1, pch=19) +
-     geom_sf(data=cascobay.sf,
-             col='red',
-             cex=5, pch='x') +
-     coord_sf(xlim=c(-84.25, -42),
-              ylim=c(24.5, 78.5)) +
-     labs(x='Longitude',
-          y='Latitude',
-          fill='Rel. prob. of\noccurrence') +
-     ggtitle(paste0(str_to_sentence(comuse)))
-  
-  ggsave(plot=occur,
-         filename=here('Species_Dists/Plots', paste0(comuse, '.png')),
-         device='png',
-         width=7.5, height=10, units='in')
+  # # Plot occurrence along NWA Continental Shelf
+  # occur <- 
+  #   ggplot() +
+  #    geom_raster(data=pr,
+  #                aes(x=x, y=y, fill=Freq)) +
+  #    scale_fill_viridis_c(na.value=NA) +
+  #    geom_sf(data=coast) +
+  #    geom_sf(data=centr.sf,
+  #            col='red',
+  #            cex=1, pch=19) +
+  #    geom_sf(data=cascobay.sf,
+  #            col='red',
+  #            cex=5, pch='x') +
+  #    coord_sf(xlim=c(-84.25, -42),
+  #             ylim=c(24.5, 78.5)) +
+  #    labs(x='Longitude',
+  #         y='Latitude',
+  #         fill='Rel. prob. of\noccurrence') +
+  #    ggtitle(paste0(str_to_sentence(comuse)))
+  # 
+  # ggsave(plot=occur,
+  #        filename=here('Species_Dists/Plots', paste0(comuse, '.png')),
+  #        device='png',
+  #        width=7.5, height=10, units='in')
   
   centr.df <- rbind(centr.df, cascobay)
 
-  dens <- ggplot() +
-    geom_density(data=pf,
-                 aes(x=y)) +
-    geom_vline(data=centr.df[centr.df$range %in% c('Weighted Center',
-                                                   'Casco Bay'),],
-               aes(xintercept = y,
-                   col=range)) +
-    labs(col='Northing (dec. deg.)') +
-    ggtitle(paste0(str_to_sentence(comuse)))
+  # dens <- ggplot() +
+  #   geom_density(data=pf,
+  #                aes(x=y)) +
+  #   geom_vline(data=centr.df[centr.df$range %in% c('Weighted Center',
+  #                                                  'Casco Bay'),],
+  #              aes(xintercept = y,
+  #                  col=range)) +
+  #   labs(col='Northing (dec. deg.)') +
+  #   ggtitle(paste0(str_to_sentence(comuse)))
   
-  ggsave(plot=dens,
-         filename=here('Species_Dists/Plots', 
-                       paste0(comuse, '_dens.png')),
-         device='png',
-         width=10, height=7.5, units='in')
+  # ggsave(plot=dens,
+  #        filename=here('Species_Dists/Plots', 
+  #                      paste0(comuse, '_dens.png')),
+  #        device='png',
+  #        width=10, height=7.5, units='in')
   
   fullspec$dist.to.center[i] <- cascobay$y - 
     centr.df$y[centr.df$range == 'Weighted Center']
@@ -332,3 +332,6 @@ for(i in 25:nrow(fullspec)
      centr.df, centr.sf, pcr, pf, pf.sf, centr)
 }
 
+fullspec <- fullspec[with(fullspec, order(dist.to.center)),]
+rownames(fullspec) <- NULL
+View(fullspec)

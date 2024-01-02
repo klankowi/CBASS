@@ -1,0 +1,633 @@
+---
+title: 'Ecosystem Indicator Report Final Analysis'
+author: Katie Lankowicz
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex
+    includes: 
+       in_header: header1.tex
+always_allow_html: true
+header-includes:
+    - \usepackage{setspace}\onehalfspacing
+    - \usepackage{float}
+    - \usepackage{caption}
+    - \captionsetup[figure]{labelformat=empty}
+urlcolor: blue
+---
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+
+library(tidyverse)
+library(here)
+library(DT)
+library(pdftools)
+library(patchwork)
+library(ggiraph)
+library(here)
+library(tidyverse)
+library(sf)
+library(kableExtra)
+library(pander)
+library(pmetar)
+library(treemapify)
+library(data.table)
+library(ggnewscale)
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+
+# Set GGplot auto theme
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', size=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=11),
+                axis.text.y=element_text(size=11),
+                axis.title.x=element_text(size=12),
+                axis.title.y=element_text(size=12, angle=90, vjust=2),
+                plot.title=element_text(size=14, hjust = 0, vjust = 1.2),
+                plot.caption=element_text(hjust=0, face='italic', size=12)))
+
+library(webshot)
+if(is.null(webshot:::find_phantom())){webshot::install_phantomjs()}
+
+options(DT.options = list(pageLength = 100))
+```
+# Takeaways
+* Portland Harbor tide gauge data gives us the best characterization of nearshore sea surface temperature as compared to air temperature from the airport or field-collected SST.
+* The climate reference period (CRP) has been adjusted to 2002-2020 to as closely as possible match the warming report's CRP (1991-2020). Data prior to 2002 are not available for the tide gauge. With the new CRP, we still get the same collection of years as 5 hottest and 5 warmest.
+* I have collected the time series of CBASS seine catch and theoretical distribution maps for most of our encountered species into an RShiny application (https://klankowicz.shinyapps.io/CBASS_Fish_Dist/). Check it out.
+* I have calculated age-group-specific growth rates for our six most-encountered teleosts. Results indicate that nearhore residents silversides and mummichogs trend toward faster growth in warmer years, though this was only statistically significant for one age group of silversides. Species that undergo latitudinal, inshore-offshore, or diadromous migrations had mixed results and no statistically significant differences in growth rates between cold and hot years. It's possible that growth rates of these species are driven by gradients of environmental factors across areas much larger than Casco Bay alone.
+* There is a possibility of including another tree plot (the plot with all the rectangles) showing relative abundance of captured species from the jigging surveys of 2014, 2015, and 2023. I have the data, but need to make the plot.
+
+\newpage
+# Continuous temperature data
+
+```{r loaddata}
+# Set the name of the workbook
+fname <- paste0(here('Clean_Data/seine_compiled_clean.xlsx'))
+# Get info about all excel sheet names in workbook
+sheets <- readxl::excel_sheets(fname)
+# Read in as list item, each item is a sheet
+data.all <- invisible(lapply(sheets, 
+                           function(x) readxl::read_excel(fname, sheet = x)))
+names(data.all) <- sheets
+# Coerce list items to dataframes
+data.all <- lapply(data.all, as.data.frame)
+
+rm(fname, sheets)
+
+#### Join similar species, lengths ####
+data.all$bio <- data.all$bio[
+  data.all$bio$species_name %notin% c('periwinkle',
+                                      'horseshoe crab'),]
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('american eel',
+                                   'glass eel elver')
+] <- 'american eel'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('hake', 
+                                   'red hake',
+                                   'spotted hake',
+                                   'white hake')
+] <- 'hake spp'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('shortnose sturgeon',
+                                   'unID sturgeon')
+] <- 'sturgeon spp'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('grubby sculpin',
+                                     'longhorn sculpin',
+                                     'shorthorn sculpin',
+                                     'slimy sculpin',
+                                     'striped sculpin',
+                                     'unID sculpin')
+] <- 'sculpin spp'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('atlantic herring',
+                                     'herring')
+] <- 'atlantic herring'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('banded killifish',
+                                     'killifish')
+] <- 'killifish spp'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('northern pipefish',
+                                     'pipefish')
+] <- 'northern pipefish'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('white mullet',
+                                     'mullet')
+] <- 'white mullet'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('emerald shiner',
+                                     'golden shiner',
+                                     'unID shiner')
+] <- 'shiner spp'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('rock gunnel',
+                                     'unID gunnel')
+] <- 'rock gunnel'
+
+data.all$bio$species_name[
+  data.all$bio$species_name %in% c('threespine stickleback',
+                                     'fourspine stickleback',
+                                     'ninespine stickleback',
+                                     'unID stickelback')
+] <- 'stickleback spp'
+
+#### Join similar species, abundance ####
+data.all$abund <- data.all$abund[
+  data.all$abund$species_name %notin% c('periwinkle',
+                                      'horseshoe crab'),]
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('american eel',
+                                   'glass eel elver')
+] <- 'american eel'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('hake', 
+                                   'red hake',
+                                   'spotted hake',
+                                   'white hake')
+] <- 'hake spp'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('shortnose sturgeon',
+                                   'unID sturgeon')
+] <- 'sturgeon spp'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('grubby sculpin',
+                                     'longhorn sculpin',
+                                     'shorthorn sculpin',
+                                     'slimy sculpin',
+                                     'striped sculpin',
+                                     'unID sculpin')
+] <- 'sculpin spp'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('atlantic herring',
+                                     'herring')
+] <- 'atlantic herring'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('banded killifish',
+                                     'killifish')
+] <- 'killifish spp'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('northern pipefish',
+                                     'pipefish')
+] <- 'northern pipefish'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('white mullet',
+                                     'mullet')
+] <- 'white mullet'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('emerald shiner',
+                                     'golden shiner',
+                                     'unID shiner')
+] <- 'shiner spp'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('rock gunnel',
+                                     'unID gunnel')
+] <- 'rock gunnel'
+
+data.all$abund$species_name[
+  data.all$abund$species_name %in% c('threespine stickleback',
+                                     'fourspine stickleback',
+                                     'ninespine stickleback',
+                                     'unID stickelback')
+] <- 'stickleback spp'
+
+```
+
+One of our main goals is connecting the ecological story of Casco Bay in the last 10 years with existing temperature data. We're generally interested in quantifying annual temperature anomalies to pick up on any high-level differences in nearshore ecology that may be related to temperature. 
+
+In the last meeting, we discussed making the climate reference period (CRP) used to calculate mean annual temperature anomalies the same as what is used in the warming report. The warming report has used various CRPs to identify average daily temperatures, but currently uses 1991-2020. We will attempt to use this same reference period, as allowed by data availability.
+
+\newpage
+### Portland Harbor tide gauge
+
+The Portland Harbor tide gauge likely gives the closest approximation to the nearshore environment where CBASS seining is conducted. We were previously using 2003-2023 as the reference period and found that 2014/ 2015/ 2017-2019 had negative mean annual anomalies. The remaining years in our 2014-2023 time series had positive mean annual anomalies. It seemed intuitive to therefore categorize years with negative mean annual anomalies as "colder" and those with positive anomalies as "warmer."
+
+Unfortunately, the tide gauge has only collected surface water temperature data since 1997. Data are extremely spotty and unreliable until early 2002. Therefore, the closest we can get to matching the warming report's CRP is 2002-2020. I have pulled and cleaned the raw data for this period. I also slightly improved the fit of the model of daily anomalous temperatures by more carefully cleaning out invalid temperatures (caused by equipment malfunctions). I also slightly changed the model structure of the GAM that models daily anomalous temperatures by specifying cubic spline regression smooths with penalized shrinkage (\texttt{bs='cs'}) and REML fitting.
+
+Despite this change in reference period, data cleaning, and model structure, we get the same results. 2014/2015/2017-2019 all have negative annual anomalies and the remaining years have positive. The years even fall in the same order when ordering from most negative to most positive anomaly. This order differs slightly from the warming report, but this can be attributed to both the different reference periods and the enormously different spatial scales. These spatially-variable differences could spark some cool conversation about how the cumulative exposure of larvae/ migratory fishes to detrimental warming offshore impacts our inshore communities, even if inshore conditions are about average.
+
+All this to say: I think we keep this approach to qualifying temperature anomalies. I recognize that calling years flatly "hot" or "cold" can be misleading. We can shift the language to something more like "5 hottest/ 5 coldest years of the time series". The warming report does a similar ranking that gets updated both annually and seasonally. 
+
+```{r portlandtemp, eval=T, fig.pos='H', fig.align='center', fig.height=4.25}
+# I'm not pasting the whole thing here. Look at extract_portland_tidegauge.R in R_Code folder.
+port.temps <- read.csv(here('Clean_Data/Meteorological/Portland_watertemp.csv'))
+
+ggplot(data=unique(dplyr::select(port.temps, doy, daily.c, smooth.daily,
+                                 smooth.upper, smooth.lower))) +
+    geom_point(aes(x=doy, y=daily.c),
+               alpha=0.2, cex=0.4) +
+    geom_line(aes(x=doy, y=smooth.daily),
+              col='blue') +
+    geom_ribbon(aes(x=doy, ymin=smooth.lower, ymax=smooth.upper),
+                col=NA, fill='blue', alpha=0.3) +
+    labs(x='Day of year', y='Daily mean SST (deg C)')
+
+heattab <- port.temps %>% group_by(year) %>% summarise(mean.anom = mean(anomaly, na.rm=TRUE))
+#heattab$Period <- c('Colder', 'Colder', 'Hotter', 'Colder', 'Colder', 'Colder', 
+#                    'Hotter', 'Hotter', 'Hotter', 'Hotter')
+heattab <- heattab[with(heattab, order(mean.anom, decreasing = T)),]
+rownames(heattab) <- NULL
+
+heat.sst <- heattab
+
+wmrp <- data.frame(
+  year = c(seq(2014, 2023, by=1)),
+  mean.anom = c(51.78, #2014
+                51.73,
+                52.67, #2016
+                51.77,
+                52.38, #2018
+                NA,
+                52.43,  #2020
+                54.09,
+                53.66, #2022
+                NA)
+)
+
+wmrp$mean.anom= wmrp$mean.anom - 49.94
+
+wmrp$mean.anom = wmrp$mean.anom * (5/9)
+
+wmrp <- wmrp[with(wmrp, order(mean.anom, decreasing = T)),]
+rownames(wmrp) <- NULL
+
+wmrp <- wmrp %>% 
+  rename(wpt.mean = mean.anom)
+
+both <- merge(heattab, wmrp, by=c('year'))
+both$mean.anom <- round(both$mean.anom, 2)
+both$wpt.mean <- round(both$wpt.mean, 2)
+
+kable(both,
+      col.names=c('Year', 'Gauge anomaly (deg C)', 'OISST anomaly (deg C)'
+                  )) %>% 
+  kable_styling(position='center')
+```
+
+\newpage
+### Weather from Portland airport
+
+I'll be brief with this one. We do have air temperature data from Portland Jetport for the same climate reference period (1991-2020) as the warming report. The minimum and maximum smoothed daily air temperatures lead smoothed daily sea surface temperatures by about 22 days, so we could consider adding a lag when calculating annual mean temperature anomaly. I have not yet done this.
+
+Despite having the same reference period, the air temperature and OISST-derived mean annual temperature anomalies are not similar, either in magnitude or order of warmest to coldest year. We wouldn't expect them to match exactly, as the physical mechanisms linking the two are complicated. I think this highlights a larger point-- we want our temperature time series to match what's going on in the nearshore environment as closely as possible. Air temperature, though useful because its data records reach further back in time, is not a close enough approximation. I think it's cool to look at, but will be dropping it from further analysis.
+
+```{r portlandweather, eval=T, fig.pos='H', fig.align='center', fig.height=4}
+# I'm not pasting the whole thing here. Look at extract_portland_airport.R in R_Code folder.
+port.air <- read.csv(here('Clean_Data/Meteorological/Portland_Met.csv'))
+port.air$timestamp <- as.POSIXct(port.air$timestamp,
+                                 format="%Y-%m-%d %H:%M:%S")
+
+ggplot(data=unique(dplyr::select(port.air, doy, daily.c, smooth.daily,
+                                 smooth.upper, smooth.lower))) +
+    geom_point(aes(x=doy, y=daily.c),
+               alpha=0.2, cex=0.4) +
+    geom_line(aes(x=doy, y=smooth.daily),
+              col='blue') +
+    geom_ribbon(aes(x=doy, ymin=smooth.lower, ymax=smooth.upper),
+                col=NA, fill='blue', alpha=0.3) +
+    labs(x='Day of year', y='Daily mean air temp (deg C)')
+
+heattab <- port.air %>% group_by(year) %>% summarise(mean.anom = mean(anomaly, na.rm=TRUE))
+# heattab$Period <- c('Cold', 'Cold', 'Hot', 'Cold', 'Cold', 'Cold', 
+#                     'Hot', 'Hot', 'Hot', 'Hot')
+
+heat.air <- heattab
+
+both <- merge(heattab, wmrp, by=c('year'))
+both$mean.anom <- round(both$mean.anom, 2)
+both$wpt.mean <- round(both$wpt.mean, 2)
+
+kable(both,
+      col.names=c('Year', 'Air temp anomaly (deg C)', 'OISST anomaly (deg C)'
+                  )) %>% 
+  kable_styling(position='center')
+
+rm(both, heat.air, heat.sst, heattab, wmrp)
+
+```
+\newpage
+### CBASS field data
+We can do a simple sanity check on the match between the Portland Harbor tide gauge SST and our field sites SST. Keep in mind that field site SST is inconsistent in the frequency of collection (missing some data in 2015-2017 and 2020-2021), the equipment used (sometimes YSI, sometimes boat-mounted sensor), and the frequency of calibration (we think this was forgotten or incorrect in 2023). Also keep in mind that we only sample in daylight hours (7AM-4PM) to align with the working day. I filtered and re-smoothed the Portland Harbor gauge data so it only includes points collected 7AM-4PM 2014-2023. For the best match between data sources, I also excluded all field SST data collected at QBC and Presumpscot River sites. These are too dissimilar from Portland Harbor.
+
+In the following plot, the red line represents the GAM-smoothed mean daily temperature of our field-collected data (Mid-bay and Outer-bay sites only). The blue line represents GAM-smoothed mean daily temperature of the Portland Harbor tide gauge, filtered so the temporal extent matches that of the field data. The field data varies from 0.8 to 2.7 degrees hotter than the Portland Harbor data, with a mean of 2.1 degrees hotter. Portland Harbor is about in the latitudinal center of the mid-bay and outer-bay collection of sites, so this increased heat at the field sites probably isn't due to a latitudinal gradient, especially within such a small small spatial domain.
+
+I can't pinpoint why exactly the difference in smoothed temperature is so dramatic. It could be due to both low data load in "colder" years and uncalibrated YSI/ boat temperature sensors. Bottom line, these data have some problems that I cannot overcome and therefore I will not use them past this point.
+
+```{r fieldsst, fig.pos='H', fig.align='center', fig.height=4}
+trips <- data.all$trips
+trips <- dplyr::select(trips,
+                       date, set_time, temp_degc,
+                       bay_location)
+trips <- trips[trips$bay_location %in%
+                 c('Mid', 'Outer'),]
+
+trips$temp_degc <- as.numeric(trips$temp_degc)
+
+# Remove NA values
+trips <- trips[!is.na(trips$temp_degc),]
+
+# Shift from GMT to LDT
+trips$set_time <- trips$set_time - hours(4)
+
+# Rip date-time
+trips <- trips %>% 
+  separate(set_time, into=c('set_date', 'set_time'), sep=' ') %>% 
+  dplyr::select(-set_date)
+
+# Most common time is around 10:30. Set all missing time to 10:30.
+trips$set_time[is.na(trips$set_time)] <- '10:30:00'
+
+# More date stuff
+trips$timestamp <- paste0(trips$date, ' ', trips$set_time)
+trips$timestamp <- as.POSIXct(trips$timestamp)
+trips$month <- month(trips$timestamp)
+trips$year <- year(trips$timestamp)
+trips$doy <- yday(trips$timestamp)
+
+daily.smooth <- read.csv(here('Clean_Data/Meteorological/Portland_watertemp_daytime.csv'))
+
+p <- ggplot(data=trips) +
+    geom_smooth(aes(x=doy, y=temp_degc),
+              method='gam', 
+              se=T, 
+              na.rm=TRUE,
+              n=max(trips$doy) - min(trips$doy) +1, 
+              method.args=list(method='REML'),
+              fill='blue', alpha=0.3)
+
+# Pull data from plot, append to new df
+dat <- ggplot_build(p)$data[[1]]
+
+field.smooth <- data.frame(
+  doy= seq(151, 273, 1)
+)
+
+field.smooth$smooth.daily <- dat$y
+field.smooth$smooth.upper <- dat$ymax
+field.smooth$smooth.lower <- dat$ymin
+
+daily.smooth <- daily.smooth %>% 
+  dplyr::select(-X) %>% 
+  mutate(Source = 'Tide Gauge')
+
+field.smooth <- field.smooth %>% 
+  mutate(Source = 'Field')
+
+sanity <- rbind(daily.smooth, field.smooth)
+
+ggplot() +
+  geom_point(data=trips,
+             aes(x=doy, y=temp_degc),
+             alpha=0.4, stroke=NA) +
+  labs(x='Day of year', y='SST (deg C)') +
+  geom_line(data=sanity,
+            aes(x=doy, y=smooth.daily, col=Source)) +
+  geom_ribbon(data=sanity,
+            aes(x=doy, ymin=smooth.lower, ymax=smooth.upper,
+                fill=Source),
+            col=NA, alpha=0.3) +
+  coord_cartesian(xlim=c(min(trips$doy), max(trips$doy)),
+                  ylim=c(10, 30))
+
+```
+
+\newpage
+# "Weird" species
+We want to characterize how common or uncommon the various species we capture are. I made an RShiny application (https://klankowicz.shinyapps.io/CBASS_Fish_Dist/) to illustrate both the spatial distribution and the time series of catch for most teleosts we saw. *PLEASE DO NOT SHARE THIS LINK OUTSIDE THIS GROUP.* I use the free version of RShiny and have a limited quota of "active hours" per rolling month, so a bunch of people accessing it will quickly limit my ability to use the app building functions for this and other projects.
+
+## Current RShiny App
+Here's a tour of functionality and plots. 
+
+You can select a species from the drop-down menu on the left, and the app will build results based on your selection. For each species, three plots will appear. The leftmost is a map of theoretical spatial distribution. The top right is expected distribution of that species along its latitudinal gradient, with the center of gravity and Casco Bay identified. The bottom right is a time series of our capture of that species. Details for each plot follow. At the very top of the page, you'll see a readout that identifies how far south or north Casco Bay is in kilometers from the calculated center of gravity.
+
+I pulled all available theoretical spatial distributions of our captured species from FishBase. Some species have not yet been modeled. Modelers have identified environmental characteristics (eg. depth, SST, salinity) important to various fishes and developed maps of "relative probability of occurrence" based on known spatial distributions of these environmental characteristics. A few of these maps are probably far from reality (see bluefish), but most seem reasonable. I use the maps to calculate a weighted center of gravity for each species' distribution. I also then plot a kernel density estimate of relative abundance along a latitudinal gradient, identifying both the center of gravity and the location of Casco Bay along that gradient so it's easy to identify whether that species is in the northern or southern half of its range, respective to the center of gravity.
+
+The time series plot is a raster in which rows represent weeks of the year and columns represent years. The color of the year labels on the y axis indicates whether that year is in the hottest 5 (red) or coldest 5 (blue) year period of our Portland Harbor temperature time series. The color of each grid cell is a gradient of log-normalized abundance captured in that week. Cool colors indicate fewer fish caught, warm colors indicate more fish caught, and grays indicate no fish caught. Transparent raster cells indicate no sampling took place in that week. The color scale is stretched along all catch values for all years, so you can view relative abundance both between weeks of a single year and weeks of different years.
+
+Check out these fish to see representations of common and uncommon species:  
+* Uncommon / South of center: shorthorn sculpin, ninespine stickleback
+* Uncommon / North of center: crevalle jack, permit
+* Common / At center: Atlantic silversides
+* Common / South of center: Atlantic herring
+* Common / North of center: mummichog
+
+## Next steps for RShiny app
+We should have a discussion about our ability to pay for a full RShiny license as an institute. It's a great tool and multiple labs are already using it. Alternatively, is it possible to build a similar dropdown selection application on our own website? I could save the output for all the species we want to include as static images, so we wouldn't need to link to an online version of R to generate those.
+
+Regardless of whether we pursue RShiny licenses/ our own drowndown method, a few changes will be made. I'm going to place species into these Commonality-Distribution groups seen above, then plot relative abundance of these groups over our time period. In theory, this could illustrate any high-level emergent properties of temperature-driven distribution shifts.
+
+\newpage
+# Growth
+Last time we met, figuring out how to quantify growth rates was escaping me. I have since developed a mostly statistically-robust method of accomplishing this task. There's a bit of less-robust handwaving, but not too much. Let's go through it.
+
+## The problem
+We sample a population of mixed age-based groups. I won't say cohort, because I think that will incite arguments about the nature of a "cohort" and obscure my point here. Those groups, by nature of being different ages, have distinct size distributions and growth rates. We can sometimes identify these groups just by eyeballing length distributions over time, like the theoretical groups I plotted below based on Atlantic silversides 2022 length distribution.
+
+![Eyeballed age-groups of 2022 Atlantic silverside lengths](C:/Users/klankowicz/Documents/GitHub/CBASS/Documentation/Cohort_Theory.png)
+
+We need to separate the groups as best as possible for all species-years combinations so we can more clearly see realistic growth rates. Note that the eyeballed version presented here is from probably the most clear example of separate age groups out of all our species-year combinations, and the "eyeball" method will be neither consistent nor robust for more noisy data.
+
+\newpage
+## Kernel density estimation and modes
+The first step of separating age-groups is to make some assumptions. Let's assume that the lengths of conspecifics in the same age group come from a normal distribution, and the range of each age-group's length distribution has to be reasonably compact (less than 40% of the maximum asymptotic body length for the species, as pulled from FishBase). 
+
+We then plot a kernel density estimate of lengths by species for each week of sampling. Considering our assumptions, we should see peaks of length-density around the mean length for each age group. Deterministic methods can be used to determine both the number of modes present in the length-density distribution and the length-values at those modes. These should theoretically be mean length for an age-group. 
+
+At this point, we must remove observations from weeks in which fewer than 7 fish of a species were lengthed-- it isn't enough data to continue. This limits this analysis to the most frequently-encountered teleosts: alewife, atlantic herring, silverside, mummichog, sandlance, and winter flounder. The approach does not work for other commonly-encountered species (tomcod, stickleback spp, sculpin spp) because there aren't enough observations of lengths. Finally, I am hesitant to use this approach for green crabs. I don't know if my length and growth assumptions hold for crustaceans. I can try, if there is interest.
+
+![Kernel Density Estimate and identified modes of 2022 Atlantic silverside lengths](C:/Users/klankowicz/Documents/GitHub/CBASS/Documentation/KDE_Modes.png)
+
+\newpage
+## Mixed distribution modeling
+From here, we use mixed distribution modeling to calculate the upper and lower bounds that create a 95% confidence interval around our identified mean lengths, effectively identifying the length range of each age-group. Again, our assumption is that distribution of lengths is normal, so we use an expectation-maximization (EM) algorithm for mixtures of univariate normals as our approach. The normal-mix EM model is given the lengths of all conspecifics per week and the number of modes identified in the previous step. It then returns mu (means of each component), sigma (standard deviations), and lambda (mixing proportions). For each component, we calculate an approximation to a 95% CI by finding 2 standard deviations around the mean.
+
+This gets us pretty close to where we want to be. We can remove distributions where the upper or lower bounds are biologically invalid (less than 0 cm or above the reported maximum asymptotic body length) or biologically improbable (range is greater than 40% of maximum asymptotic body length). We can also melt together distributions which overlap each other by more than 80%, as this isn't enough separation to clearly identify age-groups anyway.
+
+![Mixed-distribution model of 2022 Atlantic silverside lengths](C:/Users/klankowicz/Documents/GitHub/CBASS/Documentation/NormalMix_EM.png)
+
+\newpage
+## Eyeballing
+The next step is to give age-groups a distinct identifier and confirm that their ID remains the same between weeks. I haven't come up with a good method to automate this. I just go off my plots and returned mixed distribution model values and track age-groups by eye. Here's a theoretical example of what I do: in week 1, we identify one distribution of mean length 100 cm. In week 2, we identify two distributions, one of mean length 102 cm and one of mean length 20 cm. In week 3, we identify one distribution of mean length 50 cm. We would assume that the groups with mean length 100 cm in week one and mean length 102 cm in week 2 are the same age-group growing over time and make sure they have the same age-group identifier. The groups with mean length 20cm in week 2 and mean length 50 cm in week 3 are not linked to each other, nor to age-group 1. They need unique identifiers. 
+
+I'm sure there's some kind of way to code this out to do it automatically, but it wasn't worth my time to figure it out with all the edge cases. Importantly, I also did not want to _a priori_ assume any maximum or minimum growth rates, which would have made this process much easier.
+
+![By-eye identification of 2022 Atlantic silverside lengths, age group A](C:/Users/klankowicz/Documents/GitHub/CBASS/Documentation/Eyeball.png)
+
+\newpage
+## GLMs to model age-group length bounds
+This leaves us with distributions of length for various age-groups for some weeks of a sampling year. Remember that we did remove some bioligically improbable distributions, so sometimes we are left with no identified length distributions in a week. This is fine. The lower bounds, means, and upper bounds for each age group _generally_ are monotonically increasing for the remaining weeks, but there is some variation. We also need to fill the gaps we made. The next step is therefore to model the upper and lower bounds of length in each week. Here, another assumption is made-- that growth in this extremely short period (typically June 8 - August 28) is approximately linear. We therefore use generalized linear models to characterize length distribution bounds.
+
+Once the GLM process has been completed, we can assign age-groups of fish accordingly. 
+
+![By-eye identification of 2022 Atlantic silverside lengths, age group A](C:/Users/klankowicz/Documents/GitHub/CBASS/Documentation/GLM_Bounds.png)
+
+\newpage
+## Modeling growth
+This last bit is what finally gives us the results we wanted. Now that we have assigned fish into age groups by length in each week, we can model the growth of those age groups. Again, we assume that growth is approximately linear over our short time period and use a generalized linear model. Growth should be equal to the slope of the GLM.
+
+```{r loadgrowth}
+load(here('Clean_Data/Cohort_Data.RData'))
+
+# Pull lengths
+lengths <- dplyr::select(data.all$bio,
+                         species_name, length_mm, date)
+
+# Remove one large mummichog
+lengths <- lengths[lengths$length_mm != 385,]
+
+# Set week
+lengths$wk <- lubridate::isoweek(lengths$date)
+
+# Remove early weeks
+#lengths <- lengths[lengths$wk >=24,]
+
+# Set year
+lengths$year <- lubridate::year(lengths$date)
+
+# Force to numeric
+lengths$length_mm <- as.numeric(lengths$length_mm)
+
+# Remove missing values
+lengths <- lengths[!is.na(lengths$length_mm),]
+
+# Fix data types
+lengths <- lengths %>% 
+  mutate_at('species_name', as.factor) %>% 
+  mutate_at(c('length_mm', 'wk', 'year'), as.numeric)
+
+# Find biological limits
+biolims <- lengths %>% 
+  group_by(species_name) %>% 
+  summarise(min.length = min(length_mm),
+            max.length = max(length_mm))
+
+#### Focus on top 8 ####
+lengths <- lengths[lengths$species_name %in% 
+                     c('alewife', 'atlantic silverside',
+                       'atlantic herring', 
+                       'winter flounder', 'mummichog', 
+                       'tomcod', 'sandlance'),]
+biolims <- biolims[biolims$species_name %in% lengths$species_name,]
+biolims <- biolims[with(biolims, order(species_name)),]
+rownames(biolims) <- NULL
+
+Linf.all <- data.frame(
+  species_name = biolims$species_name,
+  L.inf.cm = c(40, 45, 18, 
+               15, 23.5, 38.1, 64.0),
+  agemax = c(9, 25, 2,
+             4, 12, 4, 14)
+)
+Linf.all$Linf <- Linf.all$L.inf.cm * 10
+Linf.all$L.inf.cm <- NULL
+
+biolims <- merge(biolims, Linf.all, by=c('species_name'))
+
+lengths <- lengths[with(lengths, order(species_name, wk, length_mm)),]
+
+#### Split by period ####
+lengths$period[lengths$year %in% c(2014, 2015, 2017, 2018, 2019)] <- 'cold'
+lengths$period[lengths$year %in% c(2016, 2020, 2021, 2022, 2023)] <- 'hot'
+lengths$species_name <- droplevels(lengths$species_name)
+
+biolims <- biolims[biolims$species_name %notin% 
+                     c('tomcod'),]
+
+lengths <- lengths[lengths$species_name %in% biolims$species_name,]
+
+# for(i in 1:nrow(biolims)){
+#   lengths.in <- data.all$bio[data.all$bio$species_name == 
+#                                paste0(biolims$species_name[i]),]
+#   lengths.in$wk <- isoweek(lengths.in$date)
+#   lengths.in$year <- year(lengths.in$date)
+#   lengths.in$length_mm <- as.numeric(lengths.in$length_mm)
+#   lengths.in <- lengths.in[!is.na(lengths.in$length_mm),]
+#   lengths.in <- lengths.in[lengths.in$length_mm != 385,]
+#   
+#   print(
+#     ggplot() +
+#       
+#       geom_jitter(data=lengths.in,
+#                   aes(x = wk, y = length_mm),
+#                   alpha=0.25, width=0.2, stroke=NA, cex=2) +
+#       
+#       geom_ribbon(data=model.1[
+#         model.1$species_name == paste0(biolims$species_name[i]),],
+#         aes(x=wk, ymin=ll,
+#             ymax=ul, fill=as.factor(Group)),
+#         alpha=0.3) +
+#       
+#       labs(color='Group', x='Week of year', y='Length (mm)', 
+#            fill='Group') +
+#       
+#       ggtitle(paste0(str_to_title(paste0(str_to_sentence(biolims$species_name[i]))),
+#                      ' modeled growth')) +
+#       
+#       facet_wrap(vars(year))
+#   )
+#   
+# }
+
+for(i in 1:nrow(biolims)){
+  print(
+    ggplot(data=cohort.1[cohort.1$species_name == 
+                           biolims$species_name[i],]) +
+      geom_jitter(aes(x = wk, y = length_mm, col=as.factor(year)),
+                  alpha=0.25, width=0.2, stroke=NA, cex=2) +
+      geom_smooth(
+                  aes(x=wk, y=length_mm, col=as.factor(year), lty=period),
+                  se=F, method='glm', fullrange=T) +
+      scale_color_viridis_d(option='viridis') +
+      labs(color='Year', x='Week of year', y='Length (mm)', lty='Heat') +
+      ggtitle(paste0(str_to_title(paste0(str_to_sentence(biolims$species_name[i]))),
+                     ' modeled growth')) +
+      facet_wrap(vars(Group))
+  )
+}
+
+ggplot(data=growth.est) +
+  geom_boxplot(aes(x=Group, y=growth/7,
+                   fill=period)) +
+  facet_wrap(vars(species_name),
+             scales = "free_x") +
+  labs(y='Growth rate (mm/day)', 
+       x='Cohort',
+       fill='Heat period')
+```
+
+\newpage
+## Results
+Of the six modeled species, 2 are likely north of their populations' centers of gravity: atlantic silverside and mummichog. We would expect to see increased growth rates in hotter years. Because mummichog and silversides are short-lived (4 and 2 years expected lifespan, respectively) and lifelong residents of the inshore area, we were able to model growth rates for 2 age groups for both species. We found a trend of increased growth rates in hotter periods for age groups 1 and 2 for mummichogs, and age group 1 for silversides. Silverside age group 2 had a slightly increased growth rate in colder years. The only significant difference in growth rates for any species occurred in the silverside age-group 1: significantly higher growth rates in hotter years than colder years.
+
+Three of the remaining species (alewife, Atlantic herring, and winter flounder) are likely south of their populations' centers of gravity. Increased temperatures should lead to slower growth rates. However, no significant differences were found, and only Atlantic herring exhibited a trend of faster growth in colder years. It's important to note that these species have more complicated migration strategies than the obligate inshore dwellers. It's possible that the cumulative effects of temperature in areas outside of Casco Bay are driving these differences in growth rates. 
+
+Sand lance are particularly weird; the species we are sampling is most likely to be _Ammodytes americanus_, which is typically found in coastal areas shallower than 20m and with sediment of an appropriate grain size for them to bury themselves in. Their level of seasonal migration is unknown, though they do go through a period of winter dormancy, where they bury themselves for extended periods of time. Casco Bay is not that far from the species' calculated center of gravity (about 270km north, at the northern tip of Nova Scotia). There is very little difference in growth rates we have calculated between cold and hot periods. It's possible that the population dynamics and growth of sand lance are currently being impacted more by habitat availability, food availability, and predation than by the temperature shifts we've seen. 
