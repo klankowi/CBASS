@@ -83,18 +83,53 @@ colnames(sites.sf) <- c('Site name', 'Bay location', 'geometry')
 coast <- st_read(here("GIS/us_medium_shoreline_poly.shp"), quiet=T)
 coast <- st_transform(coast, st_crs(sites.sf))
 
+esites.sf <- sites.sf[sites.sf$`Bay location` == 'north',]
+esites.sf <- esites.sf[esites.sf$`Site name` != 'Lands End Alternate site',]
+esites.sf$`Bay location` <- droplevels(as.factor(esites.sf$`Bay location`))
+
+wsites.sf <- sites.sf[sites.sf$`Bay location` != 'north',]
+wsites.sf$`Bay location` <- droplevels(as.factor(wsites.sf$`Bay location`))
+
+cities <- read.csv(here('Clean_Data/CascoBay_City_Coordinates.csv'))
+cities <- st_as_sf(cities, coords=c('lon', 'lat'), crs="EPSG:4326")
+
+baylabel <- data.frame(name='Casco Bay', lon=-70.04, lat=43.67)
+baylabel <- st_as_sf(baylabel, coords=c('lon', 'lat'), crs="EPSG:4326")
+
 # Plot
-ggplot() +
+westbay <- ggplot() +
   geom_sf(data=coast, fill='gray') +
-  geom_sf(data=sites.sf, cex=1.3,
-          aes(col=`Bay location`)) +
+  geom_sf(data=wsites.sf, cex=1.3) +
   coord_sf(xlim=c(-70.32, -70.18),
            ylim=c(43.56, 43.73)) +
   theme(axis.text.x = element_text(angle = 45, vjust=0.6)) +
-  geom_sf_label_repel(data=sites.sf, aes(label=`Site name`), force=70, seed=10) +
-  labs(x=" ", y=" ")
+  geom_sf_label_repel(data=wsites.sf, aes(label=`Site name`), force=70, seed=10) +
+  labs(x=" ", y=" ") +
+  geom_sf_text(data=cities[cities$name %notin% c('Freeport', 'Yarmouth'),]
+               , aes(label=name), col='gray20')
 
-rm(sites.sf, data.all.goodcoords, coast, date.check, i, bay_locations)
+eastbay <- ggplot() +
+  geom_sf(data=coast, fill='gray') +
+  geom_sf(data=esites.sf, cex=1.3) +
+  coord_sf(xlim=c(-70.06, -69.84),
+           ylim=c(43.70, 43.86)) +
+  theme(axis.text.x = element_text(angle = 45, vjust=0.6)) +
+  geom_sf_label_repel(data=esites.sf, aes(label=`Site name`), force=70, seed=10) +
+  labs(x=" ", y=" ") +
+  geom_sf_text(data=cities, aes(label=name), col='gray20')
+
+cascobay <- ggplot() +
+  geom_sf(data=coast, fill='gray') +
+  coord_sf(xlim=c(-70.32, -69.84),
+           ylim=c(43.56, 43.86)) +
+  theme(axis.text.x = element_text(angle = 45, vjust=0.6)) +
+  labs(x=" ", y=" ") +
+  geom_sf_text(data=cities[cities$name != 'South Portland',], 
+               aes(label=name), col='black')+
+  geom_sf_text(data=baylabel,
+               aes(label=name), col='navy', size=8, angle=30)
+
+#rm(sites.sf, data.all.goodcoords, coast, date.check, i, bay_locations)
 ```
 \newpage
 
