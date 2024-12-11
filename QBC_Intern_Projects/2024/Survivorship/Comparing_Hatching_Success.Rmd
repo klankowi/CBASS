@@ -1,0 +1,162 @@
+---
+title: "Stepwise functions and proportion analysis"
+author: "Katie Lankowicz"
+date: "2024-08-02"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE)
+
+# Load libraries
+library(tidyverse)
+library(sjPlot)
+```
+
+## What do we have, and what can we do with it?
+
+Both of you have collected data on copepod egg hatching over time within multiple treatment levels (temperature, contamination). It's ok that you did not observe your experiments at equal time intervals. You will still be able to calculate a ratio of hatching success at each time step. As we discussed, percent hatching success (\%HS) will be equal to the number of hatched nauplii over the number of total eggs. If a nauplii dies during the experiment, that's fine. It still counts as a hatched egg. If an egg "goes missing" and you can't find a matching nauplii, this still counts as a hatched egg.
+
+Hatching success is similar to survivorship, in that we are measuring and visualizing rates over time. These rates are not smooth and continuous, like we might see if we measure daily fluctuations in temperature or tide level. For those measurements, there are small and gradual changes over time. Instead, \%HS changes instantaneously-- there is no change for long periods of time, but as soon as an egg hatches \%HS jumps instantly upwards. We are going to plot these *stepwise functions* to visualize the difference in \%HS between your treatment levels.
+
+## Visualize hatching success over time
+
+### Formatting data
+
+Your data need to be organized so that EVERY TIME STEP IS ITS OWN ROW. Please concatenate (put together) your observed hatched and unhatched egg counts for all treatments in the same dataframe. You should end up with something like this:
+
+```{r fakeformatteddata}
+fake.formatted.data <- 
+  data.frame(
+    Treatment = c(rep('Control', 10), 
+                  rep('Treatment', 10),
+                  rep('Treatment2', 10)),
+    Time = rep(c(1, 2, 4, 8, 12, 24, 36, 48, 60, 72), 3),
+    Hatched =c(0, 0, 1, 2, 4, 8, 8, 8, 8, 8,
+               0, 2, 4, 6, 8, 8, 12, 12, 12, 12,
+               0, 4, 6, 10, 10, 10, 15, 18, 18, 18),
+    Unhatched = c(20, 20, 19, 18, 16, 12, 12, 12, 12, 12,
+                  20, 18, 16, 12, 12, 8, 8, 8, 8, 8,
+                  20, 16, 14, 10, 10, 10, 5, 2, 2, 2)
+  )
+fake.formatted.data
+```
+
+In this fake experiment, you have three treatment levels: `Control`, `Treatment`, and `Treatment2`. You start with 20 unhatched eggs in all treatments. You observe the number of hatched eggs (nauplii) and unhatched eggs _ad libitum_ over the course of 3 days. Every time you observe a new nauplii or missing egg, the value in `Hatched` increases and the value in `Unhatched` decreases. It genuinely does not matter that your time step intervals from your real experiments do not match the fake data I have put here. Please put your own data for elapsed time since the start of the experiment for the `Time` column.
+
+### Calcualting Hatching Success
+
+\%HS is calculated as the number of hatched eggs divided by the number of total eggs (Castro-Longoria, 2003). We will calculate this value at every time step.
+
+```{r hatchingsuccess}
+hatching.success <- fake.formatted.data %>% 
+  group_by(Treatment, Time) %>% 
+  mutate(HS = Hatched / 20)
+```
+
+### Plotting stepwise functions
+
+We'll use GGPlot to visualize how your hatching success changes over time. This should look very familiar to you. Feel free to alter the colors or other aesthetic features of the plot.
+
+In this fake dataset, you can see that hatching success of the control group is lower than hatching success of both treatment groups at almost all time steps. They look different, but we need to run some quantitative analysis to determine if they actually are different.
+
+```{r stepwise}
+ggplot(data=hatching.success) +
+  geom_step(aes(x=Time, y=HS, col=Treatment))
+```
+
+## Statistical analysis of hatching success
+The plots are great visualizers, but we need to determine if there is a quantitative difference between our groups. We do this by modeling what we think would happen to the entire population of copepod eggs based on just our samples.
+
+### Generalized linear models
+We can model the probability of hatching success over time in each of our treatment levels using a generalized linear model. This is similar to the linear regressions we ran earlier this year, but we can specify the distribution family to be something other than a normal distribution. What does this mean, exactly? Well, in the linear regressions we did before, the values of our variables had to approximate a normal distribution (bell curve). This isn't usually a good assumption in real environmental data. Instead, we want to tell the model that we are comparing our results to the expected distribution for a different distribution family. Since we have binary (Hatched/ Unhatched) data, the most appropriate distribution family is a binomial distribution.
+
+### Data formatting
+For this analysis, we need to arrange the data so that we have ONE ROW FOR EACH INDIVIDUAL. This will be similar to the survival rate analysis we did before. The difference here is that we only care about the data at the final time step. In this fake dataset, for example, the end of the experiment was at 72 hours. We had 20 individuals per treatment. The status of each individual will be equal to either 0 (unhatched) or 1 (hatched).
+
+Let's make a fake dataframe to exemplify the data structure we need. It has 3 levels so that Sydney's analysis will also make sense here. It will work for 2 levels just as well.
+
+```{r fakedata2}
+# Make fake data (with 3 treatment levels)
+fake.formatted.data.2 <- data.frame(
+  Treatment = c(rep('Control', 20),
+                rep('Treatment', 20),
+                rep('Treatment2', 20)),
+  Status = c(1, 1, 1, 1, 1, 1, 1, 1,             # 8 Control Hatched
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, # 12 Control Unhatched
+             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, # 12 Treatment1 Hatched
+             0, 0, 0, 0, 0, 0, 0, 0,             # 8 Treatment 1 Unhatched
+             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+             0,0 ) # 2 Unhatched in Treatment 2
+)
+# Check results
+summary(fake.formatted.data.2)
+
+# Make sure your control level is first in the order of levels
+fake.formatted.data.2 <- fake.formatted.data.2 %>% 
+  mutate(Treatment = factor(Treatment,
+                            levels=c('Control', 'Treatment', 'Treatment2')))
+```
+
+Now that the data are organized, we will actually run the model and check the results. At this point, we need to discuss the assumptions. The beauty of generalized linear models (GLMs) is that they are much more flexibile and have fewer assumptions than the linear regressions we ran before. The most important assumption is that the samples are independent: the hatching of any egg cannot be influenced by the hatching of any other egg. We can assume this condition is met given the way we set up our experiments. We must also not use repeated measures, meaning we can't compare whether an egg hatched between two different periods of time. To avoid this, we will simply look at egg hatching rates at one point in time-- the end of the experiment. We do not have to worry about normality or homoscedasticity (equality of variance) of the residuals. Let's run the model and save the output.
+
+```{r}
+# Run model
+mod <- glm(                             # Use glm() function
+           Status ~ Treatment,          # Set function formula
+           data=fake.formatted.data.2,  # Call dataframe
+           family='binomial')           # Set distribution family
+
+# View model results
+summary(mod)
+```
+
+The output of this fake dataset shows us a few things. First, we check the p-value column (last column). The first value is the significance of the intercept. As discussed many times, this does not have an ecologically important interpretation for our studies. The following two p-values in that column are more important, and indicate the significance of comparing Treatment1 to the control and Treatment2 to the control. Treatment 1 is not significantly different to the control (p-value = 0.21), but Treatment 2 is significantly different from the control (p-value = 0.003).
+
+We can visualize these outputs using the `plot_model` function from the `sjPlot` package. This function behaves very similarly to GGplot. You should be able to change the aesthetics using the same langugae as you would for GGplot.
+
+```{r}
+sjPlot::plot_model(mod, type='pred') +
+  labs(y='Hatching Success Probability',
+       x='Treatment')
+```
+
+Notice how this plot visualizes that the 95% confidence intervals for Treatment 2 and Control do not overlap, but the 95% confidence intervals for Treatment 1 and Control do overlap. This is another indication that Treatment 2 has significantly different hatching success to the control, and that it is likely a higher hatching success.
+
+## Power analysis
+You both have the issue of really small sample sizes. This likely biases your results. We should include a power analysis to make a quantitative determination of how much this bias might be affecting your conclusions.
+
+This will be run as a two-proportion test, where we calculate the necessary sample size to achieve 95% confidence that we are accurately identifying differences when they exist and 95% confidence that we are accurately identifying similarity when it exists. 
+
+These confidence levels come from our willingness to accept different types of error in statistical analysis. Type 1 error is a false positive, or when you detect a difference when there actually is none. Typically, we accept a 5% chance of a type 1 error. This means our `alpha` value is 1-0.95 = 0.05. Type 2 error is a false negative, or when you fail to detect a difference when there is one. We want there to be a 95% chance that this *does not* happen. This means our `beta` value is 0.95. The `beta` value is also known as the power of our test.
+
+We have to run these tests once for each comparison: once for control vs. treatment1 and again for control vs. treatment2.
+
+```{r poweranalysis}
+# Extract only data from the final time step (72 hours)
+hatching.success %>% 
+  filter(Time ==72)
+
+# Compare Control and Treatment
+power.prop.test(n = NULL,                  # Number of eggs in each group 
+                p1 = 0.4,                  # HS in Control at end of experiment
+                p2 = 0.6,                  # HS in Treatment1 at end of experiment
+                sig.level = 0.05,           # Alpha (at 95% confidence, this is 0.05)
+                power = 0.95,               # Beta
+                alternative = "two.sided")  # Test for difference in either direction
+
+# Compare Control and Treatment2
+power.prop.test(n = NULL,                     # Number of eggs in each group 
+                p1 = 0.4,                  # HS in Control at end of experiment
+                p2 = 0.9,                  # HS in Treatment2 at end of experiment
+                sig.level = 0.05,           # Alpha (at 95% confidence, this is 0.05)
+                power = 0.95,               # Beta
+                alternative = "two.sided")  # Test for difference in either direction
+```
+
+In test 1 (control vs. treatment 1), we would need approximately 160 eggs in each group to identify a difference between the groups (if it exists) with 95% confidence. 
+
+In test 2 (control vs treatment 2), we only need approximately 21 eggs. This is because there's such a wide gap between hatching success in these groups.
+
+The power of our statistical tests to accurately identify differences between the groups will be VERY IMPORTANT FOR YOU BOTH to mention in your discussion sections, because your sample sizes are small.

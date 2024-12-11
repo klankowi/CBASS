@@ -1,0 +1,199 @@
+---
+title: 'Herring qPCR subsample analysis'
+author: Katie Lankowicz
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex
+    includes: 
+       in_header: header1.tex
+always_allow_html: true
+header-includes:
+    - \usepackage{setspace}\onehalfspacing
+    - \usepackage{float}
+    - \usepackage{caption}
+    - \captionsetup[figure]{labelformat=empty}
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+library(tidyverse)
+library(sf)
+library(here)
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+
+# Set GGplot auto theme
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', size=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=11),
+                axis.text.y=element_text(size=11),
+                axis.title.x=element_text(size=12),
+                axis.title.y=element_text(size=12, angle=90, vjust=2),
+                plot.title=element_text(size=14, hjust = 0, vjust = 1.2),
+                plot.caption=element_text(hjust=0, face='italic', size=12)))
+```
+
+```{r dataload, echo=F}
+#### Load data ####
+abund <- read.csv(here('Clean_Data/Seine/abund_through_2024.csv'))
+trips <- read.csv(here('Clean_Data/Seine/trips_through_2024.csv'))
+bio <- read.csv(here('Clean_Data/Seine/lengths_through_2024.csv'))
+pcr <- read.csv(here('Raw_Data/herring_qpcr_subsample24.csv'))
+
+# Clean
+abund <- abund %>% 
+  mutate(date = as.Date(date, format="%m/%d/%Y")) %>% 
+  mutate(month = month(date),
+         year = year(date),
+         week = isoweek(date))
+abund$collector[abund$site_id >20] <- 'QBC'
+abund$collector[abund$site_id <20] <- 'GMRI'
+
+trips <- trips %>% 
+  mutate(date = as.Date(date, format="%m/%d/%Y")) %>% 
+  mutate(month = month(date),
+         year = year(date),
+         week = isoweek(date))
+trips$collector <- NA
+trips$collector[trips$site_id >20] <- 'QBC'
+trips$collector[trips$site_id <20] <- 'GMRI'
+
+bio <- bio %>% 
+  mutate(date = as.Date(date, format="%m/%d/%Y")) %>% 
+  mutate(month = month(date),
+         year = year(date),
+         week = isoweek(date))
+bio$collector[bio$site_id >20] <- 'QBC'
+bio$collector[bio$site_id <20] <- 'GMRI'
+
+pcr <- pcr %>% 
+  dplyr::select(loc_id, Cq, Sample)
+
+# Clean R2
+abund <- abund %>% 
+  filter(loc_id %in% pcr$loc_id & species_name == 'atlantic herring') %>% 
+  dplyr::select(loc_id, catch)
+
+trips <- trips %>% 
+  filter(loc_id %in% pcr$loc_id) %>% 
+  dplyr::select(loc_id, site_name, temp_degc, do_mg.l, salinity_ppt)
+
+bio <- bio %>% 
+  filter(loc_id %in% pcr$loc_id & species_name == 'atlantic herring') %>% 
+  filter(loc_id != '2024_001_23') %>%  # Hey check the logs and see if this is bluefish or actually herring
+  dplyr::select(loc_id, length_mm) %>% 
+  mutate(length_mm = as.numeric(length_mm))
+
+len <- bio %>% 
+  group_by(loc_id) %>% 
+  summarise(len = mean(length_mm,  na.rm=T))
+
+# Combine
+dat <- left_join(pcr, abund, by='loc_id')
+dat$catch[is.na(dat$catch)] <- 0
+dat$catch[dat$loc_id == 'posctl'] <- NA
+
+dat <- left_join(dat, trips, by='loc_id')
+
+# L-W relationship
+# log(Weight) = log(alpha) + beta * log(Total Length) + Error(unknown for this case)
+bio$logW = log(0.00562) + (3.09 * log(bio$length_mm/10))
+bio$weight = exp(bio$logW)
+wt <- bio %>% 
+  group_by(loc_id) %>% 
+  summarise(biomass = mean(weight))
+
+dat <- left_join(dat, wt, by='loc_id')
+dat$biomass <- dat$biomass * dat$catch
+dat$biomass[is.na(dat$biomass)] <- 0
+
+vals <- dplyr::select(dat, Cq, catch, temp_degc, do_mg.l, salinity_ppt, biomass, Sample)
+vals <- vals %>% filter(Sample %notin% c('ABlank', 'DBlank', 'Neg Control', 'Pos Control'))
+
+```
+
+## Background information
+
+A subset of 12 QBC CBASS water samples from 2023 and 2024 were run for qualitiative analysis in summer 2024. The objective was to determine if herring DNA was present in water samples taken immediately preceeding large herring catches, and to further confirm that no DNA was identified in "blanks" (sterile water samples exposed to air in the field, but not otherwise coming into contact with  materials likely to host any eDNA). Results indicated that the sterility check was passed, and that some herring eDNA was identified.
+
+Further qPCR analysis was conducted to estimate herring eDNA concentrations, using quantification cycle (C~q) values as a proxy for concentration. In short, C~q is the number of amplification cycles necessary to reach a threshold fluorescent signal which signifies detection of DNA matching a chosen primer. Low C~q values indicate a high concentration of the chosen species' DNA, and therefore few amplification cycles were needed to detect it. High C~q values indicate a low concentration, and therefore more amplification cycles for detection.
+
+## Available data
+
+Data run in these analyses came from July 5, 2023 and June 6, 2024. It is important to note that a water collection protocol change took place between the two years. In 2023, water samples were collected at three distinct distances from shore (at shore, 50m from shore, 100m from shore) prior to each beach seine. Samples were labeled as Inner, Middle, and Outer, respectively. In 2024, all samples were taken at the same time and at the same distance from shore-- approximately 10m from shore, which is close to the distance between the back of the bag and the shoreline when the beach seine is fully deployed. All samples were taken at the surface.
+
+For our analyes, the 2023 samples were all from the "Middle" sampling location. The 2024 samples were randomly selected from the triplicate samples of each site. The thought process was that these should be the most similar in environmental conditions and habitat characteristics, and therefore likely the best way to control for patterns in species habitat use.
+
+Data for each site pertinent to both organism presence and eDNA degradation include surface water temperature, salinity, and dissolved oxygen content, time of day, weather conditions, catch of herring, length of a subsample (25 or fewer) of herring caught, and an estimated biomass of herring caught. Weight was not collected in the field, so individual weights had to be estimated by use of a Length-Weight relationship based on growth parameters from the literature. Biomass was then estimated as the mean weight per individual multiplied by the number of individuals caught.
+
+## Caveats
+
+This is not going to be a statistically robust exercise. We only have 11 field samples, 2 field blanks, and 2 laboratory controls to build from. This is not enough, especially when only two of the beach seines associated with these water samples had observations of herring. We need to build a larger dataset of herring catch vs. C~q values to fully address any research objective. That being said, I think we can take a quick look at herring catch vs. C~q. This might help us formulate stronger research objectives. 
+
+## Visualization
+
+We would expect eDNA concentration to vary with herring density in the area immediately around the collection site. We can use numeric abundance or estimated biomaass to check this assumption. We also expect eDNA concentration to be affected by environmental conditions that are known to degrade DNA: we can use temperature and salinity collected at the field sites. We'll plot these relationships to get a sense of what analyses are possible.
+
+```{r vis}
+longdat <- dat %>% 
+  filter(Sample %notin% c('Pos Control', 'Neg Control')) %>% 
+  dplyr::select(Cq, catch, biomass, temp_degc, salinity_ppt) %>% 
+  rename(Catch = catch, Biomass = biomass, `Temp (C)`=temp_degc, `Salinity (ppt)` = salinity_ppt) %>% 
+  pivot_longer(cols=c('Catch', 'Biomass', `Temp (C)`, `Salinity (ppt)`))
+
+ggplot(data=longdat, aes(x=value, y=Cq)) +
+  geom_point() +
+  facet_wrap(vars(name), scales = 'free_x') +
+  labs(x='Covariate value')
+
+```
+
+These plots confirm what we stated before: data volume is a massive issue. We'll need to run many more samples to make any robust quantitative analyses. 
+
+As is, there appears to be no strong relationship between salinity and C~q or temperature and C~q. It is hard to assess the nature of the relationship between measures of herring density (biomass or catch) and C~q, but there may be a slight negative relationship; increased herring presence decreases C~q. 
+
+One bright spot is the similarity of our field negative controls to the laboratory negative control.
+
+```{r negs}
+negs <- dat[dat$Sample %in% c('ABlank', 'DBlank', 'Neg Control'),]
+negs <- dplyr::select(negs,
+              Sample, Cq)
+negs
+
+```
+
+The rest of our C~q value are between 30 and 38. Our three lowest C~q values come from sites that had no recorded catch of herring. This is not necessarily an issue-- it's possible the herring just weren't using the nearshore location capable of being sampled by the seine. It's also possible that they saw and evaded the net. But we would obviously have no way of confirming true absence of herring with the seine-eDNA combo, only true presence.
+
+```{r pos}
+pos <- dat[dat$Sample %notin% c('ABlank', 'DBlank', 'Neg Control', 'Pos Control'),]
+pos <- dplyr::select(pos,
+              Sample, Cq, catch)
+pos <- pos[with(pos, order(Cq, decreasing = F)),]
+rownames(pos) <- NULL
+pos
+```
+
+## Models
+
+We obviously meet none of the accepted standards for normal statistical analyses. Still, I'll use a simple Spearman rank correlation to assess the relationship between C~q and our covariates for samples taken in the field (this excludes laboratory positive and negative controls).
+
+```{r quant}
+quant <- dat[dat$loc_id %notin% c('posctl', 'negctl'),]
+
+cor(quant$Cq, quant$catch, method='spearman')
+cor(quant$Cq, quant$biomass, method='spearman')
+
+```
+
+This is a weak negative correlation.
+
+
+## Takeaways

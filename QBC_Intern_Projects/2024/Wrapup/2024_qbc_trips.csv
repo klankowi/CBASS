@@ -1,0 +1,73 @@
+date_id,trip_id,date,site_id,site_name,trip_label,substrate,gear,set,set_time,end_time,weather,tide,time_of_high_tide,time_of_low_tide,temp_degc,do_mg/l,salinity_ppt,hermit_crabs,shrimp,notes
+1,1,6/6/2024,28,Stovers Point,A,sand/gravel,seine,yes,08:40,,fog,low,11:44,17:32,14.5,8.74,30.7,absent,absent ,no fish
+1,1,6/6/2024,25,Garrison Cove,A,sand/gravel,seine,yes,09:12,,fog,mid-low,11:44,17:32,15.3,8.99,30.3,present,low,
+1,1,6/6/2024,23,Lowell Cove,A,sand/gravel,seine,yes,09:48,,fog,mid-low,11:44,17:32,17.3,9.48,30.05,present,absent ,horseshoe crab
+1,1,6/6/2024,26,Long Point Cove,A,sand/gravel,seine,yes,11:11,,fog,mid,11:44,17:32,17,8.96,30.19,absent,low,
+1,1,6/6/2024,21,Orrs Cove,A,sand,seine,yes,12:18,,fog,high,11:44,17:32,18.9,8.27,30.16,absent,low,no fish
+1,1,6/6/2024,22,Snow Island,A,sand/gravel,seine,no,12:36,,fog,high,11:44,17:32,17.9,8.62,30.37,absent,absent ,bad set
+2,2,6/17/2024,21,Orrs Cove,B,mud,seine,yes,07:41,,cloudy/windy,high,08:55,,16.1,7.31,31,absent,low,
+2,2,6/17/2024,22,Snow Island,B,rock,seine,yes,08:26,,cloudy/windy,high,08:55,,15.2,8.26,31.16,absent,absent ,
+2,2,6/17/2024,26,Long Point Cove,B,mud/gravel,seine,yes,09:15,,cloudy/windy,high,08:55,,14.8,8.22,31.19,present,low,
+2,2,6/17/2024,23,Lowell Cove,B,sand/gravel,seine,yes,09:42,,cloudy/windy,high,08:55,,16.1,8.32,31.7,absent,low,
+2,2,6/17/2024,25,Garrison Cove,B,sand/gravel,seine,yes,10:15,,cloudy/windy,mid,08:55,,13.2,8.68,31.58,absent,absent ,
+2,2,6/17/2024,28,Stovers Point,B,rock,seine,yes,10:40,,cloudy/windy,mid,08:55,,14.5,9.01,31.43,absent,absent ,
+3,3,6/24/2024,28,Stovers Point,C,sand/gravel,seine,yes,10:37,,sunny,mid-low,13:45,,15.6,8.41,30.14,absent,low,
+3,3,6/24/2024,25,Garrison Cove,C,sand/gravel,seine,yes,11:01,,sunny,low,13:45,,15.9,8.74,30.18,present,medium,Dog stirred it up
+3,3,6/24/2024,26,Long Point Cove,C,mud/gravel,seine,yes,12:20,,sunny,mid-high,13:45,,19.4,8.42,30.33,absent ,low,
+3,3,6/24/2024,23,Lowell Cove,C,mud,seine,yes,12:25,,sunny,mid,13:45,,20.9,8.19,30.14,absent,low,lots of seaweed and trash
+3,3,6/24/2024,22,Snow Island,C,mud/gravel,seine,yes,14:01,,sunny,high,13:45,,20.2,9.8,30.57,absent,absent ,Mummichog eggs and silversides regurgitating stomachs
+3,3,6/24/2024,21,Orrs Cove,C,mud,seine,yes,15:00,15:11,sunny,high,13:45,,21.3,7.59,28.69,absent,low,
+4,4,7/3/2024,25,Garrison Cove,D,sand/gravel,seine,yes,07:59,,sunny,mid,09:43,,15.5,8.3,31.32,present,low,dog
+4,4,7/3/2024,28,Stovers Point,D,rock,seine,yes,08:27,,sunny,mid,09:43,,15.4,8.73,31.2,absent,absent ,
+4,4,7/3/2024,23,Lowell Cove,D,sand/gravel,seine,yes,09:15,09:43,sunny,mid-high,09:43,,16.4,8.69,30.66,absent,absent ,
+4,4,7/3/2024,26,Long Point Cove,D,sand/gravel,seine,yes,09:48,,sunny,high,11:43,,17.1,8.37,31.42,absent,absent ,
+4,4,7/3/2024,22,Snow Island,D,sand/gravel,seine,yes,10:13,,sunny,high,10:43,,17.6,8.39,31.71,absent ,absent ,
+4,4,7/3/2024,21,Orrs Cove,D,mud/gravel,seine,yes,10:46,11:00,sunny,high,09:43,,19.9,8.48,31.48,absent,absent ,
+5,5,7/8/2024,28,Stovers Point,E,rock,seine,yes,10:35,,sunny,low,13:50,,18.3,9.03,31.33,absent,absent ,
+5,5,7/8/2024,25,Garrison Cove,E,sand/shell,seine,yes,10:57,,sunny,low,13:50,,18,8.72,31.09,present,low,
+5,5,7/8/2024,23,Lowell Cove,E,sand/gravel,seine,yes,11:25,,sunny,low,13:50,,24.1,8.29,31.19,absent,absent ,
+5,5,7/8/2024,26,Long Point Cove,E,mud/gravel,seine,yes,12:31,,sunny,mid,13:50,,22.3,9.32,31.1,present,absent ,
+5,5,7/8/2024,22,Snow Island,E,mud,seine,yes,13:24,,sunny,high,13:50,,23,9.96,33.53,absent,absent ,"Weird set, but still good "
+5,5,7/8/2024,21,Orrs Cove,E,mud,seine,yes,14:03,,sunny,high,13:50,,24.9,10.7,31.56,absent,absent ,
+6,6,7/17/2024,21,Orrs Cove,F,mud/sand,seine ,yes,07:41,07:55,sunny ,mid-high,08:30,,25.5,6.24,31.22,absent ,absent ,pogy schools present 
+6,6,7/17/2024,22,Snow Island ,F,rock,seine ,yes,08:21,,sunny,mid-high,08:30,,24.3,7.6,31.29,absent ,absent ,
+6,6,7/17/2024,26,Long Point Cove,F,mud/gravel,seine ,yes,08:57,,sunny,high ,08:30,,23.3,6.89,31,present ,low,
+6,6,7/17/2024,23,Lowell Cove,F,mud/gravel,seine ,yes,09:28,,sunny,high,08:30,,23.5,7.4,30.92,absent,absent,
+6,6,7/17/2024,25,Garrison Cove ,F,sand/shell,seine ,yes,09:54,,sunny,mid-high,08:30,,19.9,8.08,31.77,absent,absent ,children swimming 
+6,6,7/17/2024,28,Stovers Point ,F,rock,seine ,yes,10:18,,sunny,mid,08:30,,20.2,8.44,31.61,present,absent,net caught Sydney swam
+7,7,7/22/2024,28,Stovers Point,G,rock,seine,yes,09:52,,sunny,low,12:39,,19.4,7.94,31.94,absent,absent,
+7,7,7/22/2024,25,Garrison Cove,G,sand/shell,seine,yes,10:20,,sunny,mid,12:39,,18.4,8.2,31.73,present ,low,kayak 
+7,7,7/22/2024,23,Lowell Cove,G,mud/gravel,seine,yes,10:45,,sunny,mid-high,12:39,,21.7,7.81,31.56,present ,low,paddleboards 
+7,7,7/22/2024,26,Long Point Cove,G,sand/gravel ,seine,yes,11:17,,sunny,mid-high,12:39,,21.4,8.14,31.62,absent,low,children in water
+7,7,7/22/2024,22,Snow Island,G,mud,seine,yes,11:50,,sunny,high,12:39,,22.8,8.97,31.6,absent,absent,
+7,7,7/22/2024,21,Orrs Cove,G,gravel,seine,yes,12:31,,sunny,high,12:39,,22.7,8.36,31.56,absent,absent,
+8,8,8/1/2024,28,Stovers Point,H,rock,seine,yes,07:57,,sunny,high,06:45,,17.6,8.309,31.37,present,low,
+8,8,8/1/2024,25,Garrison Cove,H,sand/shell,seine,yes,08:17,,sunny,high,06:45,,18.3,8.45,31.26,present,low,
+8,8,8/1/2024,23,Lowell Cove,H,sand,seine,yes,09:04,,sunny,high-mid,06:45,,20.3,7.2,31.11,present,absent,
+8,8,8/1/2024,26,Long Point Cove,H,mud/gravel,seine,yes,09:25,,sunny,high-mid,06:45,,19.8,7.47,31.24,present,low,
+8,8,8/1/2024,22,Snow Island ,H,mud/gravel,seine,yes,10:12,,sunny,high-mid,06:45,,21,8.03,31.46,absent,absent,
+8,8,8/1/2024,21,Orrs Cove,H,mud/sand,seine,yes,10:49,,sunny,high-mid,06:45,,22.3,7.55,31.54,absent,absent,
+9,9,8/5/2024,28,Stovers Point,I,mud,seine,yes,10:53,,sunny,mid,12:30,,19.5,8.15,31.26,absent,absent,people on beach
+9,9,8/5/2024,25,Garrison Cove,I,sand/shell,seine,yes,11:15,,sunny,mid,12:30,,20.2,8.45,30.8,present,absent,people on beach
+9,9,8/5/2024,23,Lowell Cove,I,sand,seine,yes,11:40,,sunny,mid-high,12:30,,20.6,8.53,30.84,absent,absent ,
+9,9,8/5/2024,26,Long Point Cove,I,mud/gravel,seine,yes,12:20,,sunny,mid-high,12:30,,21.7,7.98,30.94,present,low,
+9,9,8/5/2024,22,Snow Island,I,mud/gravel,seine,yes,13:10,,sunny,high,12:30,,24.3,9.06,31.38,absent,low,
+9,9,8/5/2024,21,Orrs Cove,I,mud/sand,seine,yes,13:39,,sunny,high,12:30,,23.8,9.4,30.64,present,absent,
+10,10,8/13/2024,28,Stovers Point,J,sand/gravel,seine,yes,14:01,,mostly sunny,low,18:04,,19.6,8.75,31.36,present,low,people on beach
+10,10,8/13/2024,25,Garrison Cove,J,sand/shell,seine,yes,14:25,,sunny,low,18:04,,21.1,8.61,31.2,absent,absent,
+11,10,8/14/2024,21,Orrs Cove,J,mud/shell,seine,yes,07:13,,sunny,high,06:47,,20.6,7.26,30.95,present,absent,clearest we've seen this site
+11,10,8/14/2024,22,Snow Island,J,mud/shell,seine,yes,07:42,,sunny,high,06:47,,20.3,7.51,31.16,absent,absent,striper and mackerel chasing fish; shallow; giant silverside 132mm
+11,10,8/14/2024,26,Long Point Cove,J,sand/gravel,seine,yes,08:19,,cloudy,high,06:47,,19.9,7.44,31.07,present,low,
+11,10,8/14/2024,23,Lowell Cove,J,mud/gravel,seine,yes,08:45,,sunny,high,06:47,,18.3,6.92,31.13,present,absent,
+12,11,8/21/2024,28,Stovers Point,K,rock/gravel,seine,yes,09:52,,partly cloudy,low,12:56,,18.1,8.6,30.48,absent,absent,
+12,11,8/21/2024,25,Garrison Cove,K,sand/gravel,seine,yes,10:16,,partly cloudy,low,12:56,,17.7,8.13,30.25,absent,absent,
+12,11,8/21/2024,23,Lowell Cove,K,sand,seine,yes,10:39,,partly cloudy,low,12:56,,19.7,7.51,29.85,absent,absent,
+12,11,8/21/2024,26,Long Point Cove,K,sand/gravel,seine,yes,11:11,,partly cloudy,mid,12:56,,20.2,7.41,29.75,absent,absent,
+12,11,8/21/2024,22,Snow Island,K,sand,seine,yes,11:45,,partly cloudy,high,12:56,,20.5,8.07,29.87,present,absent,
+12,11,8/21/2024,21,Orrs Cove,K,mud,seine,yes,12:19,,partly cloudy,high,12:56,,21,6.83,29.8,absent,absent,
+13,12,9/6/2024,28,Stovers Point,L,sand/gravel,seine,yes,11:48,,cloudy,low,13:54,,16.8,8.54,32.17,absent,absent,
+13,12,9/6/2024,26,Garrison Cove,L,sand,seine,yes,12:17,,partly cloudy,mid,13:54,,17.2,8.1,32.04,present,absent,
+13,12,9/6/2024,23,Lowell Cove,L,mud/sand,seine,yes,12:40,,cloudy,mid,13:54,,19.5,7.69,31.81,absent,absent,
+13,12,9/6/2024,26,Long Point Cove,L,mud/sand,seine,yes,13:19,,sunny,high,13:54,,18.6,7.89,31.95,absent,absent,
+13,12,9/6/2024,22,Snow Island,L,mud/sand,seine,yes,14:00,,mostly cloudy,high,13:54,,19.1,8.06,31.91,absent,absent,
+13,12,9/6/2024,21,Orrs Cove,L,mud,seine,yes,14:59,,sunny,high,13:54,,19.2,7.9,31.9,absent,absent,

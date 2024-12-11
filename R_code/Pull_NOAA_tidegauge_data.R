@@ -25,7 +25,7 @@ library(here)
 ## ENTER YOUR STATION ID AND YEARS HERE ##
 station = 8418150 #Enter your desired station ID here
 year = 2014  #Enter the first year of data to get here
-year2 = 2022 #Enter the last year of data to get here (can be same as 1st year)
+year2 = 2024 #Enter the last year of data to get here (can be same as 1st year)
 ################################################################################
 
 # Example station ID's. 

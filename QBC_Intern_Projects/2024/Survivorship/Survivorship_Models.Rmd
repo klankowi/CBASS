@@ -1,0 +1,145 @@
+---
+title: "Survivorship Models"
+author: "Katie Lankowicz"
+date: "2024-07-31"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Load libraries
+library(ggsurvfit)
+library(survminer)
+library(survival)
+library(tidyverse)
+```
+
+## What do we have, and what can we do with it?
+
+You have just completed an experiment testing the effects of various treatments (contaminant levels or temperatures) on the survival of your target organism. The duration of your experiment likely varied between 3 and 6 days, depending on both the expected duration of whatever life stage you were looking at and the time we had left this summer to collect data. You censused (examined your entire group of study organisms) at several points over the experiment's duration to count the number of living vs. dead organisms. The intervals between censuses were irregular-- informally speaking, you checked your experiment as much as possible given your schedules. You should have a dataframe tallying the number of living and dead organisms at each of these intervals for all of your treatments. 
+
+Ideally, we want to use these data to calculate *survival probability* over time. Remember that the organisms you used in your experiment are samples (a part) of a population (a whole), and we are trying to predict with 95% confidence what mean survivorship of the entire populatin will be based on the results of your sample.
+
+To do that, we can take your data and turn them into Kaplan-Meier survivorship curves. These curves describe survival probability over time and include 95% confidene intervals. Once we build these curves, we can then use a Cox Proportional Hazards model (which is a semi-parametric regression model) to test similarity between the curves.
+
+## Formatting your data
+
+Let's say you are testing the difference between a control and a treatment, and you have 10 individuals in each group. Your experiment runs for 3 days, or 72 hours. You probably have something that looks like this:
+
+```{r unformatted_data}
+fake.unformatted.data <- 
+  data.frame(
+    Treatment = c('Control', 'Treatment'),
+    Hour.1 = c(10, 10),
+    Hour.2 = c(10, 10),
+    Hour.4 = c(10, 9),
+    Hour.8 = c(9, 7),
+    Hour.12 = c(9, 6),
+    Hour.24 = c(8, 6),
+    Hour.48 = c(8, 5),
+    Hour.72 = c(7, 5)
+  )
+fake.unformatted.data
+```
+
+This table shows you the number of *living organisms* in each treatment group, recorded at various time intervals along the duration of the experiment. While this was the most efficient way to record the data, it isn't how we need to format the data to create our survivorship curves. We'll have to reformat. You can do this in Excel. Create a dataframe that instead looks like this:
+
+```{r formatted_data}
+fake.formatted.data <- 
+  data.frame(
+    Treatment = c(rep('Control', 10), rep('Treatment', 10)),
+    Status = c(1, 1, 1, 1, 1, 1, 1, 2, 2, 2,
+               1, 1, 1, 1, 1, 2, 2, 2, 2, 2),
+    Time = c(rep(72, 7), 8, 24, 72,
+             rep(72, 5), 4, 8, 8, 12, 48)
+    
+  )
+fake.formatted.data
+```
+
+This dataframe has ONE ROW FOR EACH INDIVIDUAL IN YOUR STUDY. The first column describes the group the individual was in-- control or treatment. The second column describes its status, where 1 means living and 2 means dead. Finally, the third column is the time in hours to an *event.* For your studies, the event can either be death or the end of the experiment. Ending the experiment for a living organism is often called *censoring.* In the real world, this might happen when an organism is lost or affected by external factors that might bias the results of the experiment. If your experimental organisms are people, they may just decide they want to quit the experiment. In this pretend experiment, all remaining living organisms are censored at the same time when we end the experiment, which is at 72 hours.
+
+If an organism survives for the entire experiment, like the organism in row 1 of the fake formatted dataframe, you would code its time column as the duration of the experiment (which in this case was 72 hours). If an organism dies at any point in the experiment, you would code its time column as the time to death. In this pretend dataframe, 7 control group organism lived to the end of the experiment. One died at 8 hours, one died at 24 hours, and one died at 72 hours. 5 treatment group organisms lived to the end-- one died at 4 hours, two died at 8 hours, one died at 12 hours, and one died at 48 hours. Please seem me if you don't understand how you should format your data, as you can't proceed if it's wrong.
+
+## Kaplan-Meier survivorship curves
+Next, we will write code to transform our formatted survivorship data into a Kaplan-Meier survivorship curve. This curve shows us the expected probability of survival over the duration of the experiment. 
+
+Kaplan-Meier survivorship curves have a few key assumptions. They are:
+
+- *Random and independent censoring:* This assumption states that the occurrence of censoring (and individual leaving the experiment without dying) is unrelated to the likelihood of experiencing the event of interest and unrelated to the censoring of other individuals. In other words, censoring should be random. If censoring is not random or if it is related to the censoring of other individuals, the estimated survival probabilities may be biased. In our case, the test subjects cannot and do not leave the experiment without dying. So we don't have to worry about this.
+
+- *Survival probabilities do not change over time:* The Kaplan-Meier curve assumes that the survival probabilities estimated at each time point remain constant over time. This assumption may not be valid if there are time-varying factors or treatments that can influence survival probabilities. Your treatment levels, whether they are temperatures or concentrations of a contaminant, were constant over time, and we attempted to eliminate any other confounding factors that may have affected survivorship. So we should be good here.
+
+- *No competing risks:* The Kaplan-Meier curve assumes that the event of interest is the only possible outcome and there are no other competing events that could prevent the occurrence of the event being studied. Our test subjects could die either naturally or from the effects of the contaminant. Both would be expected outcomes. There is no competing risk, or other way they could die, so we should not have to worry about this.
+
+Now that we have reviewed the assumptions and found we have not violated any of them, we can proceed with the models. Functions used in this section come from the `survival` \texttt{R} package.
+
+```{r kaplanmeier}
+# Create survivorshp model
+fakemod <- survfit2(               # Function to fit model
+  Surv(Time, Status) ~ Treatment,  # Function to create survivor object from given formula
+  data=fake.formatted.data         # Data used in the model
+  )
+
+# Plot survivorship curves, color based on treatment group
+ggsurvfit(fakemod) +
+  # Add shaded 95% confidence interval
+  add_confidence_interval() +
+  # Adjust axis labels
+  labs(
+    x = "Hours",
+    y = "Overall survival probability"
+  )
+```
+
+From this visualization, we can see that the probability of surviving to 72 hours is lower in the treatment group (blue) than the control group (red). The confidence intervals for the control (red) and treatment (blue) groups overlap a lot, though. We need to make a quantitative determination if this difference is statistically significant through the use of a statistical test.
+
+## Cox proportional hazard models
+The Cox proportional hazard model is a semi-parametric regression model, in which the relationship betwen time to event outcomes and explanatory variables are quantified. In other words, it is a way to measure and compare the effects of our two treatment levels on the time to death in our study organisms. The Cox PH model has several assumptions:
+
+- *Hazards are proportional over time:* The effect of any treatment as compared to the other groups is consistent over time. Imagine you are running a study on fish, testing the survivorship of fish in a control group of 16 degrees Celsius vs. survivorship of fish in a treatment group of 25 degrees Celsius. If the hotter water makes it twice as likely for a fish to die, that proportion (twice as likely) needs to remain consistent throughout the entire experiment. If something weird happens and your fish get used to the hot water and stop dying, the proportional effect of that hazard is not consistent. This biases the outcome of the study. The effect of your treatment as compared to other groups cannot fluctuate over time.
+
+- *There are no overly influential observations:* There should not be any extreme outliers.
+
+- *The relationship between the predictor variables and log hazard rate is linear:* This is only important when you have continuous numeric predictor variables. The line of best fit between that predictor variable and the log-transformed hazard rate should approximate a straight line. For us, our only predictor variable is a categorical variable (Control, Treament A, Treatment B, etc).
+
+- *The survival times are independent:* The death or survival of one study organism cannot influence any other study organism.
+
+We can assume that the survival times of our study organisms are independent of each other. We also don't need to assess linearity, because we only have a categoricla predictor variable. The other two assumptions will be assessed based on the model residuals, like we did for linear regression.
+
+The Cox Proportional Hazards model function comes from the `survival` \texttt{R} package. The null hypothesis is that there is no difference in the surivorship rates of the two groups. The alternative hypothesis is that there is a difference in survivorship rates of the two groups. We will assess these hypotheses at a 95% confidence interval.
+
+```{r coxmodel}
+coxmodel <- 
+  coxph(                             # Function to create the cox model
+  Surv(Time, Status) ~ Treatment,    # Function to create survivor object from given formula
+       data = fake.formatted.data    # Data used in the model
+  )   
+```
+
+Before we check the output, let's assess our assumptions. We begin with the proportional hazards assumption. The following is a statistical test of the proportional hazards assumption. The null hypothesis is that the proportional hazard rate is constant over time. The alternative hypothesis is that the proportional hazard rate is not constant. This is tested across all possible pairings of groups you have in your data and across the "global" (all groups combined) scale. We only have two groups (control and treatment), so we will see the same results for the control-treatment pairing and the global test. We will assess this test at a 95% confidence rate.
+
+```{r assumptions}
+cox.zph(coxmodel)
+```
+
+The test returns a p-value of 0.38, which is larger than the alpha of 0.05. Therefore, we fail to reject the null hypothesis, and can state that the proportional hazard rate is likely constant over time.
+
+Next, we have to check for influential outliers. We will do this by plotting the deviance of the residuals. Large positive values indicate an individual who "died too soon." Large negative values indicate an individual who "lived too long." We want to see an equal number of points above and below zero, with very few large positive or negative values.
+
+```{r outliers}
+ggcoxdiagnostics(coxmodel, type = "deviance",
+                 linear.predictions = FALSE, ggtheme = theme_bw())
+```
+
+This is pretty tough to interpret, since our fake dataset only has 20 individuals. But out residual values are all between 2 and -2, and we have about the same number of individuals above and below 0. That's probably good enough to pass the assumption that we have no influential outliers. Now we can actually look at our results.
+
+```{r resultscheck}
+coxmodel
+```
+
+The model output gives us a p-value of 0.308. This is greater than our alpha of 0.05. We therefore fail to reject the null hypothesis, and can state that there is no significant difference in survivorship between our two treatments.
+
+## Moving forward
+Please re-format your survivorship data to match what I have showed you above. Then, you should be able to load your data into R and run it through this same exact modeling code. Interpret your results, and be ready to discuss why your study organisms did or did not meet your expectations.

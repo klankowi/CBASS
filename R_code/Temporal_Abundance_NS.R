@@ -5,30 +5,6 @@ library(here)
 library(tidyverse)
 library(shades)
 
-# # Build color palette based on gmRi
-# gmri_colors <- c(
-#   `orange`    =  "#EA4F12",
-#   `yellow`    =  "#EACA00",
-#   `gmri green`=  "#ABB400",
-#   `green`     =  "#407331",
-#   `teal`      =  "#00736D",
-#   `gmri blue` =  "#00608A",
-#   `dark gray` =  "#535353"
-# )
-# 
-# gmri_pal <- function(reverse = FALSE, ...) {
-#   pal <- gmri_colors
-#   
-#   if (reverse) pal <- rev(pal)
-#   
-#   grDevices::colorRampPalette(pal, ...)
-# }
-# 
-# scale_color_gmri <- function(reverse = FALSE, ...) {
-#   pal <- gmri_pal(reverse = reverse)
-#   ggplot2::scale_color_gradientn(colours = pal(256))
-# }
-
 # Negate function
 '%notin%' <- function(x,y)!('%in%'(x,y))
 # Set GGplot auto theme
@@ -44,65 +20,117 @@ theme_set(theme(panel.grid.major = element_line(color='lightgray'),
                 plot.title=element_text(size=14, hjust = 0, vjust = 1.2),
                 plot.caption=element_text(hjust=0, face='italic', size=12)))
 
+# Load data
+trips <- read.csv(here('Clean_Data/Seine/trips_through_2024.csv'))
+trips <- trips %>% 
+  mutate(week = isoweek(date),
+         year = year(date))
+abund <- read.csv(here('Clean_Data/Seine/abund_through_2024.csv'))
+abund$species_name[abund$species_name %in% c('threespine stickleback',
+                                             'fourspine stickleback', 
+                                             'ninespine stickleback', 
+                                             'stickleback spp')] <- 
+  'stickleback spp'
 
-abundancedata <- read.csv(here('Clean_Data/rasterdata.csv'))
+abund$species_name[abund$species_name %in% c('grubby sculpin',
+                                             'longhorn sculpin',
+                                             'sculpin spp',
+                                             'shorthorn sculpin',
+                                             'slimy sculpin')] <- 
+  'sculpin spp'
 
-# Cut to species of interest
-keepers <- abundancedata[abundancedata$species %in%
-                           c('atlantic tomcod',
-                             'atlantic herring'),]
+abund$species_name[abund$species_name %in% c('hake spp',
+                                             'red hake', 
+                                             'white hake',
+                                             'spotted hake')] <- 
+  'hake spp'
 
-southern.species <- c('permit',
-                      'crevalle jack',
-                      'white mullet',
-                      'summer flounder')
+# Determine which species have been caught
+# Create a table that shows number of weeks in which each species was seen
+abund <- abund %>% 
+  mutate(date = as.Date(date, format = '%m/%d/%Y'),
+         week = isoweek(date),
+         year = year(date))
 
-south.abund <- abundancedata[abundancedata$species %in% southern.species,]
+table(abund$species_name)
 
-south.abund <- south.abund %>% 
-  group_by(year, week) %>% 
+# Only use species we care about
+species <- abund %>% 
+  group_by(species_name, week, year) %>% 
+  summarise(ntimes = n()) %>% 
+  filter(ntimes > 1)
+
+species <- unique(species$species_name)
+
+abund <- abund[abund$species_name %in% species,]
+abund <- unique(abund)
+abund$date <- as.Date(abund$date, format='%m/%d/%Y')
+abund$week <- isoweek(abund$date)
+abund$year <- year(abund$date)
+
+abund <- abund %>% 
+  group_by(species_name, week, year) %>% 
   summarise(catch = sum(catch))
-south.abund$species <- 'Southern species'
 
-northern.species <- c('shorthorn sculpin',
-                      #'ninespine stickleback', 
-                      'lumpfish',
-                      'atlantic cod',
-                      'rock gunnel'
-)
+effort <- trips %>% 
+  dplyr::select(week, year) %>% 
+  group_by(week, year) %>% 
+  summarise(ntrips = n())
 
-north.abund <- abundancedata[abundancedata$species %in% northern.species,]
+poss <- rep(seq(2014, 2024, 1), 20)
+poss <- poss[order(poss)]
+poss <- as.data.frame(poss)
+poss$week <- rep(seq(22, 41, 1), 11)
+colnames(poss) <- c('year', 'week')
+poss$ntrips <- NA
 
-north.abund <- north.abund %>% 
-  group_by(year, week) %>% 
-  summarise(catch = sum(catch))
-north.abund$species <- 'Northern species'
+poss$id <- paste0(poss$year, poss$week)
+effort$id <- paste0(effort$year, effort$week)
 
-abundancedata <- rbind(keepers, south.abund, north.abund)
+poss <- poss[poss$id %notin% effort$id,]
 
-fish.species <- unique(abundancedata$species)
+effort <- rbind(effort, poss)
+effort <- effort[with(effort, order(year, week)),]
+effort$id <- NULL
+
+blank <- data.frame(species_name = NA, week = NA, year = NA, catch = NA,
+                    ntrips=NA)
+
+for(i in 1:length(species)){
+  spec <- abund[abund$species_name == species[i],]
+  specef <- effort %>% mutate(species_name = species[i])
+  spec <- merge(spec, specef, by=c('year', 'week', 'species_name'), all=T)
+  spec$catch[!is.na(spec$ntrips) & is.na(spec$catch)] <- 0
+  
+  blank <- rbind(blank, spec)
+}
+abundancedata <- blank[!is.na(blank$week) & !is.na(blank$species_name),]
+
+fish.species <- species$species_name
 
 yeartemps <- data.frame(
-  year = seq(2014, 2023, 1),
+  year = seq(2014, 2024, 1),
   temp = c(rep('Cold', 2),
            'Hot',
            rep('Cold', 3),
-           rep('Hot',4))
+           rep('Hot',5))
 )
 
 month.week <- data.frame(
-  week= c(22.5, 26.5, 30.5, 34.5),
-  month=c('June','July','Aug','Sept')
+  week= c(22.5, 26.5, 30.5, 34.5, 38.5),
+  month=c('June','July','Aug','Sept', 'Oct')
 )
 
-for(i in 1:length(fish.species)){
-  input.fish <- paste0(fish.species[i])
+for(i in 1:
+    length(species)
+    ){
+  input.fish <- paste0(species[i])
   
   abun <- abundancedata[abundancedata$species == input.fish,]
   #abun$catch[is.na(abun$catch)] <- 0
   abun$logcatch <- log(abun$catch + 1)
   
-  a <- ifelse(unique(abun$year) %in% c(2016, seq(2020,2023)), "red", 
+  a <- ifelse(unique(abun$year) %in% c(2016, seq(2020,2024)), "red", 
               "blue")
   
   resras <- 
@@ -119,7 +147,7 @@ for(i in 1:length(fish.species)){
                                      viridis::viridis(begin=0,
                                                       end=1,
                                                       n=999)),
-                         na.value = NA,
+                         na.value = 'transparent',
                          n.breaks=2,
                          breaks=c(0, max(abun$logcatch, na.rm=T)),
                          labels = c('Low', 'Hi')) +
@@ -136,8 +164,7 @@ for(i in 1:length(fish.species)){
   
   print(resras)
   
-  # ggsave(resras,
-  #        filename=paste0(here(), "/VAST_runs/tuna10_both/proportion.info.png"),
-  #        driver)
+  ggsave(resras,
+         filename=paste0(here(), "2024_Rasters/", input.fish, '.png'))
 }
 

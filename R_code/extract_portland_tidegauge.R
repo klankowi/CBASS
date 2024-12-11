@@ -21,7 +21,7 @@ theme_set(theme(panel.grid.major = element_line(color='lightgray'),
                 plot.caption=element_text(hjust=0, face='italic', size=12)))
 
 # Set years to pull (Portland station reliable data record 2003-today)
-years <- seq(2003, 2023)
+years <- seq(2003, 2024)
 
 # Set months
 months <- seq(1, 12)
@@ -68,10 +68,10 @@ for(i in years){
 sdates <- sdates[sdates != '20110601']
 edates <- edates[edates != '20110630']
 
-## December 2023 has not finished yet
-#sdates <- sdates[sdates != '20231201']
-#edates <- edates[edates != '20231231']
-edates[edates == '20231231'] <- '20231212'
+## November 2024 has not finished yet
+#sdates <- sdates[sdates != '20241201']
+#edates <- edates[edates != '20241231']
+edates[edates == '20241231'] <- '20241202'
 
 # Remove NA end dates
 edates <- edates[!is.na(edates)]
@@ -294,8 +294,8 @@ daily.smooth$smooth.daily <- dat$y
 daily.smooth$smooth.upper <- dat$ymax
 daily.smooth$smooth.lower <- dat$ymin
 
-# Timeperiod we care about: 2014 onward
-tp <- wat_temp[wat_temp$timestamp >= as.POSIXct('2014-01-01 00:00:00'),]
+# Timeperiod we care about: Nov 2013 onward
+tp <- wat_temp[wat_temp$timestamp >= as.POSIXct('2013-11-01 00:00:00'),]
 tp$year <- lubridate::year(tp$timestamp)
 tp <- tp[!is.na(tp$timestamp),]
 
@@ -334,7 +334,7 @@ wat_temp$anomaly <- wat_temp$daily.c - wat_temp$smooth.daily
 wat_temp$year <- lubridate::year(wat_temp$timestamp)
 
 # Extract time period we care about
-tp <- wat_temp[wat_temp$timestamp > as.POSIXct('2014-01-01 00:00:00'),]
+tp <- wat_temp[wat_temp$timestamp > as.POSIXct('2013-11-01 00:00:00'),]
 tp$year <- lubridate::year(tp$timestamp)
 tp <- tp[!is.na(tp$timestamp),]
 
@@ -358,15 +358,47 @@ ggplot() +
   geom_vline(xintercept=273, col='red', lty=2)
 
 # Identify mean annual anomaly
-m.a.t <- tp %>% group_by(year) %>% summarise(mean.anom = mean(anomaly, na.rm=TRUE))
+tp$month <- month(tp$timestamp)
+tp$season <- NA
+tp$season[tp$month %in% c(3,4,5)] <- 'spring'
+tp$season[tp$month %in% c(6,7,8)] <- 'summer'
+tp$season[tp$month %in% c(9, 10, 11)] <- 'fall'
+tp$season[tp$month %in% c(12, 1, 2)] <- 'winter'
+
+tp$yearseason <- NA
+tp$yearseason[tp$season %in% c('spring', 'summer', 'fall')] <- 
+  tp$year[tp$season %in% c('spring', 'summer', 'fall')]
+tp$yearseason[tp$month == 12] <- tp$year[tp$month == 12]
+tp$yearseason[tp$month %in% c(1, 2)] <- 
+  tp$year[tp$month %in% c(1, 2)] - 1
+
+m.a.t <- tp %>% 
+  group_by(yearseason, season) %>% 
+  summarise(mean.anom = mean(anomaly, na.rm=TRUE)) %>% 
+  as.data.frame() %>% 
+  mutate(season = factor(season, levels=c('spring', 'summer', 'fall', 'winter')))
+
+m.a.t$anom <- NA
+m.a.t$anom[m.a.t$mean.anom>0] <- 'Above CRP'
+m.a.t$anom[m.a.t$mean.anom<=0] <- 'Below CRP'
+
+m.a.t <- m.a.t[-1,]
 m.a.t <- m.a.t[with(m.a.t, order(mean.anom, decreasing = T)),]
 rownames(m.a.t) <- NULL
 m.a.t
 
+ggplot(data=m.a.t) +
+  geom_point(aes(x=yearseason, y=mean.anom, col=anom)) +
+  facet_wrap(vars(season)) +
+  coord_cartesian(ylim=c(-2, 2)) +
+  labs(x='Year', y='Mean anomaly (C)', col='Deviation') +
+  scale_x_continuous(breaks = scales::breaks_pretty())
+
+
 # Assign temperature category by mean anomaly
 tp$catper <- NA
 tp$catper[tp$year %in% c(2014, 2015, 2017, 2018, 2019)] <- 'cold'
-tp$catper[tp$year %in% c(2016, 2020, 2021, 2022, 2023)] <- 'hot'
+tp$catper[tp$year %in% c(2016, 2020, 2021, 2022, 2023, 2024)] <- 'hot'
 tp$catper <- factor(tp$catper, levels = c('hot', 'cold'))
 
 # Plot

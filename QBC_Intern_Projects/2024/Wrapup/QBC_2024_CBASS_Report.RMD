@@ -1,0 +1,279 @@
+---
+title: 'QBC 2024 CBASS Wrap up'
+author: Katie Lankowicz
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex
+    includes: 
+       in_header: header1.tex
+always_allow_html: true
+header-includes:
+    - \usepackage{setspace}\onehalfspacing
+    - \usepackage{float}
+    - \usepackage{caption}
+    - \captionsetup[figure]{labelformat=empty}
+---
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+library(tidyverse)
+library(treemapify)
+library(chron)
+library(data.table)
+library(kableExtra)
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+
+# Set GGplot auto theme
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', size=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=11),
+                axis.text.y=element_text(size=11),
+                axis.title.x=element_text(size=12),
+                axis.title.y=element_text(size=12, angle=90, vjust=2),
+                plot.title=element_text(size=14, hjust = 0, vjust = 1.2),
+                plot.caption=element_text(hjust=0, face='italic', size=12)))
+```
+
+```{r loaddata}
+# Load 2024 qbc data
+trips <- read.csv('C:/Users/klankowicz/Documents/GitHub/CBASS/QBC_Intern_Projects/2024/Wrapup/2024_qbc_trips.csv')
+abund <- read.csv('C:/Users/klankowicz/Documents/GitHub/CBASS/QBC_Intern_Projects/2024/Wrapup/2024_qbc_abundance.csv')
+length <- read.csv('C:/Users/klankowicz/Documents/GitHub/CBASS/QBC_Intern_Projects/2024/Wrapup/2024_qbc_length.csv')
+
+# Clean trips
+trips <- trips %>% 
+  mutate(date = as.POSIXct(date, format='%m/%d/%Y'),
+         week = isoweek(date),
+         site_name = trimws(site_name),
+         substrate = trimws(substrate),
+         weather=trimws(weather),
+         tide = trimws(tide),
+         hermit_crabs = trimws(hermit_crabs),
+         shrimp = trimws(shrimp)) %>% 
+  dplyr::select(trip_id, date, week, set_time, site_name, substrate,
+                weather, tide, time_of_high_tide,
+                temp_degc,do_mg.l, salinity_ppt, hermit_crabs, shrimp)
+
+for(i in 1:nrow(trips)){
+  if(nchar(trips$set_time)[i] == 4){
+    trips$set_time[i] <- str_pad(trips$set_time[i], 5, 'left', '0')
+  }
+  trips$set_time[i] <- paste0(trips$set_time[i], ':00')
+  trips$time_of_high_tide[i] <- paste0(trips$time_of_high_tide[i], ':00')
+}
+
+trips$weather[trips$weather == 'cloudly/windly'] <- 'cloudy'
+
+trips <- trips %>% 
+  mutate(set_time = chron(times. = set_time, format='h:m:s'),
+         time_of_high_tide = chron(times.= time_of_high_tide, format='h:m:s'))
+
+
+# Clean abundance
+abund <- abund %>% 
+  mutate(site_name = trimws(site_name),
+         species_name = trimws(species_name),
+         species_name = tolower(species_name)) %>% 
+  dplyr::select(trip_id, site_name, species_name, total_catch)
+
+# Clean length
+length <- length %>% 
+  dplyr::select(trip_id, site_name, species_name, sex, field_length_mm) %>% 
+  mutate(species_name = trimws(species_name),
+         species_name = tolower(species_name))
+```
+
+# CBASS by the numbers
+
+This year we sampled 72 CBASS sites across 12 weeks, beginning on June 6th and ending on September 6th. We completed a full trip (hitting all 6 sites) all weeks of the internship program except for one, then completed one extra trip after the interns returned to college. This is an increase in effort as compared to 2023, in which we only completed 9 full trips over the course of 10 weeks.
+
+The CBASS program is time-intensive-- it took the full crew more than 37 hours to just collect field data, let alone time needed to filter water for eDNA processing and enter data into our digital repository. 
+
+In the eDNA realm, we collected 216 field samples. All samples have been filtered and securely stored in a deep freezer to retain all delicate genetic information. A few samples from both 2023 and 2024 have been run through simple quality-control measures to check for presence of genetic material and had positive results. Exact timelines for qPCR analysis for all QBC CBASS samples are best determined by our eDNA technician, but the ball is rolling.
+
+## What kind of fish did we see?
+
+The interns collected, identified, and measured more than 5,500 fish over the course of the summer. These fish represented 20 different species, from commonly observed species like Atlantic silverside and mummichog to species we don't expect to see this far north like crevalle jack, white mullet, and permit. We also captured the first Atlantic saury to ever be seen in the seine. Though saury are common in the Gulf of Maine, they are not usually so close to shore as to be available for us to catch. They're also very mobile-- it was strange that they did not simply outrun the net!
+
+```{r speciescaught, fig.pos="H"}
+olddat <- read.csv('C:/Users/klankowicz/Documents/GitHub/CBASS/QBC_Intern_Projects/2024/Wrapup/old_abundance.csv')
+olddat <- olddat %>% 
+  filter(bay_location == 'north')
+
+oldtrip <- read.csv('C:/Users/klankowicz/Documents/GitHub/CBASS/QBC_Intern_Projects/2024/Wrapup/old_trip.csv')
+oldtrip <- oldtrip %>% 
+  filter(bay_location == 'north')
+oldtrip$date <- as.POSIXct(oldtrip$date, format='%m/%d/%Y %H:%M:%S')
+oldtrip$week <- isoweek(oldtrip$date)
+
+
+sum.caught <- abund %>%
+  rename(Species = species_name) %>%
+  group_by(Species) %>% 
+  summarise(Catch = sum(total_catch))
+
+sum.caught <- sum.caught[with(sum.caught, order(Catch, decreasing = T)),]
+rownames(sum.caught) <- NULL
+
+sum.caught %>%
+  kable(caption = "Species caught in QBC 2024 CBASS",
+        col.names = c('Species', 'Total catch'),
+        row.names = FALSE) %>%
+  row_spec(0, background="black", color="white") %>% 
+  kable_styling(font_size = 9, latex_options = 'HOLD_position')
+```
+
+## Bird's-eye view: What was different this year as compared to last year?
+
+Last year, we saw on average larger catches of Atlantic herring and Atlantic silverside. We encountered them at approximately the same rate, but their school structure was somehow different-- either smaller in number of fish or more spread-out. It's also possible that the on average better weather this year affected our catch. Fish are better able to see and avoid the net in clearer waters. Last year, we had a ton of rainy and overcast days. This could have made it harder for fish to see the net due to either more turbid waters or simply less sunlight.
+
+The rainy weather also affected the environmental conditions at our sites. Our sites were on average higher in salinity this year as compared to last year. However, average surface temperature was slightly cooler this year.
+
+Finally, we did see notable increases in the catch of Atlantic tomcod. We frequently caught them at Lowell Cove. In early June we caught 42 in one net haul, which is the most ever caught in CBASS seine data. Tomcod are short-lived, anadromous, benthopelagic fish. They typically spend their entire lives in estuarine and neashore areas. Though as shallow-water residents they are resistant to temperature swings, they prefer colder waters. Previous studies on temperature-linked distributions of juvenile tomcod have indicated both that they used to be abundant in nearshore Maine waters into July and that they are likely to avoid areas with bottom temperatures that exceed 22◦C (Targett & McCleave 1974). Knowing this, we could speculate that temperatures this year were more suitable for tomcod to use the nearshore area we sample with the seine.
+
+# Community Assemblage
+
+## Overall trends
+
+We can assess nearshore fish community assemblage and diversity by looking at the abundance data from this summer as a whole (as opposed to site-by-site). Here, we will use tree plots to visualize the relative abundance of species we encountered across more than one sampling trip. Our results are typical of Casco Bay in the last 10 years, with most of our catch coming from a combination of surface-dwelling residential forage fish (silverside) and surface-dwelling migratory forage fish (herring).
+
+```{r communityassemblage}
+top <- as.data.frame(table(abund$species_name))
+colnames(top) <- c('species_name', 'n_encounters')
+top <- top[with(top, order(n_encounters, decreasing = T)),]
+
+top.spec <- top[top$n_encounters > 1,]
+top.spec <- droplevels(top.spec)
+
+abund$Species <- abund$species_name
+abund$Species[abund$Species %notin% top.spec$species_name]  <- 'Other'
+
+abund$Species[abund$Species == 'atlantic silverside'] <- 'silverside'
+abund$Species[abund$Species == 'atlantic herring'] <- 'herring'
+abund$Species[abund$Species == 'atlantic tomcod'] <- 'tomcod'
+
+abund$Species <- factor(abund$Species,
+                         levels=c('Other', 'silverside',
+                                  'green crab', 'herring',
+                                  'sandlance', 'winter flounder',
+                                  'mummichog', 'alewife', 
+                                  'tomcod','grubby sculpin',
+                                  'bluefish','white mullet',
+                                  'crevalle jack', 'permit',
+                                  'white perch'))
+```
+
+```{r mosaicplot, fig.height=8, fig.width=7}
+abund0.1 <- abund %>% 
+  group_by(Species) %>% 
+  summarise(catch=sum(total_catch))
+
+ggplot(data=abund0.1) +
+  geom_treemap(aes(area=catch, fill=Species)) +
+  scale_fill_viridis_d(option='viridis',
+                       direction=-1,
+                       begin=0.1, end=1) +
+  geom_treemap_text(aes(area = catch, fill = Species, 
+                        label = Species))+
+  theme(legend.position = 'bottom',
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=10),
+        legend.key.size = unit(0.5, 'cm')) +
+  labs(fill='Species')
+```
+
+## Temporal trends
+
+Before I can make any further statements about the timing of different species' use of nearshore environments, it is important to note that the window of time we collect data does not extend through enough of the year to fully capture the seasonal use of Casco Bay by migratory species. However, we can take a look at how patterns of abundance shift through every week of our sampling season. Here, I model abundance of all species we encountered across 5 or more weeks this year. The x-axis represents the week of the year, the y-axis represents abundance, and the color of the dots represents the weekly average temperature (cool colors = colder, warm colors = warmer). The blue line is an extrapolation of species abundance given our observations.
+
+The results are very simliar patterns to the patterns we saw last year. Atlantic silverside abundance increases throughout the summer as newly-spawned individuals grow large enough to be caught by our net. Atlantic herring and tomcod abundance decrease as they move to colder, deeper waters. Green crabs and bluefish have relatively stable weekly abundance, with some decline towards the end of the summer. Mummichogs were interesting this year-- we noted the timing of spawning was slightly later than expected, resulting in a dip in abundance midsummer until the newly-spawned fish were large enough to be caught by the net. White mullet made a reappearance, with several larger schools showing up later in the summer.
+
+```{r phenology}
+#### Residence time and phenology ####
+tot.abund <- merge(abund, 
+                   dplyr::select(trips, week, trip_id, site_name, date, temp_degc),
+                   by=c('trip_id', 'site_name'))
+
+big_catch <- tot.abund %>% 
+  group_by(species_name) %>% 
+  summarise(total_catch = sum(total_catch)) %>% 
+  filter(total_catch >=10)
+
+poss <- tot.abund[tot.abund$species_name %in% big_catch$species_name,]
+
+poss <- poss %>% 
+  group_by(week, Species) %>% 
+  summarise(total_catch = sum(total_catch),
+            temp_degc = mean(temp_degc, na.rm = TRUE))
+
+spc <- as.data.frame(table(poss$Species))
+spc <- spc[spc$Freq >= 5,]
+
+top <- poss[poss$Species %in% spc$Var1,]
+top <- droplevels(top)
+filltab <- as.data.frame(table(top$Species, top$week))
+filltab <- filltab[filltab$Freq == 0,]
+
+weektemp <- trips %>% 
+  group_by(week) %>% 
+  summarise(temp_degc = mean(temp_degc, na.rm=T))
+
+colnames(filltab) <- c('Species', 'week', 'total_catch')
+filltab <- merge(filltab, weektemp, by=c('week'))
+filltab$week <- as.numeric(as.character(filltab$week))
+
+top <- rbind(top, filltab)
+
+top <- top[with(top, order(week, Species)),]
+rownames(top) <- NULL
+
+top$Species <- as.character(top$Species)
+spc$Var1 <- as.character(spc$Var1)
+
+for(i in 1:nrow(spc)){
+  
+  temp <- top[top$Species == spc$Var1[i],]
+  tempwks <- as.data.frame(table(temp$week))
+  #badwks <- tempwks[tempwks$Freq <=5,]
+  
+  #temp <- temp[temp$wk %notin% badwks$Var1,]
+    
+  nrecords <- as.data.table(temp)[, .N, by = 'week'][order(week)]
+  times <- NULL
+  
+  for(j in 1:nrow(nrecords)){
+    if(nrecords[j]$N == 1){
+      times <- c(times, nrecords[j]$week)
+    }else{
+      times <- c(times, rep(nrecords[j]$week, 2 ^ 8))
+    }
+  }
+  print(
+  ggplot() +
+      geom_point(data = temp[temp$total_catch != 0,], 
+                 aes(x = week, y = total_catch, 
+                    col=temp_degc),
+                  alpha=1, cex=2) +
+      scale_color_viridis_c(option = 'viridis', name = 'Surface Temp (C)') +
+    
+      geom_smooth(data=temp,
+                  formula = y ~ s(x, k = 2, bs = "cs"),
+              method = "gam",
+              method.args = list(family = poisson(link = "identity")),
+              aes(x=week, y=total_catch), fullrange=TRUE,
+              alpha=0.3) +
+      xlab('Week of year') + ylab('Catch') +
+      ggtitle(paste0(str_to_title(spc$Var1[i]), ' weekly catch')) +
+    coord_cartesian(ylim=c(-10, max(temp$total_catch)))
+    
+  )
+}
+```

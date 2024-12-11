@@ -1,0 +1,238 @@
+---
+title: 'Oyster Condition Index 2024'
+author: Katie Lankowicz
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex
+    includes: 
+       in_header: header1.tex
+always_allow_html: true
+header-includes:
+    - \usepackage{setspace}\onehalfspacing
+    - \usepackage{float}
+    - \usepackage{caption}
+    - \captionsetup[figure]{labelformat=empty}
+urlcolor: blue
+---
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+
+# Packages
+library(here)
+library(tidyverse)
+library(mgcv)
+
+# Set GGplot auto theme
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', linewidth=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=12),
+                axis.text.y=element_text(size=12),
+                axis.title.x=element_text(size=14),
+                axis.title.y=element_text(size=14, angle=90, vjust=2),
+                plot.title=element_text(size=14, hjust = 0, vjust = 1.2),
+                plot.caption=element_text(hjust=0, face='italic', size=12)))
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+```
+
+```{r loaddata}
+# Load data
+oysters <- read.csv(here('Oyster_Condition_Index/Raw_OCI.csv'))
+
+# Clean data
+# FILTERING:  must have wet meat weight value
+#             wet meat plus wet shell weight must be less than or equal to wet 
+#                     whole weight
+#             dry meat weight must be less than wet meat weight
+#             dry shell weight must be less than wet shell weight
+#             end data collection at week 22 2024
+#             
+oysters <- oysters %>% 
+  mutate(date = as.Date(date, format="%m/%d/%Y"),
+         Site = factor(Site, levels=c('Dogs Head', 'Snow Island'))) %>% 
+  dplyr::select(date, Site, Oyster_length_mm, Oyster_width_mm,
+                Whole.oyster_weight_g, Wet_shell_weight_g, 
+                Wet_meat_weight_g, Dry_shell_weight_g, 
+                Dry_meat_weight_g) %>% 
+  rename(Whole_oyster_weight_g = Whole.oyster_weight_g) %>% 
+  mutate(Index_1 = (Dry_meat_weight_g / 
+                      (Whole_oyster_weight_g - Wet_shell_weight_g)) * 100,
+         Index_3 = (Dry_meat_weight_g*100) / Dry_shell_weight_g) %>% 
+  filter(Dry_meat_weight_g < Wet_meat_weight_g &
+         Dry_shell_weight_g < Wet_shell_weight_g &
+         (Wet_meat_weight_g + Wet_shell_weight_g) <= Whole_oyster_weight_g) %>% 
+  mutate(year = year(date),
+         week = week(date))
+
+# Lowercase column names
+colnames(oysters) <- tolower(colnames(oysters))
+
+# Add time columns
+oysters$week <- str_pad(oysters$week, 2, 'left', '0')
+oysters$wkyr <- as.numeric(paste0(oysters$year, oysters$week))
+oysters$wkyr <- as.numeric(as.factor(oysters$wkyr))
+```
+
+```{r gam_index1}
+gam1 <- gam(index_1 ~ s(wkyr, bs='cs', by=site, k=10), 
+    data=oysters,
+    method='REML')
+#summary(gam1)
+#plot(gam1)
+#gam.check(gam1)
+
+oci <- ggplot(data=oysters) +
+  geom_point(aes(x=as.POSIXct(date), y=index_1, col=site, fill=site), alpha=0.5, stroke=NA) +
+  geom_smooth(aes(x=as.POSIXct(date), y=index_1, col=site, fill=site), 
+              method='gam',
+              formula=y ~ s(x, bs = "cs", k = 10),
+              alpha=0.3) +
+  #facet_wrap(vars(site)) +
+  labs(x='Date', y='Condition Index', color='Site', fill='Site')
+
+ggsave(plot=oci, 
+       filename = here('Oyster_Condition_Index/OCI.png'),
+       width=8, height=5, units='in')
+```
+
+```{r loboviz}
+lobo <- read.csv(here('Oyster_Condition_Index/Bowdoin_Buoy.csv'))
+summary(lobo)
+
+lobo <- lobo %>% 
+  mutate(date = as.Date(date, format="%m/%d/%Y %H:%M"),
+         doy = lubridate::yday(date),
+         week = lubridate::isoweek(date),
+         month = lubridate::month(date),
+         year = lubridate::year(date)) %>% 
+  dplyr::select(-turbid.ntu, -nigrate.uM)
+
+lobo$cdom[lobo$cdom>100] <- NA
+lobo$currentsp.mms[lobo$currentsp.mms>2000] <- NA
+
+lobo <- lobo %>% 
+  group_by(date) %>% 
+  summarise(cdom = mean(cdom, na.rm=T),
+            currentdir.deg = mean(currentdir.deg, na.rm=T),
+            currentsp.mms = mean(currentsp.mms, na.rm=T),
+            fluor.ugL = mean(fluor.ugL, na.rm=T),
+            sal.psu = mean(sal.psu, na.rm=T),
+            temp.C = mean(temp.C, na.rm=T),
+            doy = mean(doy, na.rm=T),
+            month = mean(month, na.rm=T),
+            year = mean(year, na.rm=T))
+
+library(ggcorrplot)
+
+# Create correlation matrix
+df_cormat <- dplyr::select(lobo, -date)
+model.matrix(~0+., data=df_cormat) %>%
+  cor(use="all.obs", method="spearman") %>%
+  ggcorrplot(show.diag = F, type="lower", lab=TRUE, lab_size=3)
+
+lobo <- lobo %>% 
+  filter(as.POSIXct(date) >=as.POSIXct('2023-06-01 00:00'),
+         as.POSIXct(date) <=as.POSIXct('2024-08-01 00:00'))
+```
+
+Highly correlated - CDOM and salinity (neg)
+
+```{r}
+weather <- read.csv(here('Oyster_Condition_Index/dogshead_weather.csv'))
+
+weather <- weather %>% 
+  mutate(date = as.Date(Date, format='%m/%d/%Y %H:%M')) %>% 
+  dplyr::select(-Date)
+
+weather <- weather %>% 
+  group_by(date) %>% 
+  summarise(temp.F = mean(temp.F, na.rm=T),
+            ws.mph = mean(ws.mph, na.rm=T),
+            wdir.deg = mean(wdir.deg, na.rm=T),
+            press.hg = mean(press.hg, na.rm = T),
+            solarrad.watts = mean(solarrad.watts, na.rm=T),
+            weekly.rain.in = mean(weekly.rain.in)) %>% 
+  as.data.frame()
+
+weather <- weather %>% 
+  mutate(week = lubridate::isoweek(date),
+         doy = lubridate::yday(date),
+         month = lubridate::month(date),
+         year = lubridate::year(date))
+
+# Create correlation matrix
+df_cormat <- dplyr::select(weather, -date)
+model.matrix(~0+., data=df_cormat) %>%
+  cor(use="all.obs", method="spearman") %>%
+  ggcorrplot(show.diag = F, type="lower", lab=TRUE, lab_size=3)
+
+```
+
+Highly correlated: solarrad.watts and temp.F (pos), press.hg and temp.F (neg), wdir.deg and temp.f (pos), wdir.deg and solarrad.watts (pos)
+```{r}
+env <- merge(lobo, weather,
+             by=c('date', 'doy', 'month', 'year'),
+             all=T)
+
+env <- env %>% 
+  rename(wat.temp.c = temp.C) %>% 
+  mutate(air.temp.c = (temp.F - 32) * (5/9)) %>% 
+  dplyr::select(date, year, month, doy, week,
+                cdom, currentsp.mms,fluor.ugL, sal.psu, wat.temp.c,
+                weekly.rain.in, solarrad.watts, air.temp.c
+                )
+
+# Find rolling 7 day avg
+weekly.environ <- env %>%
+  
+  mutate(week.airtemp = zoo::rollapply(air.temp.c, 7, fill=NA, na.rm=T, FUN=mean),
+         weekly.solar=zoo::rollapply(solarrad.watts,7,fill=NA,na.rm=T,FUN=mean),
+) %>% 
+  mutate(week = isoweek(as.POSIXct(date))) %>% 
+  dplyr::select(date, week, weekly.rain.in, weekly.solar)
+
+
+```
+
+
+```{r}
+alldat <- merge(dplyr::select(oysters, date, week, site, index_1), 
+                weekly.environ,
+                by=c('date', 'week'),
+                all=T)
+
+# alldat <- alldat %>% 
+#   dplyr::select(-oyster_length_mm, -oyster_width_mm, -whole_oyster_weight_g,
+#                 -wet_shell_weight_g, -wet_meat_weight_g, -dry_shell_weight_g,
+#                 -dry_meat_weight_g, -index_3, -wkyr) %>% 
+#   rename(wat.temp.c = temp.C)
+
+good <- alldat %>% 
+  #dplyr::select(-year, -month, -doy, -solarrad.watts, -sal.psu,
+  #              -week.airtemp) %>% 
+  drop_na() %>% 
+  mutate(site = factor(site, levels=c('Dogs Head', 'Snow Island')),
+         week = as.numeric(week))
+
+# Create correlation matrix
+df_cormat <- dplyr::select(good, -date)
+model.matrix(~0+., data=df_cormat) %>%
+  cor(use="all.obs", method="spearman") %>%
+  ggcorrplot(show.diag = F, type="lower", lab=TRUE, lab_size=3)
+
+mod <- gam(index_1 ~ #s(week, bs='cs', k=12, by=site) + 
+                     s(weekly.solar, bs='cs') +
+                     s(weekly.rain.in, bs='cs', k=12) + 
+             site, method='REML', family='gaussian',
+           link='identity',
+           data=good)
+
+```

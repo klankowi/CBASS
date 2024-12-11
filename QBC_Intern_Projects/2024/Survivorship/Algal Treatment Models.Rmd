@@ -1,0 +1,280 @@
+---
+title: "Algal response to pesticides"
+author: "Katie Lankowicz"
+date: "2024-08-05"
+output: html_notebook
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Clear out old stuff
+rm(list=ls())
+
+# Load libraries
+library(tidyverse)
+library(here)
+library(sjPlot)
+library(rstatix)
+library(afex)
+
+```
+
+## What do we have, and what can we do with it?
+
+You have just completed an experiment testing the effects of various treatments (contaminant types and levels) on the survival of your target organism. The duration of your experiment was typically less than 1 day. You subsampled a portion of your study organism population at several points over the experiment's duration to count the number of living (mobile) vs. dead (immobile) organisms. The intervals between observations were irregular-- informally speaking, you checked your experiment as much as possible given your schedules. You should have a dataframe tallying the number of living and dead organisms at each of these intervals for all of your treatments. 
+
+Ideally, we want to use these data to calculate the effect of each pesticide on the growth and mortality of your algal cultures over time. Remember that the organisms you used in your experiment are samples (a part) of a population (a whole), and we are trying to predict with 95% confidence what mean survivorship of the entire population will be based on the results of your sample.
+
+To do that, we can take your data and fit a model to them. This model will help us determine the most likely range of outcomes for an average population of algal cells given the reactions of the algal subsamples you looked at.
+
+## Formatting your data
+
+We reformatted your data and tweaked it earlier. Let's repeat that process here. I also noticed some typos in the `Total` column. This should just be the sum of Immobile and Mobile cells that you counted. So let's recalculate it here.
+
+```{r load_data}
+# Load data
+algae <- read.csv(here('QBC_Intern_Projects/2024/Survivorship/algal culture time series.csv'))
+
+# View data
+summary(algae)
+str(algae)
+
+# Edit data - change Treatment and Trial to factors, rename Time
+algae <- algae %>% 
+  mutate(Treatment = factor(Treatment, levels=c('Control', '1ppb', '10ppb', '100ppb', '10ppb S')),
+         Trial = factor(Trial, levels=c('1', '2','3'))) %>% 
+  rename(Time = Time..m.)
+
+# Recalculate Total
+#algae$Total <- algae$Mobile + algae$Immobile
+
+```
+
+Let's calculate rates of mortality, growth, and the ratio of mortality to growth.
+
+```{r calculate}
+# Mortality (proportion immobile out of total)
+algae$Mortality <- algae$Immobile / algae$Total
+
+# Growth (proportion mobile out of total)
+algae$Growth <- algae$Mobile / algae$Total
+
+# Ratio of growth to mortality
+algae$Ratio <- algae$Mobile / algae$Immobile
+
+```
+
+## Comparing treatment levels
+
+We made a generalized linear model before, in which we included Time and Treatment as explanatory variables and Mobile Cells/ Immobile Cells (Growth to Mortality Ratio) as the response variable. Let's repeat that process here.
+
+```{r glm}
+# Run generalized linear model
+glmmod <- glm(Ratio ~ Treatment + Time,
+              data=algae)
+
+summary(glmmod)
+
+# Visualize results
+plot_model(glmmod, type='pred')
+
+ggplot(data=algae) +
+  geom_point(aes(x=Time, y=Ratio, col=Treatment)) +
+  geom_smooth(aes(x=Time, y=Ratio, col=Treatment, fill=Treatment),
+              alpha=0.4, method='lm') +
+  theme_minimal()
+
+```
+
+We noted that when comparing the pesticide-treated samples to the control sample, all pesticide-treated samples were significantly different from the control. We also noted that Time had a significant effect. 
+
+This model is neat and provides us some information, but it doesn't address how Time would affect our perception of the effect of Treatment. For that, we need to run a separate model using _repeated measures_. We'll get to that later.
+
+## Plotting time series
+
+Next, we plot how growth, mortality, and overall effect (Ratio) of our samples changed over time. 
+
+```{r timeseries}
+# Growth
+ggplot(data=algae) +
+  geom_line(aes(x=Time, y=Growth, color=Trial)) +
+  labs(x='Time (minutes)', y='Growth Rate') +
+  facet_wrap(vars(Treatment)) +
+  ggtitle('Growth') +
+  theme_minimal()
+
+# Mortality
+ggplot(data=algae) +
+  geom_line(aes(x=Time, y=Mortality, color=Trial)) +
+  labs(x='Time (minutes)', y='Growth Rate') +
+  facet_wrap(vars(Treatment)) +
+  ggtitle('Mortality') +
+  theme_minimal()
+
+# Growth
+ggplot(data=algae) +
+  geom_line(aes(x=Time, y=Ratio, color=Trial)) +
+  labs(x='Time (minutes)', y='Growth Rate') +
+  facet_wrap(vars(Treatment)) +
+  ggtitle('Growth to Mortality') +
+  theme_minimal()
+```
+
+What do these plots tell you? Imagine how you would describe these findings in your results section.
+
+## Deciding on the most informative response variable
+
+We can measure the growth (proportion of living cells to total cells) and mortality (proportion of dead cells to total cells) over the duration of our experiment. Each rate provides us essentially half of all the information possible to glean from our experiment. We now need to consider: what rate and/or measurement will best address our original research questions? 
+
+I would argue that the ratio of growth to mortality provides the most information and could best address our original research question. Growth and Mortality alone are half the story. Also: we hope that every algal cell in our cultures is equally exposed to the concentration of contaminant we used for the entire duration of the experiment, but we can't guarantee that. Therefore, we can't simply use either growth or mortality rate to fully explain what's going on.
+
+We should select the ratio of growth to mortaltity (Mobile cells / Immobile cells) as the most informative rate collected during our experiment. This rate tells us in general if our algal cultures are leaning more towards dying (small growth / large mortality == small ratio) or thriving (large growth / small mortality == large ratio). We will track the changes in the growth to mortality ratio for all Treatments across the duration of each Trial.
+
+## Repeated-measures ANCOVA
+
+The time series visualization and generalized linear model we did above are cool, but they don't give us any real quantitative evidence to figure out what the treatments do to the algal cultures. For that, we will use an _ANCOVA_. ANCOVA stands for ANalysis of COVAriance. It is basically a generalized linear model with categorical (Treatment) and continuous numeric (Time) explanatory variables, both of which may affect one continuous numeric response (Ratio of Growth to Mortality) variable.
+
+We learned about ANOVA, or ANalysis Of VAriance, earlier this summer. That test was used to find the difference in means of more than two groups. An ANCOVA is similar in that it lets us test the difference in means of more than two groups, but it allows us to also account for the effect of a second explanatory variable on our given response variable. 
+
+Think about the way you sampled your algal cultures. You couldn't count living vs. dead cells in all five groups simultaneously. There was up to 40 minutes separation between counting the control group and the final treatment group. Since we are measuring RATES OF CHANGE (difference between living and dead cells at multiple points in time), obviously time will have an effect. We need to account for the effect of time on our response variables across the five levels of our treatment explanatory variable. In this case, then, Time would be the continuous numeric covariate. Treatment would be the categorical covariate. And the ratio of growth to mortality is the response variable.
+
+ANCOVA assumes independence of samples. In other words, any observation should not have an effect on the other observations. This is a problem for us-- we sampled the same algal cultures multiple times across a single day. We can account for this problem by using a _repeated measures_ ANCOVA.
+
+### Assumptions
+
+ANCOVA has similar assumptions to an ANOVA. They are:
+
+- *Absence of influential outliers:* There should not be any extreme outliers that would bias the results. 
+
+- *Linearity:* The relationship between the continuous numeric explanatory variable and continuous numeric response variable should be approximately linear.
+
+- *Normality of residuals:* The values of all the residuals should have an approximately normal distribution. Note that this is different from the values of the explanatory variables themselves being normally distributed!! We can adjust the distribution family we expect the explanatory variables to come from in order to achieve normality of residuals.
+
+- *Homogeneity of variances:* The variance of the residuals should be approximately equal across the range of the continuous numeric explanatory variable.
+
+- *Sphericity:* The variance of the residuals should be approximately equal when comparing different levels of the categorical explanatory variable. 
+
+- *Homogeneity of regression slopes:* The relationship between the continuous numeric explanatory variable and the reponse variable should be consistent across all levels of the categorical response variable. 
+
+- *Indepence of observations:* We know that we have multiple measurements of the same algal cultures across time. That's fine. However, the residuals of the model must be independent of each other once we have accounted for the effects of the covariates.
+
+Let's begin by testing the assumptions of linearity and outliers. The rest of the assumptions will be tested on the model residuals.
+
+```{r assumptions1}
+# Check for outliers
+algae %>% 
+  identify_outliers(Growth) %>% 
+  filter(is.extreme == TRUE)
+
+algae %>% 
+  identify_outliers(Mortality) %>% 
+  filter(is.extreme == TRUE)
+
+algae %>% 
+  identify_outliers(Ratio) %>% 
+  filter(is.extreme == TRUE)
+
+# Check for linearity
+ggplot(data=algae, 
+       aes(x = Time, y = Growth, col=Treatment)) +
+  geom_point() +
+  facet_wrap(vars(Treatment)) +
+  labs(x = "Time", y = "Growth to Mortality Ratio")
+
+```
+
+What does the output from the outliers code say? Do you think these scatterplots show a relationship between Growth to Mortality ratio and Time that is roughly linear?
+
+### Fitting the model
+
+This step is pretty easy. We will use the `aov` function to fit a model where Time, Treatment, and the interaction of Time and Treatment affect the ratio of Growth to Mortality. 
+
+Note that we also included an Error term for Subject/Time. Error terms allow us to group together observations that likely had the same mistakes in measurement. In this case, we expect that the same mistakes happened when counting cells in the same Treatment over the course of a single Trial. We could make other assumptions-- maybe we don't expect the mistakes to be similar across Treatment levels, just within the same Trial? Or maybe the same mistakes happend for each Treatment regardless of Trial? We can chat more about what makes the most sense later. For now, we will choose the most complicated option-- the same mistakes were likely made within the same Treatment across a single Trial.
+
+We have to divide the error term by Time. This is how we control for the "repeated measures" part of the study design. This helps remove the bias that would occur if we did not address the fact that we sampled the same algal cultures three times over the duration of each Trial.
+
+```{r fit_ancova}
+# Set up subject names
+# These are just combined Treatment and Trial names
+algae$Subject <- as.factor(paste0(algae$Treatment, ' ', algae$Trial))
+
+# Fit the repeated measures ANCOVA model
+ancova_model <- aov(                                              # Use the aov function
+  Ratio ~ Treatment + Time + Treatment:Time + Error(Subject/Time),# Model formula
+  data = algae)                                                   # Backing data
+```
+
+### Checking residuals
+
+Before we get into interpretation, we need to see if we met the other set of assumptions. For this, we will extract the model residuals and check them out.
+
+```{r assumptions2}
+# Extract residuals
+residuals <- c(ancova_model$`(Intercept)`$residuals,
+               ancova_model$Subject$residuals,
+               ancova_model$`Subject:Time`$residuals,
+               ancova_model$Within$residuals)
+
+# Bind to algae object
+algae$residuals <- residuals
+```
+
+The first assumption is normality. Looking at the QQnorm plots and the results of the Shapiro-Wilk normality test, we conclude there is no evidence to suggest a non-normal distribution. 
+
+```{r test_normality}
+#### Normality 
+# Q-Q plot
+qqnorm(residuals)
+qqline(residuals, col = "red")
+
+# Shapiro-Wilk test
+shapiro.test(algae$residuals)
+```
+
+The next test is homogeneity of variance in the residuals, regardless of treatment level. The plot of residuals to fitted values looks like we have roughly an equal-sized point cloud (distance to the 0 line) along the distribution of Ratio values. 
+
+```{r test_hov}
+#### Homogeneity of variance
+ggplot(data=algae) +
+  geom_point(aes(x=Ratio, y=residuals)) +
+  geom_hline(yintercept=0, col='red', lty=2) +
+  theme_minimal()
+```
+
+We also have to see if variance is equal between the groups. This is a more complicated and specialized test, called Mauchly's test. We will get a table output with p-values. It's important for us to check the p-values under "Treatment" and "Time:Treatment." Both are greater than our alpha level of 0.05. Therefore, there is no evidence that variance is unequal between the levels of the Treatment variable.
+
+```{r test_sphere}
+#### Sphereicity
+# Check sphericity using Mauchly's test
+mixed(Ratio ~ Time * Treatment + (1|Subject),
+      data = algae)
+```
+
+Next, we'll plot our model residuals over Time, coloring for Trial and separating by Treatment. If we don't see any obvious straight lines here, it indicates that the residuals are independent.
+
+```{r test_ind}
+#### Independence
+ggplot(data=algae) +
+  geom_line(aes(x=Time, y=residuals, col=Trial)) +
+  facet_wrap(vars(Treatment)) +
+  theme_minimal()
+```
+
+Finally, we will check for homogeneity of regression slopes. This might look premature, but we'll actually determine the outcome of this test by viewing the results of the model. Notice how the p-value for Time:Treatment is not significant (>0.05) whenever it is included in the model terms. This is a good indication that the slopes of these lines are roughly equivalent over time, regardless of Treatment.
+
+```{r test_slopes}
+#### Homogeneity of regression slopes
+summary(ancova_model)
+```
+
+### Interpreting results
+
+We are confident that our model has met all the assumptions of a repeated-measures ANCOVA. Let's consider the table output again. We have multiple "Error Strata," or groups where mistakes could be similar. First is subject. Remember that this is a unique identifier for Treatment and Trial. So, Control Trial 1 is a different Subject from both Control Trial 2 and 10 ppb Trial 2, etc. 
+
+The Subject error strata has no significant results. This means within each Treatment of each Trial, there was no significant effect of either Time or Treament on the Ratio of Growth to Mortality.
+
+The Subject:Time error strata has one significant result-- Time has a significant effect on Ratio of Growth to Mortality. The interpretation is a little weird on this one. We can conclude that Time has a significant effect on Ratio of Growth to Mortality for each Treatment. However, Time itself does not affect Ratio. Neither does Treatment affect Ratio. Look back up at those line plots of Ratio over time we made at the top of this document. Notice how the slopes of the lines in each facet are not very similar. This indicates that Time is affecting Ratio of Growth to Mortality, but doing so in a different way for each Treatment and Trial. There is no consistent effect of Treatment or Time on Ratio.
+
+Let's circle back to our original question: how do different concentrations of pesticide contaminants affect the growth and mortality of our algal cells? We actually aren't super interested in how this might change over time. Our main goal was to test the difference in growth and mortality across Treatment levels. So we can focus our interpretation of the output on just the effect of Treatment. And what we have seen is that *there is not enough evidence in this experiment to conclude that our various contaminants and levels of contaminants significantly affect growth and mortality of our algal cultures as compared to a control.*
+
+What does this mean for our experiment? In the future, we should perhaps stagger the beginning of each experiment so that we can extract our subsamples and make our observations at exactly the same time intervals from the start. This way, we can reduce the impact of sampling at different times on our measurements of growth and mortality rates.

@@ -11,6 +11,7 @@ library(VulnToolkit)
 
 # Read files
 file_list <- list.files(here('Raw_Data/portland_tides'))
+file_list <- file_list[-1]
 
 # Set first file name==1
 file=1
@@ -50,13 +51,15 @@ mtn_ts = function(utcTime){
 # Force to Eastern Time
 temp$TimeLocal <- mtn_ts(temp$TimeUTC)
 
+# Remove bad values
+temp <- temp[!is.na(temp$TimeUTC),]
+
 # Add month, year, day, hour columns
 temp$year <- year(temp$TimeLocal)
 temp$month <- month(temp$TimeLocal)
 temp$month <- paste0('0', temp$month)
-temp$day <- day(temp$TimeLocal)
-temp$day[temp$day < 10] <- str_pad(temp$day[temp$day<10],
-                                   2, 'left', '0')
+temp$day <- as.numeric(day(temp$TimeLocal))
+temp$day[temp$day < 10] <- str_pad(temp$day[temp$day<10], 2, 'left', '0')
 temp$hour <- hour(temp$TimeLocal)
 temp$hour[temp$hour < 10] <- str_pad(temp$hour[temp$hour<10],
                                    2, 'left', '0')
@@ -210,11 +213,11 @@ for(i in 1:length(year.list)){
   temp <- year.list[[i]]
   temp$TimeUTC <- NULL
   temp <- temp %>% 
-    pad(interval='min') %>% 
-    mutate(tide.num2 = na.approx(tide.num2),
-           TideHT.m = na.approx(TideHT.m))
+    padr::pad(interval='min') %>% 
+    mutate(tide.num2 = zoo::na.approx(tide.num2),
+           TideHT.m = zoo::na.approx(TideHT.m))
   temp <- dplyr::select(temp, TimeLocal, TideHT.m, tidename, tide.num2)
-  temp$tidename <- na.locf(temp$tidename)
+  temp$tidename <- zoo::na.locf(temp$tidename)
   year.list[[i]] <- temp
 }
 
@@ -228,7 +231,7 @@ tides$day <- day(tides$TimeLocal)
 tides$year <- year(tides$TimeLocal)
 
 # Check with plot
-plot(tides$tide.num2[tides$year==2014 & tides$month==5 & tides$day%in%c(1,2,3)])
+plot(tides$tide.num2[tides$year==2023 & tides$month==9 & tides$day%in%c(14, 15, 16)])
 
 # Save
 write.csv(tides,
