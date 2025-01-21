@@ -1,0 +1,219 @@
+---
+title: 'Herring qPCR subsample analysis'
+author: Katie Lankowicz
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex
+    includes: 
+always_allow_html: true
+header-includes:
+    - \usepackage{setspace}\onehalfspacing
+    - \usepackage{float}
+    - \usepackage{caption}
+    - \captionsetup[figure]{labelformat=empty}
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+library(tidyverse)
+library(sf)
+library(here)
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+
+# Set GGplot auto theme
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', size=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=11),
+                axis.text.y=element_text(size=11),
+                axis.title.x=element_text(size=12),
+                axis.title.y=element_text(size=12, angle=90, vjust=2),
+                plot.title=element_text(size=14, hjust = 0, vjust = 1.2),
+                plot.caption=element_text(hjust=0, face='italic', size=12)))
+```
+
+```{r dataload, echo=F}
+#### Load data ####
+abund <- read.csv(here('Clean_Data/Seine/abund_through_2024.csv'))
+trips <- read.csv(here('Clean_Data/Seine/trips_through_2024.csv'))
+bio <- read.csv(here('Clean_Data/Seine/lengths_through_2024.csv'))
+pcr <- read.csv(here('eDNA/Raw_Data/QBC2023ABC_mids.csv'))
+
+# Clean
+abund <- abund %>% 
+  mutate(date = as.Date(date, format="%m/%d/%Y")) %>% 
+  mutate(month = month(date),
+         year = year(date),
+         week = isoweek(date))
+abund$collector[abund$site_id >20] <- 'QBC'
+abund$collector[abund$site_id <20] <- 'GMRI'
+
+trips <- trips %>% 
+  mutate(date = as.Date(date, format="%m/%d/%Y")) %>% 
+  mutate(month = month(date),
+         year = year(date),
+         week = isoweek(date))
+trips$collector <- NA
+trips$collector[trips$site_id >20] <- 'QBC'
+trips$collector[trips$site_id <20] <- 'GMRI'
+
+bio <- bio %>% 
+  mutate(date = as.Date(date, format="%Y-%m-%d")) %>% 
+  mutate(month = month(date),
+         year = year(date),
+         week = isoweek(date))
+bio$collector[bio$site_id >20] <- 'QBC'
+bio$collector[bio$site_id <20] <- 'GMRI'
+
+pcr <- pcr %>% 
+  dplyr::select(loc_id, Cq, Sample)
+pcr$Use <- 'Sample'
+pcr$Use[pcr$Sample %in% c('A Blank', 'C Blank', 'DBlank', 'Ext Blank 12/13')] <- 'Field blank'
+pcr$Use[pcr$Sample %in% c('posctl')] <- 'Lab Pos Control'
+pcr$Use[pcr$Sample %in% c('negctl')] <- 'Lab Neg Control'
+
+# Clean R2
+abund <- abund %>% 
+  filter(loc_id %in% pcr$loc_id & species_name == 'atlantic herring') %>% 
+  dplyr::select(loc_id, catch)
+
+trips <- trips %>% 
+  filter(loc_id %in% pcr$loc_id) %>% 
+  dplyr::select(loc_id, site_name, temp_degc, do_mg.l, salinity_ppt,
+                date)
+
+bio <- bio %>% 
+  filter(loc_id %in% pcr$loc_id & species_name == 'atlantic herring') %>% 
+  #filter(loc_id != '2024_001_23') %>%  # Hey check the logs and see if this is bluefish or actually herring
+  dplyr::select(loc_id, length_mm) %>% 
+  mutate(length_mm = as.numeric(length_mm))
+
+len <- bio %>% 
+  group_by(loc_id) %>% 
+  summarise(len = mean(length_mm,  na.rm=T))
+
+# Combine
+dat <- left_join(pcr, abund, by='loc_id')
+dat$catch[is.na(dat$catch)] <- 0
+dat$catch[dat$Use == 'Lab Pos Control'] <- NA
+
+dat <- left_join(dat, trips, by='loc_id')
+
+# L-W relationship
+# log(Weight) = log(alpha) + beta * log(Total Length) + Error(unknown for this case)
+bio$logW = log(0.00562) + (3.09 * log(bio$length_mm/10))
+bio$weight = exp(bio$logW)
+wt <- bio %>% 
+  group_by(loc_id) %>% 
+  summarise(biomass = mean(weight))
+
+dat <- left_join(dat, wt, by='loc_id')
+dat$biomass <- dat$biomass * dat$catch
+dat$biomass[is.na(dat$biomass)] <- 0
+
+vals <- dplyr::select(dat, Cq, catch, temp_degc, do_mg.l, salinity_ppt, biomass, Sample, Use, date)
+vals <- vals %>% filter(Use == 'Sample')
+
+```
+
+## Update
+
+This document contains preliminary results and visualization for the first four weeks of 2023 QBC-CBASS data collection. Results are only for the MID SITES.
+
+## Caveats
+
+We are still below desired data volume to build statistically valid models. It will take more time to finish running 2023 mid-sites. It will take even more time to extract and run the inner/outer sites from 2023 and all samples from 2024.
+
+## Visualization
+
+We would expect eDNA concentration to vary with herring density in the area immediately around the collection site. We can use numeric abundance or estimated biomaass to check this assumption. We also expect eDNA concentration to be affected by environmental conditions that are known to degrade DNA: we can use temperature and salinity collected at the field sites. We'll plot these relationships to get a sense of what analyses are possible.
+
+```{r vis}
+longdat <- dat %>% 
+  filter(Use %notin% c('Lab Pos Control', 'Lab Neg Control',
+                       'Field blank')) %>% 
+  dplyr::select(Cq, catch, biomass, temp_degc, salinity_ppt) %>% 
+  rename(Catch = catch, Biomass = biomass, `Temp (C)`=temp_degc, `Salinity (ppt)` = salinity_ppt) %>% 
+  pivot_longer(cols=c('Catch', 'Biomass', `Temp (C)`, `Salinity (ppt)`))
+
+ggplot(data=longdat, aes(x=value, y=Cq)) +
+  geom_point() +
+  scale_y_reverse() +
+  facet_wrap(vars(name), scales = 'free_x') +
+  labs(x='Covariate value')
+
+```
+
+It is hard to assess the nature of the relationship between measures of herring density (biomass or catch) and C~q, but there may be a slight negative relationship; increased herring presence decreases C~q. Mostly, we see massive variation of C~q value when no herring were caught. Because we're using the short primer, it's possible that we're picking up "lingering" signal from fish that passed nearby in the recent past. Re-running with the longer primer will help clarify this result, as longer chains will degrade faster.
+
+There is a visually noticeable trend of increasing eDNA concentration with increasing temperature. This does not comport with either our understanding of eDNA degradation (high temp = fast degradation) or herring movement ecology (high temp = leave hot nearshore region). Temperature and salinity are likely correlated, thus the associated relationship between increasing salinity and decreasing eDNA concentration.  
+
+## Time series
+
+We can visualize C~q values across time at individual sampling sites. Note that even though we have 4 weeks of data, we only have 3 complete rounds of sampling (we split one round of sampling across two weeks for time/ tide). We also missed sampling Cedar Beach close to the 4th of July because too many people were in the water to seine.
+
+Most sites showed increasing herring eDNA presence (and thus decreasing C~q values) over time. This does not match the catch trends at the same sites.
+
+Note that Garrison Cove is located directly next to Cook's Ale House and a mooring field for commercial fishing boats. If herring is the primary bait used by these fishermen, the signal from bait could be clouding results.
+
+```{r timeseries}
+ggplot(data=dat[dat$Use == 'Sample',]) +
+  geom_point(aes(x=date, y=Cq)) +
+  scale_y_reverse() +
+  facet_wrap(vars(site_name))
+
+ggplot(data=dat[dat$Use == 'Sample',]) +
+  geom_point(aes(x=date, y=catch)) +
+  facet_wrap(vars(site_name))
+```
+
+One bright spot is the similarity of our field negative controls to the laboratory negative controls. Except for "Ext Blank 12/13"... what is this sample?
+
+```{r negs}
+negs <- dat[dat$Use %in% c('Field blank', 'Lab Neg Control'),]
+negs <- dplyr::select(negs,
+              Sample, Cq)
+negs
+
+```
+
+C~q values from field samples run from 33.1 (highest herring eDNA concentration) to 40.2 (lowest herring eDNA concentration). I don't know what it means that some of our field sites had lower herring eDNA concentration than the laboratory negative controls and field blanks.
+
+Mean values from Snow Island, Orrs Cove, Lowell Cove, and Garrison Cove are visually similar. Mean values from Cedar Beach and Long Point Cove are visually similar and lower than the other 4. I'm not going to do a quantitive analysis of similarity because we don't have the data for it to actually be valid.
+
+```{r pos}
+pos <- dat[dat$Use == 'Sample',]
+pos <- dplyr::select(pos,
+              Sample, Cq, catch)
+
+pos$Week <- substr(pos$Sample, start=1, stop=1)
+pos$Site <- substr(pos$Sample, start=2, stop=3)
+
+ggplot(data=pos) +
+   geom_boxplot(aes(x=Site, y=Cq)) +
+  scale_y_reverse()
+```
+
+## Models
+
+We obviously meet none of the accepted standards for normal statistical analyses. With more data, I'd love to run some linear mixed-effects models to test for relationships between C~q and abundance (or biomass), temperature, salinity, and a random effect for site. It's not worth running these models now. We still don't have enough data.
+
+Still, I'll use a simple Spearman rank correlation to assess the relationship between C~q and our covariates for samples taken in the field (this excludes laboratory positive and negative controls).
+
+```{r quant}
+quant <- dat[dat$Use == 'Sample',]
+
+cor(quant$Cq, quant$catch, method='spearman')
+cor(quant$Cq, quant$biomass, method='spearman')
+
+```
+
+With just the original 11 samples (D week 2023 and A week 2024), we had a weak correlation. Now, we have no correlation. We'll see what happens with more data/ longer primers.

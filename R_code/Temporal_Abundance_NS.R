@@ -23,6 +23,7 @@ theme_set(theme(panel.grid.major = element_line(color='lightgray'),
 # Load data
 trips <- read.csv(here('Clean_Data/Seine/trips_through_2024.csv'))
 trips <- trips %>% 
+  mutate(date = as.Date(date, format = '%m/%d/%Y')) %>% 
   mutate(week = isoweek(date),
          year = year(date))
 abund <- read.csv(here('Clean_Data/Seine/abund_through_2024.csv'))
@@ -165,6 +166,6 @@ for(i in 1:
   print(resras)
   
   ggsave(resras,
-         filename=paste0(here(), "2024_Rasters/", input.fish, '.png'))
+         filename=paste0(here(), "/2024_Rasters/", input.fish, '.png'))
 }
 

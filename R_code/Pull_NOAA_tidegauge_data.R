@@ -24,7 +24,7 @@ library(here)
 ################################################################################
 ## ENTER YOUR STATION ID AND YEARS HERE ##
 station = 8418150 #Enter your desired station ID here
-year = 2014  #Enter the first year of data to get here
+year = 2024  #Enter the first year of data to get here
 year2 = 2024 #Enter the last year of data to get here (can be same as 1st year)
 ################################################################################
 
@@ -48,7 +48,7 @@ year2 = 2024 #Enter the last year of data to get here (can be same as 1st year)
 for (yr in year:year2) {
   leap = leap.year(yr) #test if desired year is a leap year
   
-  for (mo in c(5,6,7,8,9)) { #start of mo for-loop
+  for (mo in c(5,6,7,8,9,10)) { #start of mo for-loop
     
     #create text string for month value
     if (mo < 10) {month = paste("0",as.character(mo),sep="")} else {

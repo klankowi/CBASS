@@ -67,6 +67,7 @@ temp$hour[temp$hour < 10] <- str_pad(temp$hour[temp$hour<10],
 # Find deltas
 temp$delta <- NA
 for(i in 2:nrow(temp)){
+  print(i)
   temp$delta[i] <- temp$TideHT.m[i] - temp$TideHT.m[(i-1)]
 }
 
@@ -130,6 +131,8 @@ for(i in 1:(length(test.list)-1)){
   
   test.list[[i]] <- temp
 }
+
+test.list <- test.list[-i]
 
 # Re-bind to dataframe
 test <- do.call(rbind, test.list)
@@ -232,6 +235,13 @@ tides$year <- year(tides$TimeLocal)
 
 # Check with plot
 plot(tides$tide.num2[tides$year==2023 & tides$month==9 & tides$day%in%c(14, 15, 16)])
+
+# Assign rise/fall
+substrRight <- function(x, n){
+  substr(x, nchar(x)-n+1, nchar(x))
+}
+tides$stage[substrRight(tides$tidename, 1) == 'H'] <- 'falling'
+tides$stage[substrRight(tides$tidename, 1) == 'L'] <- 'rising'
 
 # Save
 write.csv(tides,

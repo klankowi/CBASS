@@ -68,10 +68,10 @@ for(i in years){
 sdates <- sdates[sdates != '20110601']
 edates <- edates[edates != '20110630']
 
-## November 2024 has not finished yet
+## Jaunary 2025 has not finished yet
 #sdates <- sdates[sdates != '20241201']
 #edates <- edates[edates != '20241231']
-edates[edates == '20241231'] <- '20241202'
+edates[edates == '20250131'] <- '20250112'
 
 # Remove NA end dates
 edates <- edates[!is.na(edates)]
@@ -300,15 +300,30 @@ tp$year <- lubridate::year(tp$timestamp)
 tp <- tp[!is.na(tp$timestamp),]
 
 # Plot temperature as compared to norm
+dsyear23 <- daily.smooth %>% 
+  mutate(date = as.Date(doy, origin = '2022-12-31'))
+dsyear24 <- daily.smooth %>% 
+  mutate(date = as.Date(doy, origin = '2023-12-31'))
+dsyear <- rbind(dsyear23, dsyear24)
+
+dsyear <- dsyear %>% 
+  mutate(date = as.POSIXct(date, format='%Y-%m-%d'))
+
+ggplot(data=tp[tp$year %in% c(2023, 2024),]) +
+  geom_point(aes(x=timestamp, y=hourly.temp), alpha=0.1) +
+  geom_ribbon(data=dsyear,
+              aes(x=date, ymin=smooth.lower, ymax=smooth.upper),
+              fill='blue', alpha=0.3)
+
 ggplot() +
-  geom_point(data=tp,
-            aes(x=doy, y=hourly.temp, col=as.factor(year)),
-            alpha=0.1, stroke=NA) +
+  geom_line(data=tp[!is.na(tp$catper),],
+            aes(x=doy, y=daily.c, col=as.factor(year))) +
   scale_color_viridis_d(option='viridis', 'Year')+
   geom_ribbon(data=daily.smooth,
               aes(x=doy, ymin=smooth.lower, ymax=smooth.upper),
               fill='blue', alpha=0.3) +
   xlab('Day of year') + ylab('SST (C)')+
+  facet_wrap(vars(catper)) +
   guides(colour = guide_legend(override.aes = list(alpha = 1))) +
   geom_vline(xintercept=151, col='red', lty=2) +
   geom_vline(xintercept=273, col='red', lty=2)
@@ -340,6 +355,9 @@ tp <- tp[!is.na(tp$timestamp),]
 
 tp$updif <- tp$smooth.upper - tp$smooth.daily
 tp$lowdif <- tp$smooth.lower - tp$smooth.daily
+
+tp <- tp %>% 
+  filter(year != 2025)
 
 # Plot
 ggplot() +
@@ -394,16 +412,38 @@ ggplot(data=m.a.t) +
   labs(x='Year', y='Mean anomaly (C)', col='Deviation') +
   scale_x_continuous(breaks = scales::breaks_pretty())
 
+m.a.t <- tp %>% 
+  group_by(year) %>% 
+  summarise(mean.anom = mean(anomaly, na.rm=TRUE)) %>% 
+  as.data.frame()
+
+m.a.t$anom <- NA
+m.a.t$anom[m.a.t$mean.anom>0] <- 'Above CRP'
+m.a.t$anom[m.a.t$mean.anom<=0] <- 'Below CRP'
+
+m.a.t <- m.a.t[-1,]
+m.a.t <- m.a.t[with(m.a.t, order(mean.anom, decreasing = T)),]
+rownames(m.a.t) <- NULL
+m.a.t
+
+ggplot(data=m.a.t) +
+  geom_point(aes(x=year, y=mean.anom, col=anom)) +
+  coord_cartesian(ylim=c(-2, 2)) +
+  labs(x='Year', y='Mean anomaly (C)', col='Deviation') +
+  scale_x_continuous(breaks = scales::breaks_pretty())
 
 # Assign temperature category by mean anomaly
 tp$catper <- NA
 tp$catper[tp$year %in% c(2014, 2015, 2017, 2018, 2019)] <- 'cold'
 tp$catper[tp$year %in% c(2016, 2020, 2021, 2022, 2023, 2024)] <- 'hot'
 tp$catper <- factor(tp$catper, levels = c('hot', 'cold'))
+# Five hottest years would exclude 2016
+
+tp <- tp[tp$year != 2013,]
 
 # Plot
 ggplot() +
-  geom_point(data=unique(dplyr::select(tp, 
+  geom_line(data=unique(dplyr::select(tp, 
                                        doy, daily.c, anomaly, year,
                                        updif, lowdif, catper)),
              aes(x=doy, y=anomaly, col=as.factor(year)),

@@ -368,10 +368,11 @@ commass <- ggplot(data=qabund,
                                 '29 July', '', '', '',
                                 '26 Aug', '', '', '',
                                 '23 Sep', '', '7 Oct')) +
-  ggtitle('Weekly CBASS community assemblage') +
+  ggtitle('2024 Weekly CBASS community assemblage') +
   theme(legend.position = 'right') +
   guides(fill=guide_legend(ncol=1),
          color=guide_legend(ncol=1))
+commass
 ggsave(plot=commass,
        '2024communityassemblage.png',
        width = 7.75, height = 5, units='in')
