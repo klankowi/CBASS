@@ -25,7 +25,7 @@ bio <- read.csv(here('Clean_Data/Seine/lengths_through_2024.csv'))
 
 # Clean
 abund <- abund %>% 
-  mutate(date = as.Date(date, format="%Y-%m-%d")) %>% 
+  mutate(date = as.Date(date, format="%m/%d/%Y")) %>% 
   mutate(month = month(date),
          year = year(date),
          week = isoweek(date))
@@ -33,7 +33,7 @@ abund$collector[abund$site_id >20] <- 'QBC'
 abund$collector[abund$site_id <20] <- 'GMRI'
 
 trips <- trips %>% 
-  mutate(date = as.Date(date, format="%Y-%m-%d")) %>% 
+  mutate(date = as.Date(date, format="%m/%d/%Y")) %>% 
   mutate(month = month(date),
          year = year(date),
          week = isoweek(date))
@@ -42,7 +42,7 @@ trips$collector[trips$site_id >20] <- 'QBC'
 trips$collector[trips$site_id <20] <- 'GMRI'
 
 bio <- bio %>% 
-  mutate(date = as.Date(date, format="%Y=%m-%d")) %>% 
+  mutate(date = as.Date(date, format="%Y-%m-%d")) %>% 
   mutate(month = month(date),
          year = year(date),
          week = isoweek(date))
@@ -158,6 +158,7 @@ ggplot(data=jpm.spawn) +
               alpha=0.1, fill='blue') +
   geom_vline(lty=2, xintercept=spawndates, col='blue') +
   geom_vline(lty=2, xintercept=movedates, col='red') +
+  geom_hline(lty=1, yintercept = 16, col='black') +
   ggtitle('Daily avg temperature')
 
 jpm.spawn$spawnday <- sequence(rle(as.character(jpm.spawn$spawn))$lengths)

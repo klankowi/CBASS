@@ -546,7 +546,7 @@ loc_id,date,site_name,site_id,bay_location,species_name,catch
 2016_031_07,7/13/2016,Mackworth Island - Beach,07,Mid,green crab,110
 2016_031_07,7/13/2016,Mackworth Island - Beach,07,Mid,atlantic silverside,1
 2016_031_05,7/13/2016,The Brothers - North,05,Mid,shorthorn sculpin,2
-2016_031_05,7/13/2016,The Brothers - North,05,Mid,winter flounder,19
+2016_031_05,7/13/2016,The Brothers - North,05,Mid,winter flounder,16
 2016_031_05,7/13/2016,The Brothers - North,05,Mid,northern pipefish,1
 2016_031_05,7/13/2016,The Brothers - North,05,Mid,green crab,2
 2016_031_12,7/13/2016,Alewife Cove,12,Outer,sandlance,45
@@ -649,24 +649,23 @@ loc_id,date,site_name,site_id,bay_location,species_name,catch
 2016_037_07,8/18/2016,Mackworth Island - Beach,07,Mid,green crab,35
 2016_037_07,8/18/2016,Mackworth Island - Beach,07,Mid,mummichog,4
 2016_037_12,8/18/2016,Alewife Cove,12,Outer,green crab,1
-2016_038_04,9/2/2016,Mussel Cove,04,Mid,green crab,8
-2016_038_04,9/2/2016,Mussel Cove,04,Mid,winter flounder,20
-2016_038_04,9/2/2016,Mussel Cove,04,Mid,atlantic silverside,17
-2016_038_04,9/2/2016,Mussel Cove,04,Mid,shorthorn sculpin,1
-2016_038_06,9/2/2016,Mackworth Island - North,06,Mid,atlantic silverside,75
-2016_038_06,9/2/2016,Mackworth Island - North,06,Mid,mummichog,1
-2016_038_03,9/2/2016,Audubon,03,Inner,atlantic silverside,1036
-2016_038_03,9/2/2016,Audubon,03,Inner,bluefish,6
-2016_038_03,9/2/2016,Audubon,03,Inner,winter flounder,5
-2016_038_03,9/2/2016,Audubon,03,Inner,green crab,19
-2016_038_01,9/2/2016,Presumpscot Moorings,01,Inner,atlantic silverside,1196
-2016_038_01,9/2/2016,Presumpscot Moorings,01,Inner,green crab,1
-2016_038_01,9/2/2016,Presumpscot Moorings,01,Inner,alewife,3
-2016_038_01,9/2/2016,Presumpscot Moorings,01,Inner,winter flounder,1
-2016_038_11,9/2/2016,Cushing Island,11,Outer,alewife,61
-2016_038_11,9/2/2016,Cushing Island,11,Outer,smallmouth bass,7
-2016_038_11,9/2/2016,Cushing Island,11,Outer,killifish spp,12
-2016_038_11,9/2/2016,Cushing Island,11,Outer,largemouth bass,1
+2016_038_11,9/2/2016,Cushing Island,11,Outer,green crab,8
+2016_038_11,9/2/2016,Cushing Island,11,Outer,winter flounder,20
+2016_038_11,9/2/2016,Cushing Island,11,Outer,atlantic silverside,17
+2016_038_11,9/2/2016,Cushing Island,11,Outer,shorthorn sculpin,1
+2016_038_04,9/2/2016,Mussel Cove,4,Mid,atlantic silverside,2370
+2016_038_04,9/2/2016,Mussel Cove,4,Mid,winter flounder,5
+2016_038_04,9/2/2016,Mussel Cove,4,Mid,mummichog,593
+2016_038_04,9/2/2016,Mussel Cove,4,Mid,green crab,2
+2016_038_04,9/2/2016,Mussel Cove,4,Mid,white mullet,1
+2016_038_06,9/2/2016,Mackworth Island - North,6,Mid,atlantic silverside,1036
+2016_038_06,9/2/2016,Mackworth Island - North,6,Mid,bluefish,6
+2016_038_06,9/2/2016,Mackworth Island - North,6,Mid,winter flounder,5
+2016_038_06,9/2/2016,Mackworth Island - North,6,Mid,green crab,19
+2016_038_03,9/2/2016,Audubon,3,Inner,atlantic silverside,1196
+2016_038_03,9/2/2016,Audubon,3,Inner,green crab,1
+2016_038_03,9/2/2016,Audubon,3,Inner,alewife,3
+2016_038_03,9/2/2016,Audubon,3,Inner,winter flounder,1
 2016_039_10,9/7/2016,SMCC,10,Outer,green crab,8
 2016_039_10,9/7/2016,SMCC,10,Outer,atlantic silverside,41
 2016_039_10,9/7/2016,SMCC,10,Outer,winter flounder,8
@@ -938,7 +937,7 @@ loc_id,date,site_name,site_id,bay_location,species_name,catch
 2020_054_02,6/25/2020,Skitterygusset,02,Inner,green crab,1
 2020_054_02,6/25/2020,Skitterygusset,02,Inner,sturgeon spp,4
 2020_055_06,7/6/2020,Mackworth Island - North,06,Mid,atlantic herring,325
-2020_055_06,7/6/2020,Mackworth Island - North,06,Mid,winter flounder,79
+2020_055_06,7/6/2020,Mackworth Island - North,06,Mid,winter flounder,48
 2020_055_06,7/6/2020,Mackworth Island - North,06,Mid,atlantic silverside,4
 2020_055_06,7/6/2020,Mackworth Island - North,06,Mid,threespine stickleback,1
 2020_055_06,7/6/2020,Mackworth Island - North,06,Mid,green crab,4
@@ -1369,9 +1368,9 @@ loc_id,date,site_name,site_id,bay_location,species_name,catch
 2018_105_01,9/7/2018,Presumpscot Moorings,01,Inner,atlantic silverside,55
 2018_105_01,9/7/2018,Presumpscot Moorings,01,Inner,largemouth bass,5
 2018_105_01,9/7/2018,Presumpscot Moorings,01,Inner,mummichog,1
-2018_105_08,9/7/2018,Back Cove,08,Mid,atlantic silverside,111
-2018_105_08,9/7/2018,Back Cove,08,Mid,winter flounder,2
-2018_105_08,9/7/2018,Back Cove,08,Mid,green crab,2
+2018_104_08,8/21/2018,Back Cove,08,Mid,atlantic silverside,111
+2018_104_08,8/21/2018,Back Cove,08,Mid,winter flounder,2
+2018_104_08,8/21/2018,Back Cove,08,Mid,green crab,2
 2018_105_10,9/7/2018,SMCC,10,Outer,atlantic silverside,121
 2018_105_10,9/7/2018,SMCC,10,Outer,mummichog,5
 2018_105_10,9/7/2018,SMCC,10,Outer,winter flounder,1

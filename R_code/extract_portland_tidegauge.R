@@ -264,69 +264,25 @@ norms <- wat_temp %>%
             year=mean(year))
 
 # Smooth mean daily temperature using GAM
-p <- ggplot(data=norms) +
-  geom_smooth(aes(x=doy, y=mean.daily),
-              method='gam', 
-              se=T, 
-              na.rm=TRUE,
-              n=366, 
-              method.args=list(method='REML')
-              )
-
-p + geom_point(data=norms, aes(x=doy, y=mean.daily),
-               alpha=0.1)
-
-tgam <- mgcv::gam(mean.daily ~ s(doy, bs='cs'), data=norms,
+tgam <- mgcv::gam(mean.daily ~ s(doy, bs='cs') + s(year, bs='cs'), 
+                  data=norms,
                   method='REML')
 summary(tgam)
 mgcv::gam.check(tgam)
-mgcv::plot.gam(tgam, select=1, scheme=1, rug=T)
-# This looks great
-
-# Pull data from plot, append to new df
-dat <- ggplot_build(p)$data[[1]]
+mgcv::plot.gam(tgam, select=1, scheme=1, rug=T, residuals = T)
 
 daily.smooth <- data.frame(
-  doy= seq(1, 366, 1)
+  doy= seq(1, 366, 1),
+  year = 2020
 )
 
-daily.smooth$smooth.daily <- dat$y
-daily.smooth$smooth.upper <- dat$ymax
-daily.smooth$smooth.lower <- dat$ymin
+np <- mgcv::predict.gam(tgam, daily.smooth,
+                        exclude = "s(year)",
+                        se.fit=T)
 
-# Timeperiod we care about: Nov 2013 onward
-tp <- wat_temp[wat_temp$timestamp >= as.POSIXct('2013-11-01 00:00:00'),]
-tp$year <- lubridate::year(tp$timestamp)
-tp <- tp[!is.na(tp$timestamp),]
-
-# Plot temperature as compared to norm
-dsyear23 <- daily.smooth %>% 
-  mutate(date = as.Date(doy, origin = '2022-12-31'))
-dsyear24 <- daily.smooth %>% 
-  mutate(date = as.Date(doy, origin = '2023-12-31'))
-dsyear <- rbind(dsyear23, dsyear24)
-
-dsyear <- dsyear %>% 
-  mutate(date = as.POSIXct(date, format='%Y-%m-%d'))
-
-ggplot(data=tp[tp$year %in% c(2023, 2024),]) +
-  geom_point(aes(x=timestamp, y=hourly.temp), alpha=0.1) +
-  geom_ribbon(data=dsyear,
-              aes(x=date, ymin=smooth.lower, ymax=smooth.upper),
-              fill='blue', alpha=0.3)
-
-ggplot() +
-  geom_line(data=tp[!is.na(tp$catper),],
-            aes(x=doy, y=daily.c, col=as.factor(year))) +
-  scale_color_viridis_d(option='viridis', 'Year')+
-  geom_ribbon(data=daily.smooth,
-              aes(x=doy, ymin=smooth.lower, ymax=smooth.upper),
-              fill='blue', alpha=0.3) +
-  xlab('Day of year') + ylab('SST (C)')+
-  facet_wrap(vars(catper)) +
-  guides(colour = guide_legend(override.aes = list(alpha = 1))) +
-  geom_vline(xintercept=151, col='red', lty=2) +
-  geom_vline(xintercept=273, col='red', lty=2)
+daily.smooth$smooth.daily <- np$fit
+daily.smooth$smooth.upper <- np$fit + np$se.fit
+daily.smooth$smooth.lower <- np$fit - np$se.fit
 
 # More date columns
 wat_temp$dailyts <- ymd(wat_temp$timestamp)
@@ -349,7 +305,7 @@ wat_temp$anomaly <- wat_temp$daily.c - wat_temp$smooth.daily
 wat_temp$year <- lubridate::year(wat_temp$timestamp)
 
 # Extract time period we care about
-tp <- wat_temp[wat_temp$timestamp > as.POSIXct('2013-11-01 00:00:00'),]
+tp <- wat_temp[wat_temp$timestamp > as.POSIXct('2013-12-01 00:00:00'),]
 tp$year <- lubridate::year(tp$timestamp)
 tp <- tp[!is.na(tp$timestamp),]
 
@@ -361,6 +317,11 @@ tp <- tp %>%
 
 # Plot
 ggplot() +
+  geom_line(data=unique(dplyr::select(tp, 
+                                       doy, year, smooth.daily)),
+             aes(x=doy, y=smooth.daily),
+             alpha=0.5) +
+  
   geom_point(data=unique(dplyr::select(tp, 
                                        doy, daily.c, anomaly, year,
                                        updif, lowdif)),
@@ -375,45 +336,21 @@ ggplot() +
   geom_vline(xintercept=151, col='red', lty=2) +
   geom_vline(xintercept=273, col='red', lty=2)
 
-# Identify mean annual anomaly
+# Calculate mean average anomaly
 tp$month <- month(tp$timestamp)
-tp$season <- NA
-tp$season[tp$month %in% c(3,4,5)] <- 'spring'
-tp$season[tp$month %in% c(6,7,8)] <- 'summer'
-tp$season[tp$month %in% c(9, 10, 11)] <- 'fall'
-tp$season[tp$month %in% c(12, 1, 2)] <- 'winter'
+tp$day <- day(tp$timestamp)
 
-tp$yearseason <- NA
-tp$yearseason[tp$season %in% c('spring', 'summer', 'fall')] <- 
-  tp$year[tp$season %in% c('spring', 'summer', 'fall')]
-tp$yearseason[tp$month == 12] <- tp$year[tp$month == 12]
-tp$yearseason[tp$month %in% c(1, 2)] <- 
-  tp$year[tp$month %in% c(1, 2)] - 1
+tp$yearshift <- NA
+tp$yearshift[tp$month %in% seq(1, 11)] <- tp$year[tp$month %in% seq(1, 11)]
+tp$yearshift[tp$month ==12] <- tp$year[tp$month ==12]+1
+
+tp$season[tp$month %in% seq(3, 5)] <- 'Spring'
+tp$season[tp$month %in% seq(6, 8)] <- 'Summer'
+tp$season[tp$month %in% seq(9, 11)] <- 'Fall'
+tp$season[tp$month %in% c(12, 1, 2)] <- 'Winter'
 
 m.a.t <- tp %>% 
-  group_by(yearseason, season) %>% 
-  summarise(mean.anom = mean(anomaly, na.rm=TRUE)) %>% 
-  as.data.frame() %>% 
-  mutate(season = factor(season, levels=c('spring', 'summer', 'fall', 'winter')))
-
-m.a.t$anom <- NA
-m.a.t$anom[m.a.t$mean.anom>0] <- 'Above CRP'
-m.a.t$anom[m.a.t$mean.anom<=0] <- 'Below CRP'
-
-m.a.t <- m.a.t[-1,]
-m.a.t <- m.a.t[with(m.a.t, order(mean.anom, decreasing = T)),]
-rownames(m.a.t) <- NULL
-m.a.t
-
-ggplot(data=m.a.t) +
-  geom_point(aes(x=yearseason, y=mean.anom, col=anom)) +
-  facet_wrap(vars(season)) +
-  coord_cartesian(ylim=c(-2, 2)) +
-  labs(x='Year', y='Mean anomaly (C)', col='Deviation') +
-  scale_x_continuous(breaks = scales::breaks_pretty())
-
-m.a.t <- tp %>% 
-  group_by(year) %>% 
+  group_by(yearshift) %>% 
   summarise(mean.anom = mean(anomaly, na.rm=TRUE)) %>% 
   as.data.frame()
 
@@ -421,13 +358,80 @@ m.a.t$anom <- NA
 m.a.t$anom[m.a.t$mean.anom>0] <- 'Above CRP'
 m.a.t$anom[m.a.t$mean.anom<=0] <- 'Below CRP'
 
-m.a.t <- m.a.t[-1,]
+m.a.t <- m.a.t[m.a.t$yearshift <=2024 & m.a.t$yearshift >=2014,]
 m.a.t <- m.a.t[with(m.a.t, order(mean.anom, decreasing = T)),]
 rownames(m.a.t) <- NULL
 m.a.t
 
-ggplot(data=m.a.t) +
-  geom_point(aes(x=year, y=mean.anom, col=anom)) +
+m.a.t$ts <- as.Date(paste0(m.a.t$yearshift, '-06-02'))
+
+ptp <- tp %>% 
+  dplyr::select(dailyts, anomaly, smooth.daily) %>% 
+  unique() %>% 
+  as.data.frame()
+
+ggplot() +
+  geom_line(data=tp,
+            aes(x=dailyts, y=smooth.daily),
+            alpha=0.2) +
+  geom_point(data = tp, 
+             aes(x = dailyts, y=daily.c), 
+             pch = 20,
+             col='gray40', fill='gray40',
+             alpha=0.2
+             ) +
+  geom_point(data=m.a.t, 
+             aes(x=ts, y=mean.anom, fill=anom),
+             cex=2,
+             pch=21) +
+  #coord_cartesian(ylim=c(-2, 2)) +
+  labs(x='Year', y='Mean anomaly (C)', col='Deviation', 
+       fill='Average Annual\nDeviation') +
+  scale_x_date(breaks = c(as.Date('2013-12-01'), 
+                          as.Date('2014-12-01'),
+                          as.Date('2015-12-01'), 
+                          as.Date('2016-12-01'),
+                          as.Date('2017-12-01'), 
+                          as.Date('2018-12-01'),
+                          as.Date('2019-12-01'), 
+                          as.Date('2020-12-01'),
+                          as.Date('2021-12-01'), 
+                          as.Date('2022-12-01'),
+                          as.Date('2023-12-01'), 
+                          as.Date('2024-12-01')
+                          ), 
+               date_labels = c('2014', '2015', '2016', '2017','2018','2019',
+                               '2020', '2021', '2022', '2023', '2024', '2025')) +
+  theme(strip.background = element_rect(fill='lightgray'),
+        legend.box.margin = margin(-10, -10, -10, -10))
+
+ggsave(plot = avg.t.anom,
+       filename = here('Documentation/MEPS/Figures/Annual temperature anomalies.png'),
+       width=169, height = 84.5, units='mm')
+
+# Calc mean average summer anomaly
+
+
+s.a.t <- tp %>% 
+  #filter(month %in% seq(6, 8)) %>% 
+  group_by(yearshift, season) %>% 
+  summarise(mean.anom = mean(anomaly, na.rm=TRUE)) %>% 
+  as.data.frame()
+
+s.a.t$anom <- NA
+s.a.t$anom[s.a.t$mean.anom>0] <- 'Above CRP'
+s.a.t$anom[s.a.t$mean.anom<=0] <- 'Below CRP'
+
+s.a.t <- s.a.t[s.a.t$yearshift >=2014,]
+s.a.t <- s.a.t[with(s.a.t, order(mean.anom, decreasing = T)),]
+rownames(s.a.t) <- NULL
+s.a.t
+
+s.a.t$season <- factor(s.a.t$season, levels = c('Winter', 'Spring', 'Summer', 'Fall'))
+
+ggplot(data=s.a.t) +
+  geom_point(aes(x=yearshift, y=mean.anom, col=anom)) +
+  facet_wrap(vars(season)) +
   coord_cartesian(ylim=c(-2, 2)) +
   labs(x='Year', y='Mean anomaly (C)', col='Deviation') +
   scale_x_continuous(breaks = scales::breaks_pretty())

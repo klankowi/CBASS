@@ -6,6 +6,11 @@ library(here)
 # Negate function
 '%notin%' <- function(x,y)!('%in%'(x,y))
 
+# Convert Celsius to Fahrenheit
+c_to_f <- function(celsius) {
+  return((celsius * 9/5) + 32)
+}
+
 # Set GGplot auto theme
 theme_set(theme(panel.grid.major = element_line(color='lightgray'),
                 panel.grid.minor = element_blank(),
@@ -19,9 +24,13 @@ theme_set(theme(panel.grid.major = element_line(color='lightgray'),
                 plot.title=element_text(size=14, hjust = 0, vjust = 1.2),
                 plot.caption=element_text(hjust=0, face='italic', size=12)))
 
+spawnyeardf <- data.frame(
+  spawnmonth = seq(1, 12, 1),
+  month = seq(1, 12, 1)
+)
+
 abund <- read.csv(here('Clean_Data/Seine/abund_through_2024.csv'))
 trips <- read.csv(here('Clean_Data/Seine/trips_through_2024.csv'))
-bio <- read.csv(here('Clean_Data/Seine/lengths_through_2024.csv'))
 
 # Clean
 abund <- abund %>% 
@@ -44,14 +53,6 @@ trips$collector[trips$site_id >20] <- 'QBC'
 trips$collector[trips$site_id <20] <- 'GMRI'
 trips$set_time = trips$set_time - lubridate::hours(4)
 
-bio <- bio %>% 
-  mutate(date = as.Date(date, format="%Y-%m-%d")) %>% 
-  mutate(month = month(date),
-         year = year(date),
-         week = isoweek(date))
-bio$collector[bio$site_id >20] <- 'QBC'
-bio$collector[bio$site_id <20] <- 'GMRI'
-
 #### Tomcod ####
 tomcod <- abund[abund$species_name == 'atlantic tomcod',]
 tomcod <- tomcod %>% 
@@ -60,16 +61,16 @@ tomcod <- tomcod %>%
 tomcod <- merge(tomcod, trips, by=c('date', 'year','site_name'), all=T)
 tomcod$catch[is.na(tomcod$catch)] <- 0
 
-rm(abund, trips)
-
-#### Clean ####
 tomcod <- tomcod %>% 
-  dplyr::select(date, year, site_name, catch, set_time,
+  dplyr::select(date, year, site_name, catch,
                 weather, temp_degc, do_mg.l, salinity_ppt,
-                month, week, collector) %>% 
-  mutate(set_time = as.POSIXct(set_time,
-                               format="%m/%d/%Y %H:%M")) %>% 
-  mutate(set_time = set_time - hours(4))
+                month, week, collector)  %>% 
+  filter(month %in% c(6, 7) & year != 2019) %>% 
+  group_by(year, collector) %>% 
+  summarise(cpue = sum(catch) / n(),
+            temp_degc = mean(temp_degc, na.rm=T))
+
+rm(abund, trips)
 
 #### Harbor temp ####
 jpm <- read.csv(here('Clean_Data/Meteorological/Portland_watertemp_POR.csv'))
@@ -77,129 +78,316 @@ jpm <- read.csv(here('Clean_Data/Meteorological/Portland_watertemp_POR.csv'))
 jpm <- jpm %>% 
   mutate(date = as.Date(timestamp, format='%Y-%m-%d %H:%M:%S')) %>% 
   filter(date >= as.Date('2013-11-01')) %>% 
-  filter(date <= as.Date('2024-10-31')) %>% 
+  filter(date <= as.Date('2024-12-31')) %>% 
   mutate(week = week(date),
          year = year(date),
          month = month(date)) %>% 
-  mutate(spawnyear = year)
+  mutate(spawnyear = year) %>% 
+  mutate(daily.c = c_to_f(daily.c))
+
+jpm <- left_join(jpm, spawnyeardf, by=c('month'))
 
 jpm <- jpm %>% 
-  dplyr::select(date, week, month, year, 
-                daily.c, spawnyear) %>% 
+  dplyr::select(date, week, spawnmonth, spawnyear, 
+                daily.c, year) %>% 
   unique()
 
-for(i in 1:nrow(jpm)){
-  if(jpm$month[i] %in% c(11, 12)){jpm$spawnyear[i] <- (jpm$year[i] + 1)}
-}
+jpm <- jpm %>% 
+  group_by(spawnyear) %>% 
+  summarise(temp1 = mean(daily.c[spawnmonth ==1], na.rm=T),
+            temp2 = mean(daily.c[spawnmonth ==2], na.rm=T),
+            temp3 = mean(daily.c[spawnmonth ==3], na.rm=T),
+            temp4 = mean(daily.c[spawnmonth ==4], na.rm=T),
+            temp5 = mean(daily.c[spawnmonth ==5], na.rm=T),
+            temp6 = mean(daily.c[spawnmonth ==6], na.rm=T),
+            temp7 = mean(daily.c[spawnmonth ==7], na.rm=T),
+            temp8 = mean(daily.c[spawnmonth ==8], na.rm=T),
+            temp9 = mean(daily.c[spawnmonth ==9], na.rm=T),
+            temp10 = mean(daily.c[spawnmonth ==10], na.rm=T),
+            temp11= mean(daily.c[spawnmonth ==11], na.rm=T),
+            temp12 = mean(daily.c[spawnmonth ==12], na.rm=T),
+            summtm = mean(daily.c[spawnmonth %in% c(7:9)],
+                          na.rm=T))
 
-jpm$state[jpm$month %in% c(11, 12, 1, 2)] <- 'spawn'
-jpm$state[jpm$month %in% c(3, 4, 5)] <- 'move'
-
-mjpm <- jpm %>% 
-  filter(!is.na(state)) %>% 
-  group_by(spawnyear, state) %>% 
-  summarise(stemp = mean(daily.c))
-
-#### Tidal conditions ####
-tides <- read.csv(here('Raw_Data/Portland_tides_byminute.csv'))
-tides$date <- as.Date(substr(tides$TimeLocal, start=1, stop=10))
-
-tides <- tides %>% 
-  filter(tides$date %in% tomcod$date)
-
-tides$TimeLocal[nchar(tides$TimeLocal) == 10] <- paste0(tides$TimeLocal[nchar(tides$TimeLocal) == 10], ' 00:00:00')
-
-tides <- tides %>% 
-  mutate(timestamp = as.POSIXct(TimeLocal, format= '%Y-%m-%d %H:%M:%S')) %>% 
-  dplyr::select(-tidename, -date, -TimeLocal)
-
-tides <- tides %>% 
-  filter(!is.na(tides$timestamp)) %>% 
-  unique() %>% as.data.frame()
-
-#### Presumpscot at Westbrook ####
-river <- importDVs("01064118", 
-                   code="00065", 
-                   stat="00003",
-                   sdate="2013-11-01", edate="2022-08-01")
-
-river <- river %>% 
-  dplyr::select(-staid, -qualcode) %>% 
-  mutate(date = as.Date(dates),
-         val = as.numeric(val)) %>%
-  rename(RiverHT.ft = val) %>% 
-  dplyr::select(-dates)
+jpm <- jpm[jpm$spawnyear %in% seq(2014, 2024),]
 
 #### Precip ####
 rain <- read.csv(here('Raw_Data/Portland_Precip_2025.csv'))
 rain <- rain %>% 
-  dplyr::select(-STATION, -NAME) %>% 
+  dplyr::select(-STATION, -NAME, -SNWD) %>% 
   rename(date = DATE,
          precip = PRCP,
-         snow = SNOW,
-         snwdp = SNWD) %>% 
-  mutate(date = as.Date(date))
+         snow = SNOW) %>% 
+  mutate(date = as.Date(date)) %>% 
+  mutate(year = year(date),
+         month = month(date)) %>% 
+  dplyr::select(-date) %>% 
+  mutate(spawnyear = year)
 
-#### Join phys ####
+rain <- left_join(rain, spawnyeardf, by=c('month'))
+
+rain <- rain %>% 
+  dplyr::select(spawnmonth, spawnyear, 
+                precip, snow) %>% 
+  unique()
+
+snows <- rain %>% 
+  group_by(spawnyear) %>% 
+  summarise(snow1 = sum(snow[spawnmonth ==1], na.rm=T),
+            snow2 = sum(snow[spawnmonth ==2], na.rm=T),
+            snow3 = sum(snow[spawnmonth ==3], na.rm=T),
+            snow4 = sum(snow[spawnmonth ==4], na.rm=T),
+            snow5 = sum(snow[spawnmonth ==5], na.rm=T),
+            snow6 = sum(snow[spawnmonth ==6], na.rm=T),
+            snow7 = sum(snow[spawnmonth ==7], na.rm=T),
+            snow8 = sum(snow[spawnmonth ==8], na.rm=T),
+            snow9 = sum(snow[spawnmonth ==9], na.rm=T),
+            snow10 = sum(snow[spawnmonth ==10], na.rm=T),
+            snow11 = sum(snow[spawnmonth ==11], na.rm=T),
+            snow12 = sum(snow[spawnmonth ==12], na.rm=T))
+
+rains <- rain %>% 
+  group_by(spawnyear) %>% 
+  summarise(precip1 = sum(precip[spawnmonth ==1], na.rm=T),
+            precip2 = sum(precip[spawnmonth ==2], na.rm=T),
+            precip3 = sum(precip[spawnmonth ==3], na.rm=T),
+            precip4 = sum(precip[spawnmonth ==4], na.rm=T),
+            precip5 = sum(precip[spawnmonth ==5], na.rm=T),
+            precip6 = sum(precip[spawnmonth ==6], na.rm=T),
+            precip7 = sum(precip[spawnmonth ==7], na.rm=T),
+            precip8 = sum(precip[spawnmonth ==8], na.rm=T),
+            precip9 = sum(precip[spawnmonth ==9], na.rm=T),
+            precip10 = sum(precip[spawnmonth ==10], na.rm=T),
+            precip11 = sum(precip[spawnmonth ==11], na.rm=T),
+            precip12 = sum(precip[spawnmonth ==12], na.rm=T),
+            wprecip = sum(precip[spawnmonth %in% seq(1, 3, 1)],
+                          na.rm=T))
+
+#### Monthly joins of phys data ####
+tomcod$spawnyear <- tomcod$year
+tomcod <- left_join(tomcod,
+                    jpm, 
+                    by=c('spawnyear'))
+
+tomcod <- left_join(tomcod,
+                    rains,
+                    by=c('spawnyear'))
+
+tomcod <- left_join(tomcod,
+                    snows,
+                    by=c('spawnyear'))
+
+tomcod <- as.data.frame(tomcod)
+
 tomcod <- tomcod %>% 
-  rename(timestamp = set_time)
+  dplyr::select(-snow6, -snow5, -snow7, -snow8, -snow9, -snow10)
 
-tomcod <- left_join(tomcod, 
-                dplyr::select(tides,timestamp, TideHT.m, tide.num2, stage),
-                by=c('timestamp'))
-
-tomcod <- left_join(tomcod,
-                    dplyr::select(jpm, date, daily.c), 
-                    by=c('date'))
-
-tomcod <- left_join(tomcod,
-                    river,
-                    by=c('date'))
-  
-tomcod <- tomcod %>% 
-  mutate(RiverHT.m = RiverHT.ft * 0.3048) %>% 
-  dplyr::select(-RiverHT.ft)
-
-tomcod <- left_join(tomcod,
-                    rain,
-                    by=c('date'))
+rm(jpm, rain, rains, snows, spawnyeardf)
 
 #### Data explore ####
-tomcod$totalprecip <-  tomcod$precip + tomcod$snow
-
-gmri <- tomcod %>% filter(collector == 'GMRI')
-
-gmri$spawnyear <- gmri$year
-gmri$spawnyear[gmri$month %in% c(11, 12)] <- 
-  gmri$spawnyear[gmri$month %in% c(11, 12)] +1
-
-gmri <- gmri %>% 
-  group_by(spawnyear) %>% 
-  summarise(cpue = sum(catch) / n(),
-            temp_degc = mean(temp_degc, na.rm=T),
-            daily.c = mean(daily.c),
-            RiverHT.m = mean(RiverHT.m, na.rm=T),
-            precip = mean(totalprecip)) %>% 
-  as.data.frame()
-
 # Test correlation
 # Create correlation matrix
-df_cormat <- dplyr::select(gmri, -spawnyear)
+df_cormat <- dplyr::select(tomcod, -year, -spawnyear, -collector,
+                           -summtm, -wprecip)
+df_cormat <- model.matrix(~0+., data=df_cormat) %>% 
+  cor(use="all.obs", method="spearman")
+df_cormat <- df_cormat[,1]
+df_cormat <- as.data.frame(df_cormat)
+df_cormat$var <- rownames(df_cormat)
+rownames(df_cormat) <- NULL
+colnames(df_cormat) <- c('sp.cor', 'variable')
+df_cormat <- df_cormat %>% 
+  filter(variable != 'cpue') %>% 
+  filter(sp.cor > 0.6 | sp.cor < -0.6)
+df_cormat <- df_cormat[with(df_cormat, order(abs(sp.cor))),]
+df_cormat
+
+df_cormat <- dplyr::select(tomcod, cpue, 
+                           summtm, wprecip, snow4)
 model.matrix(~0+., data=df_cormat) %>% 
   cor(use="all.obs", method="spearman") %>% 
-  ggcorrplot(show.diag = F, type="lower", lab=TRUE, lab_size=3)
+  ggcorrplot::ggcorrplot(show.diag = F, type="lower", lab=TRUE, 
+                         lab_size=3)
 
+# Summer temps: April to September
+# Winter precipitation: January to March
+# Snow: April
 
-tccatch <- ggplot(data=gmri) +
-  geom_point(aes(x=daily.c, y=cpue, col=spawnyear),
-             cex=2) + 
-  scale_color_viridis_c() +
-  labs(x='Daily mean temperature (C)', y='Catch per unit effort', 
-       col='Spawning\nYear') +
-  ggtitle('Atlantic tomcod annual catch vs. temperature') +
+modtom <- dplyr::select(tomcod, cpue, spawnyear,
+                        summtm, wprecip, snow4,
+                        collector)
+library(mgcv)
+g1 <- gam(cpue ~ s(summtm, bs='cs', k=5)+ s(wprecip, bs='cs', k=5)+ 
+            s(snow4, k=5, bs='cs'),
+          data=tomcod, family=gaussian(link='identity'),
+          method='REML')
+summary(g1)
+
+p_obj <- plot(g1, residuals = TRUE, pages = 1)
+smmtm <- p_obj[[1]] # just one smooth so select the first component
+sm_df <- as.data.frame(smmtm[c("x", "se", "fit")])
+sm_df$var <- 'Average temperature, July to September (F)'
+
+data_df <- as.data.frame(smmtm[c("raw", "p.resid")])
+colnames(data_df) <- c('raw', 'p.resid')
+data_df$year <- modtom$spawnyear
+data_df$collector <- modtom$collector
+data_df$ycol <- 'gray50'
+data_df$ycol[data_df$year == 2024] <- 'black'
+data_df$var <- 'Average temperature, July to September (F)'
+
+ddf <- data_df
+sdf <- sm_df
+
+## plot
+ggplot(sm_df, aes(x = x, y = fit)) +
+  geom_ribbon(aes(ymin = fit - se, ymax = fit + se, y = NULL),
+              alpha = 0.3) +
+  geom_point(data=data_df,
+             aes(x=raw, y=p.resid, col=ycol)) +
+  ggrepel::geom_label_repel(data = data_df, 
+             mapping = aes(x = raw, y = p.resid, fill=collector,
+                           label = year, col=ycol),
+             alpha=0.8,
+             min.segment.length = unit(0, 'lines')) +
+  scale_color_manual(values = c('black', 'gray35'),
+                     guide='none') +
+  geom_line() +
+  ylim(-2, 2) +
+  labs(x='Average Casco Bay summmer temperature (F)', 
+       y='Effect on catch per unit effort', 
+       fill='Collecting\nagency') +
+  ggtitle('Environmental influence on Atlantic tomcod catch') +
   theme(legend.position = 'bottom',
-        legend.key.width = unit(0.8, 'in'))
-tccatch
-ggsave(plot=tccatch, 
-       here('2024_Rasters/tomcod_temp.png'),
-       width = 7.5, height = 5, units='in')
+        legend.margin = margin(0,0,0,0))
+
+
+wpc <- p_obj[[2]] # just one smooth so select the first component
+sm_df <- as.data.frame(wpc[c("x", "se", "fit")])
+sm_df$var <- 'Total precipitation, January to March (in)'
+
+data_df <- as.data.frame(wpc[c("raw", "p.resid")])
+colnames(data_df) <- c('raw', 'p.resid')
+data_df$year <- modtom$spawnyear
+data_df$collector <- modtom$collector
+data_df$ycol <- 'gray50'
+data_df$ycol[data_df$year == 2024] <- 'black'
+data_df$var <- 'Total precipitation, January to March (in)'
+
+ddf <- rbind(ddf, data_df)
+sdf <- rbind(sdf, sm_df)
+
+## plot
+ggplot(sm_df, aes(x = x, y = fit)) +
+  geom_ribbon(aes(ymin = fit - se, ymax = fit + se, y = NULL),
+              alpha = 0.3) +
+  geom_point(data=data_df,
+             aes(x=raw, y=p.resid, col=ycol)) +
+  ggrepel::geom_label_repel(data = data_df, 
+                            mapping = aes(x = raw, y = p.resid, fill=collector,
+                                          label = year, col=ycol),
+                            alpha=0.8,
+                            min.segment.length = unit(0, 'lines')) +
+  scale_color_manual(values = c('black', 'gray35'),
+                     guide='none') +
+  geom_line() +
+  labs(x='Total rainfall, January to March', 
+       y='Effect on catch per unit effort', 
+       fill='Collecting\nagency') +
+  ylim(-2, 2) +
+  theme(legend.position = 'bottom',
+        legend.margin = margin(0,0,0,0))
+
+
+sn <- p_obj[[3]] # just one smooth so select the first component
+sm_df <- as.data.frame(sn[c("x", "se", "fit")])
+sm_df$var <- 'Total snowfall, April (in)'
+
+data_df <- as.data.frame(sn[c("raw", "p.resid")])
+colnames(data_df) <- c('raw', 'p.resid')
+data_df$year <- modtom$spawnyear
+data_df$collector <- modtom$collector
+data_df$ycol <- 'gray50'
+data_df$ycol[data_df$year == 2024] <- 'black'
+data_df$var <- 'Total snowfall, April (in)'
+
+ddf <- rbind(ddf, data_df)
+sdf <- rbind(sdf, sm_df)
+
+## plot
+ggplot(sm_df, aes(x = x, y = fit)) +
+  geom_ribbon(aes(ymin = fit - se, ymax = fit + se, y = NULL),
+              alpha = 0.3) +
+  geom_point(data=data_df,
+             aes(x=raw, y=p.resid, col=ycol)) +
+  ggrepel::geom_label_repel(data = data_df, 
+                            mapping = aes(x = raw, y = p.resid, fill=collector,
+                                          label = year, col=ycol),
+                            alpha=0.8,
+                            min.segment.length = unit(0, 'lines')) +
+  scale_color_manual(values = c('black', 'gray35'),
+                     guide='none') +
+  geom_line() +
+  ylim(-2, 2) +
+  labs(x='Total snowfall, April', 
+       y='Effect on catch per unit effort', 
+       fill='Collecting\nagency') +
+  theme(legend.position = 'bottom',
+        legend.margin = margin(0,0,0,0))
+
+
+## plot
+gamp <- ggplot() +
+  geom_line(data=sdf, aes(x = x, y = fit)) +
+  geom_ribbon(data=sdf,
+              aes(ymin = fit - se, ymax = fit + se, x =x,
+                  y=NULL),
+              alpha = 0.3) +
+  geom_point(data=ddf,
+             aes(x=raw, y=p.resid, col=ycol)) +
+  ggrepel::geom_label_repel(data = ddf, 
+                            mapping = aes(x = raw, y = p.resid, fill=collector,
+                                          label = year, col=ycol),
+                            alpha=0.8,
+                            min.segment.length = unit(0, 'lines')) +
+  scale_color_manual(values = c('black', 'gray35'),
+                     guide='none') +
+  ylim(-2, 2) +
+  facet_wrap(vars(var), scales='free_x', ncol=1) +
+  labs(
+       y='Effect on catch per unit effort', 
+       fill='Collecting\nagency') +
+  theme(legend.position = 'bottom',
+        axis.title.x = element_blank(),
+        legend.margin = margin(0,0,0,0)) +
+  ggtitle('Environmental effects on Atlantic tomcod catch')
+
+ggsave(plot = gamp,
+       'tomcod_gams.png', 
+       height = 7.225, width = 8.5, units='in')
+
+modtom$ycol <- 'gray35'
+modtom$ycol[modtom$year == 2024] <- 'black'
+modtom$var <- 'Catch per unit effort, June to July'
+
+cpue <- ggplot() +
+  geom_point(data=modtom,
+             aes(x=spawnyear, y=cpue, fill=collector),
+             cex=3, alpha=0.7, stroke=0.5,
+             pch=21) +
+  geom_smooth(data=modtom,
+              aes(x=spawnyear, y=cpue),
+              method='gam', col='black', lwd = 0.5,
+              method.args=list(family=gaussian(link='identity'),
+                               method='REML'),
+              se=F) +
+  facet_wrap(vars(var)) +
+  labs(x='Year', 
+       y='Catch per unit effort') +
+  ggtitle('Atlantic tomcod catch') +
+  theme(legend.position = 'n',
+        legend.margin = margin(0,0,0,0))
+
+test <- ggpubr::ggarrange(cpue, gamp, ncol=1,
+                          heights = c(0.5, 2))
+ggsave(plot=test, 'test2.png', height = 11, width = 8.5, units = 'in')
