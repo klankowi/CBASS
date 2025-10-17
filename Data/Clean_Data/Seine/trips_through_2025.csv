@@ -1,0 +1,993 @@
+loc_id,year,date,site_id,site_name,bay_location,substrate,set_time_local,weather,temp_degc,do_mg/l,salinity_ppt,hermit_crabs,shrimp,notes
+2014_001_06,2014,6/16/2014,6,Mackworth Island - North,Mid,mud/shell,11:20,sunny,15,10.4,32.83,NA,NA,NA
+2014_001_04,2014,6/16/2014,4,Mussel Cove,Mid,mud,12:20,sunny,17.8,9.8,32.41,NA,NA,NA
+2014_001_09,2014,6/16/2014,9,Great Diamond Island,Outer,sand/shell,13:40,sunny,14.8,10.7,31.76,NA,NA,NA
+2014_001_07,2014,6/16/2014,7,Mackworth Island - Beach,Mid,sand/shell,15:10,sunny,15.4,10.5,31.46,NA,NA,NA
+2014_002_12,2014,6/19/2014,12,Alewife Cove,Outer,gravel,10:20,sunny,14.7,10.3,31.89,NA,NA,lots of seaweed at this site
+2014_002_11,2014,6/19/2014,11,Cushing Island,Outer,mud,11:10,sunny,16.1,14,33.03,NA,NA,Ran the seine in a circular area from the boat (not the beach)
+2014_002_03,2014,6/19/2014,3,Audubon,Inner,mud,12:40,sunny,22,8.9,4.35,NA,NA,NA
+2014_002_02,2014,6/19/2014,2,Skitterygusset,Inner,mud,13:30,sunny,22.4,9.2,0.84,NA,NA,NA
+2014_002_01,2014,6/19/2014,1,Presumpscot Moorings,Inner,mud/gravel,14:25,sunny,21.8,9.3,0.28,NA,NA,NA
+2014_002_08,2014,6/19/2014,8,Back Cove,Mid,mud,15:15,sunny,17.6,8.9,32.06,NA,NA,NA
+2014_003_12,2014,6/27/2014,12,Alewife Cove,Outer,gravel,08:50,sunny,14.5,9,28.54,NA,NA,no catch
+2014_003_03,2014,6/27/2014,3,Audubon,Inner,mud,09:50,sunny,19.8,8,7.4,NA,NA,NA
+2014_003_01,2014,6/27/2014,1,Presumpscot Moorings,Inner,mud/gravel,10:30,sunny,21,9.2,0.15,NA,NA,NA
+2014_003_04,2014,6/27/2014,4,Mussel Cove,Mid,mud,11:15,sunny,17.3,9,31.62,NA,NA,NA
+2014_003_09,2014,6/27/2014,9,Great Diamond Island,Outer,sand/shell,11:55,sunny,18.4,9.8,30.28,NA,NA,NA
+2014_003_06,2014,6/27/2014,6,Mackworth Island - North,Mid,mud/shell,12:37,sunny,16.3,10.7,33.1,NA,NA,NA
+2014_004_10,2014,7/1/2014,10,SMCC,Outer,sand,07:50,sunny,16.5,9.3,29.02,NA,NA,NA
+2014_004_11,2014,7/1/2014,11,Cushing Island,Outer,mud,08:30,sunny,15.5,10.1,31.05,NA,NA,NA
+2014_004_05,2014,7/1/2014,5,The Brothers - North,Mid,mud/gravel,09:25,sunny,21.1,9.8,33.05,NA,NA,NA
+2014_004_07,2014,7/1/2014,7,Mackworth Island - Beach,Mid,sand/shell,10:05,sunny,22.3,8.2,16.9,NA,NA,NA
+2014_004_02,2014,7/1/2014,2,Skitterygusset,Inner,mud,10:55,sunny,23.4,8.9,0.86,NA,NA,NA
+2014_004_08,2014,7/1/2014,8,Back Cove,Mid,mud,11:40,sunny,20.3,8.1,29.77,NA,NA,NA
+2014_005_03,2014,7/8/2014,3,Audubon,Inner,mud,08:05,sunny,24.1,8.1,6.66,absent,medium,NA
+2014_005_09,2014,7/8/2014,9,Great Diamond Island,Outer,sand/gravel,08:35,sunny,16,8.2,30.34,absent,low,NA
+2014_005_06,2014,7/8/2014,6,Mackworth Island - North,Mid,mud/shell,09:20,sunny,16.2,9.3,31.93,absent,high,NA
+2014_005_01,2014,7/8/2014,1,Presumpscot Moorings,Inner,mud/gravel,10:20,sunny,25.5,7.8,0.68,absent,absent,NA
+2014_005_10,2014,7/8/2014,10,SMCC,Outer,sand/gravel,10:55,sunny,14.6,8.5,32.19,present,low,NA
+2014_006_12,2014,7/17/2014,12,Alewife Cove,Outer,gravel,10:44,overcast,13.9,10,30.6,absent,high,NA
+2014_006_11,2014,7/17/2014,11,Cushing Island,Outer,mud,11:55,sunny,17.2,8.7,31.83,present,high,NA
+2014_006_08,2014,7/17/2014,8,Back Cove,Mid,mud,12:55,sunny,15.6,8.8,32,absent,absent,NA
+2014_006_02,2014,7/17/2014,2,Skitterygusset,Inner,mud,13:50,sunny,25.2,9,3.36,absent,absent,NA
+2014_006_07,2014,7/17/2014,7,Mackworth Island - Beach,Mid,sand/shell,14:50,sunny,18.1,9.7,32.32,absent,absent,NA
+2014_006_04,2014,7/17/2014,4,Mussel Cove,Mid,mud,15:42,sunny,19.4,9.4,33.3,absent,absent,NA
+2014_007_10,2014,7/22/2014,10,SMCC,Outer,sand/gravel,08:15,sunny,17.4,8.4,28.64,present,low,NA
+2014_007_09,2014,7/22/2014,9,Great Diamond Island,Outer,sand/gravel,08:50,sunny,16.1,9,31.06,present,absent,NA
+2014_007_06,2014,7/22/2014,6,Mackworth Island - North,Mid,gravel,09:24,sunny,16,9.6,33.48,NA,low,NA
+2014_007_01,2014,7/22/2014,1,Presumpscot Moorings,Inner,gravel,10:10,sunny,24.6,7.8,0.36,absent,absent,NA
+2014_007_03,2014,7/22/2014,3,Audubon,Inner,sand,10:40,sunny,22.9,8.5,7.25,NA,NA,NA
+2014_007_05,2014,7/22/2014,5,The Brothers - North,Mid,mud/shell,11:20,sunny,18,9.9,33.42,present,low,NA
+2014_008_12,2014,8/1/2014,12,Alewife Cove,Outer,sand/gravel,09:30,partly cloudy,15.5,9.5,33.65,absent,medium,NA
+2014_008_11,2014,8/1/2014,11,Cushing Island,Outer,sand/shell,10:20,sunny,18.4,10.7,33.33,present,high,NA
+2014_008_07,2014,8/1/2014,7,Mackworth Island - Beach,Mid,mud/shell,11:00,overcast,23.1,8.3,16.5,present,high,NA
+2014_008_02,2014,8/1/2014,2,Skitterygusset,Inner,mud,11:43,sunny,25.3,7.3,2.61,absent,medium,NA
+2014_008_08,2014,8/1/2014,8,Back Cove,Mid,mud,12:30,sunny,18.3,7.5,31.2,absent,medium,NA
+2014_008_04,2014,8/1/2014,4,Mussel Cove,Mid,mud,13:15,sunny,22.1,9.1,33.62,absent,absent,NA
+2014_009_01,2014,8/7/2014,1,Presumpscot Moorings,Inner,mud/gravel,09:35,overcast,23.4,7.4,0.49,absent,low,NA
+2014_009_03,2014,8/7/2014,3,Audubon,Inner,mud/sand,09:55,overcast,21.3,7.6,11.95,absent,low,NA
+2014_009_06,2014,8/7/2014,6,Mackworth Island - North,Mid,mud/shell,10:30,overcast,20.1,9.1,30.96,absent,medium,NA
+2014_009_05,2014,8/7/2014,5,The Brothers - North,Mid,sand/gravel,10:55,overcast,20.8,9.2,31.07,present,absent,NA
+2014_009_09,2014,8/7/2014,9,Great Diamond Island,Outer,sand/shell,11:30,sunny,18.3,9.2,32.07,absent,low,NA
+2014_009_10,2014,8/7/2014,10,SMCC,Outer,sand/shell,12:27,rain,19.2,8.9,29.07,present,medium,NA
+2014_010_12,2014,8/12/2014,12,Alewife Cove,Outer,NA,08:15,NA,15.5,7.8,32.7,absent,low,"Extremely foggy, Rock crab also present in seine (haven't seen many before)."
+2014_010_11,2014,8/12/2014,11,Cushing Island,Outer,mud/gravel,09:05,foggy,16.6,8.2,31.77,present,high,NA
+2014_010_07,2014,8/12/2014,7,Mackworth Island - Beach,Mid,sand/gravel,09:30,foggy,18.4,7.7,25.61,absent,low,NA
+2014_010_02,2014,8/12/2014,2,Skitterygusset,Inner,mud,10:20,foggy,20.9,6.8,14.7,absent,absent,NA
+2014_010_08,2014,8/12/2014,8,Back Cove,Mid,mud/gravel,11:05,foggy,16.8,7.6,31.43,absent,absent,NA
+2014_010_04,2014,8/12/2014,4,Mussel Cove,Mid,mud,11:45,foggy,18.8,8.2,33.24,absent,absent,Seine on the marsh edge
+2014_011_10,2014,8/21/2014,10,SMCC,Outer,sand/gravel,08:10,overcast,17.4,8.3,27.56,present,low,NA
+2014_011_03,2014,8/21/2014,3,Audubon,Inner,sand/mud/gravel,09:18,overcast,20.6,7.9,5.8,absent,low,NA
+2014_011_01,2014,8/21/2014,1,Presumpscot Moorings,Inner,mud/gravel,09:49,sunny,21.8,8.5,0.15,absent,absent,NA
+2014_011_06,2014,8/21/2014,6,Mackworth Island - North,Mid,sand/gravel,10:13,sunny,17.6,8.7,32.63,absent,low,NA
+2014_011_05,2014,8/21/2014,5,The Brothers - North,Mid,sand/gravel,10:52,overcast,18.6,9.7,32.55,absent,low,NA
+2014_011_09,2014,8/21/2014,9,Great Diamond Island,Outer,sand/gravel,11:29,overcast,17.4,8.9,31.54,present,medium,NA
+2014_012_12,2014,8/28/2014,12,Alewife Cove,Outer,sand/gravel,09:00,sunny,16.1,8.7,33.44,absent,low,too much algae for effective seining
+2014_012_11,2014,8/28/2014,11,Cushing Island,Outer,mud/gravel,09:48,sunny,17.6,8.6,30.53,present,low,NA
+2014_012_07,2014,8/28/2014,7,Mackworth Island - Beach,Mid,sand/gravel,10:30,sunny,21.4,9.1,19.22,absent,high,NA
+2014_012_04,2014,8/28/2014,4,Mussel Cove,Mid,mud,12:45,partly cloudy,21.6,8.2,33.01,absent,low,NA
+2014_012_08,2014,8/28/2014,8,Back Cove,Mid,mud/gravel,13:30,partly cloudy,19.5,8.2,33.01,absent,absent,NA
+2014_012_02,2014,8/28/2014,2,Skitterygusset,Inner,mud,14:15,partly cloudy,23.3,8.2,8.2,absent,low,NA
+2015_013_01,2015,6/12/2015,1,Presumpscot Moorings,Inner,NA,07:21,overcast,19.1,14,3.66,absent,absent,NA
+2015_013_03,2015,6/12/2015,3,Audubon,Inner,NA,08:05,overcast,13.3,11.4,39.5,absent,absent,NA
+2015_013_07,2015,6/12/2015,7,Mackworth Island - Beach,Mid,NA,08:40,overcast,13.4,9.2,33.22,absent,medium,NA
+2015_013_05,2015,6/12/2015,5,The Brothers - North,Mid,NA,09:20,overcast,12.9,10.4,33.76,present,absent,NA
+2015_013_09,2015,6/12/2015,9,Great Diamond Island,Outer,NA,10:00,partly cloudy,12.5,10.5,33.44,present,medium,NA
+2015_013_10,2015,6/12/2015,10,SMCC,Outer,NA,10:40,sunny,12.2,10.8,33.76,present,medium,NA
+2015_013_11,2015,6/12/2015,11,Cushing Island,Outer,NA,11:30,overcast,13.7,10.7,33.77,present,medium,NA
+2015_014_12,2015,6/17/2015,12,Alewife Cove,Outer,NA,10:30,sunny,12.8,13.2,33.08,absent,absent,no catch
+2015_014_08,2015,6/17/2015,8,Back Cove,Mid,NA,11:40,sunny,14.8,11.4,33.2,absent,absent,NA
+2015_014_02,2015,6/17/2015,2,Skitterygusset,Inner,NA,12:20,sunny,15.2,9.9,28.29,absent,absent,NA
+2015_014_06,2015,6/17/2015,6,Mackworth Island - North,Mid,NA,13:00,sunny,15.2,11.8,33.65,present,high,NA
+2015_014_04,2015,6/17/2015,4,Mussel Cove,Mid,NA,13:35,sunny,19,12,34.46,absent,medium,NA
+2015_015_05,2015,6/30/2015,5,The Brothers - North,Mid,NA,08:15,sunny,16.5,9.5,30.5,absent,absent,NA
+2015_015_07,2015,6/30/2015,7,Mackworth Island - Beach,Mid,NA,08:45,sunny,16.2,9,28.24,absent,low,NA
+2015_015_01,2015,6/30/2015,1,Presumpscot Moorings,Inner,NA,09:20,sunny,18.5,10.6,0.47,absent,absent,NA
+2015_015_03,2015,6/30/2015,3,Audubon,Inner,NA,09:55,sunny,18.2,9.1,8.24,absent,absent,NA
+2015_015_09,2015,6/30/2015,9,Great Diamond Island,Outer,NA,10:50,sunny,17.5,9.3,30.7,present,medium,NA
+2015_015_10,2015,6/30/2015,10,SMCC,Outer,NA,11:25,sunny,16.3,10.8,30.26,absent,low,NA
+2015_016_02,2015,7/9/2015,2,Skitterygusset,Inner,NA,07:25,sunny,16.4,7,30.48,absent,low,NA
+2015_016_08,2015,7/9/2015,8,Back Cove,Mid,NA,08:00,overcast,15.7,7.2,32.45,absent,absent,no catch
+2015_016_06,2015,7/9/2015,6,Mackworth Island - North,Mid,NA,08:50,overcast,16.8,9.6,33,absent,high,NA
+2015_016_11,2015,7/9/2015,11,Cushing Island,Outer,NA,11:00,overcast,13.3,11.2,33.76,absent,absent,NA
+2015_017_04,2015,7/14/2015,4,Mussel Cove,Mid,NA,08:50,foggy,18.4,8.5,33.3,absent,medium,NA
+2015_017_05,2015,7/14/2015,5,The Brothers - North,Mid,NA,09:20,sunny,18.2,10.1,33.68,present,absent,no catch
+2015_017_07,2015,7/14/2015,7,Mackworth Island - Beach,Mid,NA,09:52,sunny,17,9.3,31.79,absent,absent,NA
+2015_017_01,2015,7/14/2015,1,Presumpscot Moorings,Inner,NA,10:30,overcast,24.6,8.2,1.46,absent,absent,NA
+2015_017_03,2015,7/14/2015,3,Audubon,Inner,NA,11:05,overcast,18.6,8.7,18.99,absent,medium,NA
+2015_017_09,2015,7/14/2015,9,Great Diamond Island,Outer,NA,11:50,sunny,16,9.7,33.41,absent,low,NA
+2015_018_11,2015,7/21/2015,11,Cushing Island,Outer,NA,10:05,foggy,14.8,10.1,32.62,present,high,NA
+2015_018_12,2015,7/21/2015,12,Alewife Cove,Outer,NA,11:03,foggy,15.5,11.5,33.65,present,high,NA
+2015_018_10,2015,7/21/2015,10,SMCC,Outer,NA,12:00,foggy,17,11.2,31.67,present,high,NA
+2015_018_04,2015,7/21/2015,4,Mussel Cove,Mid,NA,12:35,foggy,19.5,9.9,33.26,absent,medium,NA
+2015_018_06,2015,7/21/2015,6,Mackworth Island - North,Mid,NA,13:30,foggy,17.9,11.7,33.06,present,low,NA
+2015_018_02,2015,7/21/2015,2,Skitterygusset,Inner,NA,14:05,foggy,22.1,9.3,18.28,absent,absent,NA
+2015_018_08,2015,7/21/2015,8,Back Cove,Mid,NA,14:45,foggy,17.1,10.1,32.04,absent,absent,NA
+2015_019_05,2015,7/29/2015,5,The Brothers - North,Mid,NA,10:36,sunny,19.1,9.3,32.17,absent,absent,NA
+2015_019_07,2015,7/29/2015,7,Mackworth Island - Beach,Mid,NA,11:00,sunny,19.3,9.2,31.17,absent,absent,NA
+2015_019_01,2015,7/29/2015,1,Presumpscot Moorings,Inner,NA,11:42,partly cloudy,23.9,8.4,2.75,absent,absent,NA
+2015_019_03,2015,7/29/2015,3,Audubon,Inner,NA,12:17,sunny,23,9.7,17.8,absent,absent,NA
+2015_019_09,2015,7/29/2015,9,Great Diamond Island,Outer,NA,13:00,sunny,17.2,9.8,33.31,absent,absent,NA
+2015_019_10,2015,7/29/2015,10,SMCC,Outer,NA,13:30,sunny,17,10.4,33.32,present,medium,NA
+2015_020_12,2015,8/5/2015,12,Alewife Cove,Outer,NA,11:07,mostly sunny,15.3,9.5,34.23,present,medium,NA
+2015_020_11,2015,8/5/2015,11,Cushing Island,Outer,NA,11:42,mostly sunny,16.6,10,32.79,present,medium,NA
+2015_020_04,2015,8/5/2015,4,Mussel Cove,Mid,NA,12:41,mostly sunny,19.3,9.4,33.72,absent,absent,NA
+2015_020_06,2015,8/5/2015,6,Mackworth Island - North,Mid,NA,13:40,partly cloudy,17.4,9.9,33.8,present,medium,NA
+2015_020_02,2015,8/5/2015,2,Skitterygusset,Inner,NA,14:07,partly cloudy,19.7,8.2,24.23,absent,absent,NA
+2015_021_10,2015,8/13/2015,10,SMCC,Outer,NA,09:59,sunny,16.7,8.5,32.52,present,low,NA
+2015_021_09,2015,8/13/2015,9,Great Diamond Island,Outer,NA,10:45,sunny,16.4,10,33.27,present,absent,NA
+2015_021_05,2015,8/13/2015,5,The Brothers - North,Mid,NA,11:35,sunny,18.4,8.9,33.34,present,absent,no catch
+2015_021_07,2015,8/13/2015,7,Mackworth Island - Beach,Mid,NA,12:08,sunny,17.6,8.6,33.44,absent,high,NA
+2015_021_01,2015,8/13/2015,1,Presumpscot Moorings,Inner,NA,13:13,sunny,23.4,9,1.8,absent,low,NA
+2015_021_03,2015,8/13/2015,3,Audubon,Inner,NA,14:00,sunny,22.3,8.5,7.8,absent,low,NA
+2015_022_12,2015,8/19/2015,12,Alewife Cove,Outer,NA,08:21,foggy,17,8,34.42,absent,low,NA
+2015_022_11,2015,8/19/2015,11,Cushing Island,Outer,NA,09:05,foggy,18.2,10.1,32.72,present,medium,NA
+2015_022_04,2015,8/19/2015,4,Mussel Cove,Mid,NA,10:07,sunny,23.2,8.9,14.7,absent,absent,"very low tide, seine taken in about 1 ft of water"
+2015_022_06,2015,8/19/2015,6,Mackworth Island - North,Mid,NA,11:02,sunny,20.8,9.3,32.21,present,high,NA
+2015_022_02,2015,8/19/2015,2,Skitterygusset,Inner,NA,11:43,sunny,24.4,8.5,8.72,absent,absent,NA
+2015_022_08,2015,8/19/2015,8,Back Cove,Mid,NA,12:32,sunny,19.5,8.1,32.32,absent,absent,NA
+2015_023_10,2015,8/25/2015,10,SMCC,Outer,NA,08:45,NA,18.8,8.1,32.7,present,absent,NA
+2015_023_01,2015,8/25/2015,1,Presumpscot Moorings,Inner,NA,09:20,rain,24,7.7,2.23,absent,medium,NA
+2015_023_03,2015,8/25/2015,3,Audubon,Inner,NA,09:45,NA,20.5,7.2,28.22,absent,low,NA
+2015_023_07,2015,8/25/2015,7,Mackworth Island - Beach,Mid,NA,10:30,NA,21.2,7.8,22.7,present,medium,NA
+2015_023_05,2015,8/25/2015,5,The Brothers - North,Mid,NA,11:05,NA,20.2,8.8,33.8,NA,NA,NA
+2015_023_09,2015,8/25/2015,9,Great Diamond Island,Outer,NA,11:55,rain,19.1,0,33.37,NA,NA,NA
+2015_024_06,2015,9/1/2015,6,Mackworth Island - North,Mid,NA,#VALUE!,sunny,18.1,9.1,34.33,absent,absent,NA
+2015_024_04,2015,9/1/2015,4,Mussel Cove,Mid,NA,#VALUE!,NA,19.9,9.8,34.48,NA,NA,NA
+2015_024_12,2015,9/1/2015,12,Alewife Cove,Outer,NA,#VALUE!,NA,16.5,8.5,34.46,NA,NA,"A lot of sandlances schooling, but none captured"
+2015_024_11,2015,9/1/2015,11,Cushing Island,Outer,NA,#VALUE!,sunny,17.7,9.7,34.09,present,low,NA
+2015_024_02,2015,9/1/2015,2,Skitterygusset,Inner,NA,#VALUE!,NA,19.9,8.8,27.89,NA,NA,NA
+2015_024_08,2015,9/1/2015,8,Back Cove,Mid,NA,#VALUE!,NA,18.3,8.7,33.54,NA,NA,no catch
+2015_025_10,2015,9/10/2015,10,SMCC,Outer,NA,09:40,overcast,17.6,8.4,33.35,absent,absent,NA
+2015_025_09,2015,9/10/2015,9,Great Diamond Island,Outer,NA,10:40,overcast,16.5,8.3,34.39,present,low,NA
+2015_025_03,2015,9/10/2015,3,Audubon,Inner,NA,11:20,overcast,18.5,8,32.42,present,medium,NA
+2015_025_01,2015,9/10/2015,1,Presumpscot Moorings,Inner,NA,12:00,overcast,21.1,6.6,22.49,absent,high,NA
+2015_025_07,2015,9/10/2015,7,Mackworth Island - Beach,Mid,NA,12:50,overcast,19,1.4,29.94,NA,NA,NA
+2015_025_05,2015,9/10/2015,5,The Brothers - North,Mid,NA,13:40,overcast,19.5,9.4,34.5,NA,NA,NA
+2015_026_12,2015,9/16/2015,12,Alewife Cove,Outer,NA,09:30,sunny,16.3,NA,NA,NA,NA,NA
+2015_026_11,2015,9/16/2015,11,Cushing Island,Outer,NA,10:35,sunny,NA,NA,NA,absent,low,NA
+2015_026_02,2015,9/16/2015,2,Skitterygusset,Inner,NA,11:10,sunny,NA,NA,NA,NA,NA,NA
+2015_026_08,2015,9/16/2015,8,Back Cove,Mid,NA,11:55,sunny,NA,NA,NA,present,low,NA
+2015_026_06,2015,9/16/2015,6,Mackworth Island - North,Mid,NA,12:40,sunny,NA,NA,NA,NA,NA,NA
+2015_026_04,2015,9/16/2015,4,Mussel Cove,Mid,NA,13:21,sunny,NA,NA,NA,NA,NA,NA
+2015_027_01,2015,9/24/2015,1,Presumpscot Moorings,Inner,NA,10:30,partly cloudy,18.6,9.4,11.4,absent,low,NA
+2015_027_09,2015,9/24/2015,9,Great Diamond Island,Outer,NA,#VALUE!,sunny,17.4,12,34.74,present,absent,NA
+2015_027_07,2015,9/24/2015,7,Mackworth Island - Beach,Mid,NA,#VALUE!,sunny,16.9,10.4,31.1,absent,high,NA
+2015_027_03,2015,9/24/2015,3,Audubon,Inner,NA,#VALUE!,sunny,17.5,10.2,29.57,absent,low,NA
+2015_027_10,2015,9/24/2015,10,SMCC,Outer,NA,#VALUE!,overcast,16.3,9.7,33.71,NA,NA,NA
+2015_027_05,2015,9/24/2015,5,The Brothers - North,Mid,NA,#VALUE!,sunny,17.7,12,34.86,NA,NA,NA
+2016_028_01,2016,6/16/2016,1,Presumpscot Moorings,Inner,gravel,10:00,sunny,20,11.4,2.7,NA,NA,NA
+2016_028_03,2016,6/16/2016,3,Audubon,Inner,sand,10:40,sunny,17.7,10.7,14.8,NA,NA,NA
+2016_028_06,2016,6/16/2016,6,Mackworth Island - North,Mid,sand,11:15,sunny,15.5,11,30.96,NA,NA,NA
+2016_028_04,2016,6/16/2016,4,Mussel Cove,Mid,mud,11:55,sunny,17.3,11.6,30.87,NA,medium,NA
+2016_028_09,2016,6/16/2016,9,Great Diamond Island,Outer,sand,12:39,sunny,15,12,30.64,NA,NA,NA
+2016_028_11,2016,6/16/2016,11,Cushing Island,Outer,sand,13:00,sunny,15.4,11.5,30.7,NA,NA,NA
+2016_029_12,2016,6/24/2016,12,Alewife Cove,Outer,sand,09:55,sunny,12.8,10.3,30.21,NA,low,lots of sandlance too small for mesh
+2016_029_10,2016,6/24/2016,10,SMCC,Outer,sand,10:35,sunny,15,10.1,29.97,NA,NA,no catch
+2016_029_05,2016,6/24/2016,5,The Brothers - North,Mid,gravel/shell,11:25,sunny,16.5,12.6,31.13,NA,NA,NA
+2016_029_07,2016,6/24/2016,7,Mackworth Island - Beach,Mid,sand/shell,11:55,sunny,18.4,12.9,26.52,NA,high,NA
+2016_029_02,2016,6/24/2016,2,Skitterygusset,Inner,NA,12:50,sunny,19.4,11.7,23.03,NA,medium,grass
+2016_029_08,2016,6/24/2016,8,Back Cove,Mid,NA,13:50,sunny,16.3,11,29.85,NA,NA,NA
+2016_030_01,2016,6/30/2016,1,Presumpscot Moorings,Inner,sand/gravel,09:40,sunny,NA,NA,NA,NA,NA,Ysi dead
+2016_030_03,2016,6/30/2016,3,Audubon,Inner,sand,10:20,windy,NA,NA,NA,absent,medium,YSI batteries dead; collected sed texture sample
+2016_030_06,2016,6/30/2016,6,Mackworth Island - North,Mid,sand/shell,11:00,sunny,18.6,10.7,29.9,NA,NA,site has lots of rockweed
+2016_030_04,2016,6/30/2016,4,Mussel Cove,Mid,mud,11:40,sunny,25,11.7,30.8,absent,absent,no catch
+2016_030_09,2016,6/30/2016,9,Great Diamond Island,Outer,mud/sand,12:30,sunny,19,12.5,30.35,NA,high,NA
+2016_030_11,2016,6/30/2016,11,Cushing Island,Outer,mud/sand,13:00,sunny,17,14.3,31.28,present,low,eelgrass
+2016_031_02,2016,7/13/2016,2,Skitterygusset,Inner,NA,09:30,sunny,19,8.2,26.58,absent,low,"many sturgeon jumping, mussels"
+2016_031_08,2016,7/13/2016,8,Back Cove,Mid,NA,10:15,sunny,20,8.7,29.86,absent,absent,"lots of mud snails, some mussels found"
+2016_031_07,2016,7/13/2016,7,Mackworth Island - Beach,Mid,NA,11:00,sunny,21.7,9.4,21.09,NA,NA,NA
+2016_031_05,2016,7/13/2016,5,The Brothers - North,Mid,NA,11:50,sunny,18.8,11,31.46,present,medium,NA
+2016_031_12,2016,7/13/2016,12,Alewife Cove,Outer,NA,13:00,sunny,16,11.8,31.5,present,low,NA
+2016_031_10,2016,7/13/2016,10,SMCC,Outer,NA,14:00,sunny,19,13.2,30.49,present,medium,NA
+2016_032_09,2016,7/19/2016,9,Great Diamond Island,Outer,sand/gravel,08:10,sunny,18.6,9.3,27.01,present,high,NA
+2016_032_06,2016,7/19/2016,6,Mackworth Island - North,Mid,mud/gravel,08:35,sunny,18.8,10.2,30.36,present,high,NA
+2016_032_03,2016,7/19/2016,3,Audubon,Inner,sand,09:00,sunny,20.2,9.1,22.96,absent,high,NA
+2016_032_01,2016,7/19/2016,1,Presumpscot Moorings,Inner,gravel,09:37,sunny,25.6,9.7,3.8,NA,medium,NA
+2016_032_04,2016,7/19/2016,4,Mussel Cove,Mid,mud,10:25,sunny,21.5,9.8,31.33,present,medium,NA
+2016_032_11,2016,7/19/2016,11,Cushing Island,Outer,sand,10:55,sunny,17.9,10.6,31.29,present,medium,NA
+2016_033_07,2016,7/20/2016,7,Mackworth Island - Beach,Mid,NA,11:25,NA,19,9,28.55,NA,NA,NA
+2016_033_05,2016,7/20/2016,5,The Brothers - North,Mid,NA,11:50,NA,24.7,9.4,27.55,NA,NA,NA
+2016_033_08,2016,7/20/2016,8,Back Cove,Mid,NA,13:00,NA,18.5,26.5,30.84,NA,NA,no catch
+2016_033_12,2016,7/20/2016,12,Alewife Cove,Outer,NA,#VALUE!,NA,16,9.8,31.5,NA,NA,no catch
+2016_033_10,2016,7/20/2016,10,SMCC,Outer,NA,#VALUE!,NA,17.6,10.3,30.7,present,NA,no catch
+2016_033_02,2016,7/20/2016,2,Skitterygusset,Inner,NA,#VALUE!,NA,19.4,8.6,23.88,NA,NA,no catch
+2016_034_09,2016,7/26/2016,9,Great Diamond Island,Outer,mud/gravel,09:13,sunny,18.6,12.7,31.03,NA,high,no catch; scattered grass in set area
+2016_034_11,2016,7/26/2016,11,Cushing Island,Outer,NA,10:00,sunny,16.8,12.6,31.83,NA,high,NA
+2016_034_06,2016,7/26/2016,6,Mackworth Island - North,Mid,mud/shell,11:30,sunny,22.1,13.7,30.89,NA,high,set area included large patch of eelgrass
+2016_034_04,2016,7/26/2016,4,Mussel Cove,Mid,mud,12:20,sunny,24.8,10.9,31.71,NA,high,rising tide
+2016_034_03,2016,7/26/2016,3,Audubon,Inner,mud/sand,13:10,sunny,22,9.4,23.15,NA,high,NA
+2016_034_01,2016,7/26/2016,1,Presumpscot Moorings,Inner,mud/gravel,13:35,sunny,25.3,9.5,6.45,NA,medium,NA
+2016_035_12,2016,8/2/2016,12,Alewife Cove,Outer,NA,08:40,overcast,16.2,8.9,31.55,NA,NA,no catch
+2016_035_10,2016,8/2/2016,10,SMCC,Outer,sand/gravel,09:20,overcast,17.1,9.5,30.38,NA,NA,NA
+2016_035_09,2016,8/2/2016,9,Great Diamond Island,Outer,sand/gravel,09:50,sunny,17.9,9.2,29.81,NA,NA,NA
+2016_035_07,2016,8/2/2016,7,Mackworth Island - Beach,Mid,sand/shell,10:30,sunny,17.8,9.2,30.92,NA,NA,NA
+2016_035_02,2016,8/2/2016,2,Skitterygusset,Inner,NA,10:50,sunny,19,8.5,20.92,NA,NA,NA
+2016_035_08,2016,8/2/2016,8,Back Cove,Mid,gravel,11:20,sunny,18.8,9.6,30.55,NA,NA,NA
+2016_036_01,2016,8/11/2016,1,Presumpscot Moorings,Inner,NA,08:45,foggy,23.2,8.5,3.83,NA,medium,NA
+2016_036_03,2016,8/11/2016,3,Audubon,Inner,NA,09:15,foggy,22.4,7.9,9.38,NA,high,NA
+2016_036_06,2016,8/11/2016,6,Mackworth Island - North,Mid,NA,10:00,sunny,18.2,9.5,31.62,present,high,NA
+2016_036_05,2016,8/11/2016,5,The Brothers - North,Mid,NA,10:30,sunny,19.1,8.6,31.66,present,medium,NA
+2016_036_04,2016,8/11/2016,4,Mussel Cove,Mid,NA,11:00,sunny,24.5,11.9,31.7,present,high,NA
+2016_036_11,2016,8/11/2016,11,Cushing Island,Outer,sand,13:10,sunny,21.3,11.6,31.87,present,high,NA
+2016_037_02,2016,8/18/2016,2,Skitterygusset,Inner,mud,08:30,overcast,21.6,8.2,13.4,NA,NA,NA
+2016_037_08,2016,8/18/2016,8,Back Cove,Mid,gravel,09:15,sunny,18.7,7.9,30.79,NA,absent,NA
+2016_037_09,2016,8/18/2016,9,Great Diamond Island,Outer,mud/sand,10:00,sunny,18.5,9.7,30.81,present,low,NA
+2016_037_10,2016,8/18/2016,10,SMCC,Outer,sand,10:30,overcast,18.3,9.1,30.91,absent,low,NA
+2016_037_07,2016,8/18/2016,7,Mackworth Island - Beach,Mid,sand/shell,11:00,sunny,19.4,8.5,30.8,present,medium,NA
+2016_037_12,2016,8/18/2016,12,Alewife Cove,Outer,sand/gravel,13:00,sunny,17.3,9.9,31.68,absent,absent,NA
+2016_038_11,2016,9/2/2016,11,Cushing Island,Outer,NA,08:50,sunny,16.9,9.3,30.51,present,medium,NA
+2016_038_04,2016,9/2/2016,4,Mussel Cove,Mid,NA,09:30,sunny,19.3,7.8,31.94,NA,NA,NA
+2016_038_06,2016,9/2/2016,6,Mackworth Island - North,Mid,NA,10:30,sunny,18.8,9,31.67,NA,NA,NA
+2016_038_03,2016,9/2/2016,3,Audubon,Inner,NA,11:15,sunny,19.5,7.9,24.7,NA,medium,NA
+2016_038_01,2016,9/2/2016,1,Presumpscot Moorings,Inner,NA,11:35,sunny,21.7,8.7,11.3,NA,NA,NA
+2016_039_10,2016,9/7/2016,10,SMCC,Outer,NA,09:10,foggy,17.5,8.11,31.02,NA,medium,NA
+2016_039_09,2016,9/7/2016,9,Great Diamond Island,Outer,NA,09:50,foggy,18,8.8,31.58,NA,medium,NA
+2016_039_07,2016,9/7/2016,7,Mackworth Island - Beach,Mid,NA,11:00,foggy,NA,NA,NA,NA,medium,NA
+2016_039_02,2016,9/7/2016,2,Skitterygusset,Inner,NA,11:45,foggy,19.7,8.3,19.23,NA,NA,NA
+2016_039_08,2016,9/7/2016,8,Back Cove,Mid,NA,12:35,NA,18.5,7.5,29.97,NA,NA,NA
+2016_039_12,2016,9/7/2016,12,Alewife Cove,Outer,NA,#VALUE!,NA,NA,NA,NA,NA,NA,NA
+2017_040_02,2017,6/22/2017,2,Skitterygusset,Inner,NA,10:45,NA,NA,NA,NA,NA,low,NA
+2017_040_06,2017,6/22/2017,6,Mackworth Island - North,Mid,NA,11:45,NA,15,13.5,26.78,NA,NA,NA
+2017_040_04,2017,6/22/2017,4,Mussel Cove,Mid,NA,12:30,sunny,16.3,12.3,29.59,NA,high,NA
+2017_040_09,2017,6/22/2017,9,Great Diamond Island,Outer,NA,13:25,sunny,13.7,12.4,29.55,NA,high,NA
+2017_040_11,2017,6/22/2017,11,Cushing Island,Outer,NA,14:07,sunny,12.6,12.7,30.16,present,medium,NA
+2017_040_10,2017,6/22/2017,10,SMCC,Outer,NA,14:39,sunny,NA,NA,NA,present,medium,NA
+2017_041_12,2017,6/27/2017,12,Alewife Cove,Outer,NA,11:00,overcast,13.3,11.8,29.51,absent,absent,NA
+2017_041_05,2017,6/27/2017,5,The Brothers - North,Mid,NA,12:00,overcast,15.4,11.9,30.41,absent,absent,NA
+2017_041_07,2017,6/27/2017,7,Mackworth Island - Beach,Mid,NA,12:40,overcast,14.5,12.3,29.35,NA,NA,NA
+2017_041_01,2017,6/27/2017,1,Presumpscot Moorings,Inner,NA,13:30,overcast,23,8.8,1.41,absent,absent,NA
+2017_041_03,2017,6/27/2017,3,Audubon,Inner,NA,13:45,overcast,15.5,10.8,28.14,absent,low,NA
+2017_042_12,2017,7/6/2017,12,Back Cove,Mid,NA,10:15,sunny,17,10.6,27.51,absent,absent,
+2017_042_10,2017,7/6/2017,10,SMCC,Outer,NA,10:22,sunny,14.1,12.5,30.31,present,medium,NA
+2017_042_02,2017,7/6/2017,2,Skitterygusset,Inner,NA,11:07,sunny,18,9,22.95,absent,low,NA
+2017_042_06,2017,7/6/2017,6,Mackworth Island - North,Mid,NA,11:30,sunny,14.7,10.5,30.47,absent,present,
+2017_042_04,2017,7/6/2017,4,Mussel Cove,Mid,NA,12:05,sunny,16.6,10.6,30.95,absent,medium,NA
+2017_042_09,2017,7/6/2017,9,Great Diamond Island,Outer,NA,13:00,sunny,16,14.5,29.37,present,low,NA
+2017_042_11,2017,7/6/2017,11,Cushing Island,Outer,NA,13:20,sunny,16.3,12.3,30.21,present,medium,NA
+2017_043_12,2017,7/12/2017,12,Alewife Cove,Outer,NA,10:45,sunny,21.1,10,25.69,NA,NA,NA
+2017_043_01,2017,7/12/2017,1,Presumpscot Moorings,Inner,NA,11:30,sunny,28.1,9,1.43,absent,low,NA
+2017_043_03,2017,7/12/2017,3,Audubon,Inner,NA,12:00,sunny,27,8.6,19.73,NA,NA,NA
+2017_043_08,2017,7/12/2017,8,Back Cove,Mid,NA,12:40,sunny,25.4,8.6,24.41,absent,absent,NA
+2017_043_06,2017,7/12/2017,6,Mackworth Island - North,Mid,NA,13:05,sunny,26,8.6,26.37,present,absent,NA
+2017_043_07,2017,7/12/2017,7,Mackworth Island - Beach,Mid,NA,13:25,sunny,18.1,10.5,29.58,NA,NA,NA
+2017_044_02,2017,7/18/2017,2,Skitterygusset,Inner,NA,11:15,sunny,20.7,8,13.55,NA,NA,NA
+2017_044_06,2017,7/18/2017,6,Mackworth Island - North,Mid,NA,11:45,sunny,20.8,12,27.91,present,medium,NA
+2017_044_04,2017,7/18/2017,4,Mussel Cove,Mid,NA,12:25,sunny,22.6,10.1,30.44,present,high,NA
+2017_044_09,2017,7/18/2017,9,Great Diamond Island,Outer,NA,13:15,sunny,20.2,12.2,29.29,present,high,NA
+2017_044_11,2017,7/18/2017,11,Cushing Island,Outer,NA,14:00,sunny,18.9,13.8,29.79,present,low,NA
+2017_044_10,2017,7/18/2017,10,SMCC,Outer,NA,14:30,sunny,19.1,10.9,27.67,present,low,NA
+2017_045_12,2017,7/26/2017,12,Alewife Cove,Outer,NA,09:30,sunny,15.4,14.2,30.23,absent,absent,NA
+2017_045_07,2017,7/26/2017,7,Mackworth Island - Beach,Mid,NA,10:20,sunny,25,5.7,13.44,present,medium,NA
+2017_045_03,2017,7/26/2017,3,Audubon,Inner,NA,11:15,sunny,21.4,9.3,17.53,absent,medium,NA
+2017_045_01,2017,7/26/2017,1,Presumpscot Moorings,Inner,NA,11:55,sunny,24.2,10.3,0.3,absent,absent,NA
+2017_045_05,2017,7/26/2017,5,The Brothers - North,Mid,NA,12:44,sunny,16.2,11.1,30.16,present,low,NA
+2017_045_08,2017,7/26/2017,8,Back Cove,Mid,NA,13:10,sunny,17.4,11,28.83,absent,absent,NA
+2017_046_02,2017,8/2/2017,2,Skitterygusset,Inner,NA,09:00,sunny,19.3,8.4,22.82,absent,absent,NA
+2017_046_06,2017,8/2/2017,6,Mackworth Island - North,Mid,NA,09:45,sunny,19,10,26.75,absent,low,NA
+2017_046_04,2017,8/2/2017,4,Mussel Cove,Mid,NA,10:15,sunny,20.6,8.9,30.45,absent,absent,NA
+2017_046_09,2017,8/2/2017,9,Great Diamond Island,Outer,NA,10:40,sunny,18.3,9.9,29.82,absent,high,NA
+2017_046_11,2017,8/2/2017,11,Cushing Island,Outer,NA,11:05,sunny,17,10,29.57,present,medium,NA
+2017_046_10,2017,8/2/2017,10,SMCC,Outer,NA,11:30,sunny,18.5,10.6,28.45,present,high,NA
+2017_047_12,2017,8/11/2017,12,Alewife Cove,Outer,NA,09:15,sunny,15.2,10.9,30.64,present,low,NA
+2017_047_03,2017,8/11/2017,3,Audubon,Inner,NA,10:00,sunny,23.2,7.6,7.55,absent,high,NA
+2017_047_01,2017,8/11/2017,1,Presumpscot Moorings,Inner,NA,10:35,sunny,23.9,9.1,0.51,absent,high,tide too low to access site-set closer to dock
+2017_047_07,2017,8/11/2017,7,Mackworth Island - Beach,Mid,NA,11:40,sunny,21.2,11.4,23.39,absent,high,NA
+2017_047_08,2017,8/11/2017,8,Back Cove,Mid,NA,12:20,sunny,18.1,9.4,29.35,absent,absent,NA
+2017_048_10,2017,8/25/2017,10,SMCC,Outer,NA,09:00,sunny,16.8,11,29.47,present,medium,NA
+2017_048_11,2017,8/25/2017,11,Cushing Island,Outer,NA,09:40,sunny,16.3,11.3,29.75,present,low,NA
+2017_048_09,2017,8/25/2017,9,Great Diamond Island,Outer,NA,10:30,partly cloudy,16.8,11,29.47,absent,medium,NA
+2017_048_04,2017,8/25/2017,4,Mussel Cove,Mid,NA,11:04,partly cloudy,20.2,6.2,30.85,NA,NA,NA
+2017_048_06,2017,8/25/2017,6,Mackworth Island - North,Mid,NA,11:40,overcast,17.9,10.8,30.29,absent,low,NA
+2017_048_02,2017,8/25/2017,2,Skitterygusset,Inner,NA,12:15,sunny,18.8,8.1,24.63,absent,absent,NA
+2017_049_08,2017,9/15/2017,8,Back Cove,Mid,NA,09:23,overcast,15.8,9,30.05,NA,NA,NA
+2017_049_03,2017,9/15/2017,3,Audubon,Inner,NA,10:10,overcast,18,8.9,16.01,absent,low,NA
+2017_049_07,2017,9/15/2017,7,Mackworth Island - Beach,Mid,NA,10:39,overcast,17.2,9.3,23.81,NA,NA,NA
+2017_049_01,2017,9/15/2017,1,Presumpscot Moorings,Inner,NA,10:50,overcast,20.3,9.5,3.04,absent,low,NA
+2017_049_05,2017,9/15/2017,5,The Brothers - North,Mid,NA,11:07,overcast,17,10.1,31.2,absent,low,NA
+2017_049_12,2017,9/15/2017,12,Alewife Cove,Outer,NA,11:55,overcast,15.3,11.6,31.35,absent,absent,NA
+2018_050_01,2018,6/15/2018,1,Presumpscot Moorings,Inner,NA,10:41,overcast,17.4,8.4,11,absent,absent,NA
+2018_050_03,2018,6/15/2018,3,Audubon,Inner,NA,11:15,sunny,15.7,8.9,20.67,absent,low,NA
+2018_050_06,2018,6/15/2018,6,Mackworth Island - North,Mid,NA,12:13,sunny,15.9,10.6,29.76,absent,absent,NA
+2018_050_04,2018,6/15/2018,4,Mussel Cove,Mid,NA,12:45,sunny,16.2,9.1,29.89,absent,absent,NA
+2018_050_09,2018,6/15/2018,9,Great Diamond Island,Outer,NA,13:10,sunny,15.9,9.5,29.32,absent,absent,NA
+2018_050_11,2018,6/15/2018,11,Cushing Island,Outer,NA,13:35,sunny,13.6,10.3,29.97,present,low,NA
+2018_051_12,2018,6/27/2018,12,Alewife Cove,Outer,NA,10:05,sunny,13.4,9.8,30.3,absent,absent,NA
+2018_051_08,2018,6/27/2018,8,Back Cove,Mid,NA,11:00,sunny,16.9,7.5,29.64,absent,absent,NA
+2018_051_02,2018,6/27/2018,2,Skitterygusset,Inner,NA,11:40,sunny,18,9.1,23.21,absent,absent,NA
+2018_051_06,2018,6/27/2018,6,Mackworth Island - North,Mid,NA,12:30,sunny,15.3,9.6,29.48,present,absent,NA
+2018_051_10,2018,6/27/2018,10,SMCC,Outer,NA,13:10,sunny,14.8,9.9,29.85,absent,absent,NA
+2018_052_09,2018,7/11/2018,9,Great Diamond Island,Outer,NA,10:15,sunny,17.2,8.8,28.95,absent,low,NA
+2018_052_04,2018,7/11/2018,4,Mussel Cove,Mid,NA,10:45,sunny,19.2,8,30.43,absent,absent,NA
+2018_052_06,2018,7/11/2018,6,Mackworth Island - North,Mid,NA,11:30,sunny,18.9,9,30.04,present,low,NA
+2018_052_01,2018,7/11/2018,1,Presumpscot Moorings,Inner,NA,12:05,sunny,25.2,6.8,4.54,absent,absent,NA
+2018_052_03,2018,7/11/2018,3,Audubon,Inner,NA,12:40,sunny,22.1,7.2,19.53,absent,low,NA
+2018_052_07,2018,7/11/2018,7,Mackworth Island - Beach,Mid,NA,13:15,sunny,18.9,8.1,28.22,absent,high,NA
+2018_052_10,2018,7/11/2018,10,SMCC,Outer,NA,13:50,sunny,17.2,9.8,29.4,present,low,NA
+2018_102_12,2018,7/25/2018,12,Alewife Cove,Outer,sand/gravel,10:40,foggy,16.7,10.1,30.6,absent,absent,NA
+2018_102_11,2018,7/25/2018,11,Cushing Island,Outer,sand/gravel,11:10,foggy,16.6,7.5,30.55,present,low,NA
+2018_102_08,2018,7/25/2018,8,Back Cove,Mid,mud,11:45,overcast,20.2,8.2,27.7,absent,absent,NA
+2018_102_02,2018,7/25/2018,2,Skitterygusset,Inner,mud,12:15,overcast,19.7,7.8,25.3,NA,NA,NA
+2018_102_05,2018,7/25/2018,5,The Brothers - North,Mid,gravel,13:05,sunny,18.5,9.4,30.01,present,NA,NA
+2018_102_07,2018,7/25/2018,7,Mackworth Island - Beach,Mid,sand/gravel,13:45,overcast,20.5,7.8,29.91,NA,medium,NA
+2018_103_10,2018,8/10/2018,10,SMCC,Outer,sand/gravel,09:50,sunny,18.5,9.1,28.75,absent,absent,NA
+2018_103_09,2018,8/10/2018,9,Great Diamond Island,Outer,sand/gravel,10:15,sunny,16.8,8.6,30.18,present,absent,NA
+2018_103_04,2018,8/10/2018,4,Mussel Cove,Mid,mud,11:00,sunny,21.1,9.3,30.3,absent,absent,NA
+2018_103_06,2018,8/10/2018,6,Mackworth Island - North,Mid,sand/gravel,11:40,sunny,20,10.6,29.86,absent,medium,NA
+2018_103_01,2018,8/10/2018,1,Presumpscot Moorings,Inner,mud,12:15,sunny,22,8.4,22.49,absent,absent,NA
+2018_103_03,2018,8/10/2018,3,Audubon,Inner,sand,12:30,sunny,22,8,19.57,absent,low,NA
+2018_104_07,2018,8/21/2018,7,Mackworth Island - Beach,Mid,sand,#VALUE!,NA,22.1,8.6,21.21,present,NA,NA
+2018_104_05,2018,8/21/2018,5,The Brothers - North,Mid,gravel,#VALUE!,NA,28.2,7.5,26.96,absent,low,NA
+2018_104_11,2018,8/21/2018,11,Cushing Island,Outer,sand/gravel,#VALUE!,NA,20.7,10.3,30.23,present,high,NA
+2018_104_02,2018,8/21/2018,2,Skitterygusset,Inner,mud,#VALUE!,NA,22.8,7.6,11.51,absent,absent,NA
+2018_105_08,2018,8/21/2018,8,Back Cove,Mid,mud,#VALUE!,NA,19.7,24.1,28.86,absent,medium,NA
+2018_105_01,2018,9/7/2018,1,Presumpscot Moorings,Inner,mud,09:30,sunny,20.4,7.7,23.92,absent,absent,NA
+2018_105_03,2018,9/7/2018,3,Audubon,Inner,sand,10:00,sunny,19.8,7.3,16.03,NA,NA,NA
+2018_105_06,2018,9/7/2018,6,Mackworth Island - North,Mid,sand/gravel,10:20,sunny,18.6,7.3,30.44,present,low,NA
+2018_105_04,2018,9/7/2018,4,Mussel Cove,Mid,mud,10:50,sunny,19.7,14.6,31.02,present,absent,NA
+2018_105_09,2018,9/7/2018,9,Great Diamond Island,Outer,sand/gravel,11:10,sunny,18.6,8.2,30.47,present,low,NA
+2018_105_10,2018,9/7/2018,10,SMCC,Outer,sand/gravel,11:40,sunny,18.7,8.2,30.16,present,medium,NA
+2019_106_06,2019,6/12/2019,6,Mackworth Island - North,Mid,sand/gravel,08:05,sunny,13.2,8.1,19.54,absent,absent,NA
+2019_106_02,2019,6/12/2019,2,Skitterygusset,Inner,mud,08:30,sunny,12.6,9.4,23.5,NA,NA,NA
+2019_106_05,2019,6/12/2019,5,The Brothers - North,Mid,gravel,09:05,sunny,13.3,9.8,28.67,absent,low,NA
+2019_106_08,2019,6/12/2019,8,Back Cove,Mid,mud,09:40,sunny,12.1,11.9,27.82,NA,NA,NA
+2019_106_09,2019,6/12/2019,9,Great Diamond Island,Outer,sand/gravel,10:05,sunny,13.5,9.7,26.61,present,low,"site assumed, not indicated on sheet"
+2019_106_10,2019,6/12/2019,10,SMCC,Outer,sand/gravel,10:30,sunny,14.5,10,21.22,present,low,NA
+2019_107_12,2019,7/2/2019,12,Alewife Cove,Outer,sand/gravel,11:00,sunny,15.4,10.5,28.75,present,absent,NA
+2019_107_11,2019,7/2/2019,11,Cushing Island,Outer,sand/gravel,12:05,sunny,13.2,11.2,27.28,NA,NA,NA
+2019_107_01,2019,7/2/2019,1,Presumpscot Moorings,Inner,mud,12:45,sunny,20.7,7.5,6.07,NA,low,bad set
+2019_107_03,2019,7/2/2019,3,Audubon,Inner,sand,13:15,sunny,22,8.9,8.45,NA,low,NA
+2019_107_04,2019,7/2/2019,4,Mussel Cove,Mid,mud,13:45,sunny,17.8,10.4,28.92,present,low,NA
+2019_107_07,2019,7/2/2019,7,Mackworth Island - Beach,Mid,sand,14:15,sunny,19,10.4,28.73,present,low,NA
+2020_053_10,2020,6/24/2020,10,SMCC,Outer,NA,09:50,foggy,16.6,NA,NA,present,low,NA
+2020_053_11,2020,6/24/2020,11,Cushing Island,Outer,NA,10:15,foggy,15.8,NA,NA,present,low,NA
+2020_053_09,2020,6/24/2020,9,Great Diamond Island,Outer,NA,10:51,foggy,18,NA,NA,present,medium,NA
+2020_053_05,2020,6/24/2020,5,The Brothers - North,Mid,NA,11:15,foggy,18,NA,NA,NA,NA,NA
+2020_053_01,2020,6/24/2020,1,Presumpscot Moorings,Inner,NA,11:45,foggy,22.7,NA,NA,NA,NA,NA
+2020_053_08,2020,6/24/2020,8,Back Cove,Mid,NA,12:30,foggy,17.3,NA,NA,NA,NA,NA
+2020_054_12,2020,6/25/2020,12,Alewife Cove,Outer,NA,10:10,sunny,14.6,NA,NA,absent,low,NA
+2020_054_04,2020,6/25/2020,4,Mussel Cove,Mid,NA,11:15,sunny,20.8,NA,NA,NA,low,NA
+2020_054_06,2020,6/25/2020,6,Mackworth Island - North,Mid,NA,12:00,sunny,18.4,NA,NA,NA,NA,NA
+2020_054_07,2020,6/25/2020,7,Mackworth Island - Beach,Mid,NA,12:15,NA,19.4,NA,NA,NA,medium,NA
+2020_054_03,2020,6/25/2020,3,Audubon,Inner,NA,12:40,sunny,20.9,NA,NA,NA,NA,NA
+2020_054_02,2020,6/25/2020,2,Skitterygusset,Inner,NA,13:00,sunny,20.2,NA,NA,NA,NA,NA
+2020_055_06,2020,7/6/2020,6,Mackworth Island - North,Mid,NA,11:30,sunny,21.2,NA,NA,present,low,NA
+2020_055_04,2020,7/6/2020,4,Mussel Cove,Mid,NA,12:50,sunny,19.2,NA,NA,absent,absent,NA
+2020_055_08,2020,7/6/2020,8,Back Cove,Mid,NA,14:00,sunny,20,NA,NA,absent,absent,NA
+2020_056_12,2020,7/7/2020,12,Alewife Cove,Outer,NA,09:25,overcast,16.4,NA,NA,NA,NA,NA
+2020_056_10,2020,7/7/2020,10,SMCC,Outer,NA,10:15,overcast,18.2,NA,NA,present,NA,NA
+2020_056_03,2020,7/7/2020,3,Audubon,Inner,NA,11:10,partly cloudy,20.6,NA,NA,absent,low,NA
+2020_056_01,2020,7/7/2020,1,Presumpscot Moorings,Inner,NA,12:00,partly cloudy,NA,NA,NA,absent,low,NA
+2020_057_11,2020,7/9/2020,11,Cushing Island,Outer,NA,11:20,partly cloudy,19.3,NA,NA,NA,NA,NA
+2020_057_06,2020,7/9/2020,6,Mackworth Island - North,Mid,NA,12:35,sunny,22.9,NA,NA,NA,NA,NA
+2020_057_09,2020,7/9/2020,9,Great Diamond Island,Outer,NA,13:13,sunny,23.6,NA,NA,NA,NA,NA
+2020_057_02,2020,7/9/2020,2,Skitterygusset,Inner,NA,13:55,sunny,22,NA,NA,NA,NA,NA
+2020_058_04,2020,7/21/2020,4,Mussel Cove,Mid,NA,09:45,NA,22.4,NA,NA,NA,NA,NA
+2020_058_06,2020,7/21/2020,6,Mackworth Island - North,Mid,NA,10:21,NA,NA,NA,NA,NA,NA,NA
+2020_058_08,2020,7/21/2020,8,Back Cove,Mid,NA,10:54,NA,21.2,NA,NA,NA,NA,NA
+2020_058_01,2020,7/21/2020,1,Presumpscot Moorings,Inner,NA,11:27,NA,26.6,NA,NA,NA,NA,NA
+2020_058_03,2020,7/21/2020,3,Audubon,Inner,NA,12:00,NA,22.5,NA,NA,NA,NA,NA
+2020_058_09,2020,7/21/2020,9,Great Diamond Island,Outer,NA,12:40,NA,19.3,NA,NA,NA,NA,NA
+2020_059_12,2020,7/22/2020,12,Alewife Cove,Outer,NA,10:10,NA,20.6,NA,NA,NA,NA,NA
+2020_059_11,2020,7/22/2020,11,Cushing Island,Outer,NA,10:55,NA,22,NA,NA,NA,NA,NA
+2020_059_07,2020,7/22/2020,7,Mackworth Island - Beach,Mid,NA,11:28,NA,24.4,NA,NA,NA,NA,NA
+2020_059_02,2020,7/22/2020,2,Skitterygusset,Inner,NA,12:03,NA,24,NA,NA,NA,NA,NA
+2020_059_05,2020,7/22/2020,5,The Brothers - North,Mid,NA,12:35,NA,21.4,NA,NA,NA,NA,NA
+2020_059_10,2020,7/22/2020,10,SMCC,Outer,NA,13:02,NA,20.9,NA,NA,NA,NA,NA
+2020_060_10,2020,8/6/2020,10,SMCC,Outer,NA,10:44,NA,21.7,NA,NA,NA,NA,NA
+2020_060_11,2020,8/6/2020,11,Cushing Island,Outer,NA,11:20,NA,20.4,NA,NA,NA,NA,NA
+2020_060_07,2020,8/6/2020,7,Mackworth Island - Beach,Mid,NA,12:03,NA,22.9,NA,NA,NA,NA,NA
+2020_060_03,2020,8/6/2020,3,Audubon,Inner,NA,12:41,NA,24.8,NA,NA,NA,NA,NA
+2020_060_01,2020,8/6/2020,1,Presumpscot Moorings,Inner,NA,13:20,NA,29.9,NA,NA,NA,NA,NA
+2020_060_02,2020,8/6/2020,2,Skitterygusset,Inner,NA,13:29,NA,26.3,NA,NA,NA,NA,NA
+2020_061_12,2020,8/7/2020,12,Alewife Cove,Outer,NA,10:12,NA,18.2,NA,NA,NA,NA,NA
+2020_061_04,2020,8/7/2020,4,Mussel Cove,Mid,NA,11:20,NA,NA,NA,NA,NA,NA,NA
+2020_061_05,2020,8/7/2020,5,The Brothers - North,Mid,NA,12:04,NA,NA,NA,NA,NA,NA,NA
+2020_061_06,2020,8/7/2020,6,Mackworth Island - North,Mid,NA,12:14,NA,NA,NA,NA,NA,NA,NA
+2020_061_09,2020,8/7/2020,9,Great Diamond Island,Outer,NA,12:36,NA,18.7,NA,NA,NA,NA,NA
+2020_061_08,2020,8/7/2020,8,Back Cove,Mid,NA,13:00,NA,NA,NA,NA,NA,NA,NA
+2020_062_11,2020,8/19/2020,11,Cushing Island,Outer,NA,08:30,NA,18.6,NA,NA,NA,NA,NA
+2020_062_07,2020,8/19/2020,7,Mackworth Island - Beach,Mid,NA,09:29,NA,19.2,NA,NA,NA,NA,NA
+2020_062_05,2020,8/19/2020,5,The Brothers - North,Mid,NA,09:39,NA,19.7,NA,NA,NA,NA,NA
+2020_062_01,2020,8/19/2020,1,Presumpscot Moorings,Inner,NA,10:15,NA,23.6,NA,NA,NA,NA,NA
+2020_062_02,2020,8/19/2020,2,Skitterygusset,Inner,NA,10:41,NA,22.2,NA,NA,NA,NA,NA
+2020_062_08,2020,8/19/2020,8,Back Cove,Mid,NA,11:14,NA,20.4,NA,NA,NA,NA,NA
+2020_063_12,2020,8/20/2020,12,Alewife Cove,Outer,NA,09:26,NA,18.1,NA,NA,NA,NA,NA
+2020_063_10,2020,8/20/2020,10,SMCC,Outer,NA,10:02,NA,19.5,NA,NA,NA,NA,NA
+2020_063_03,2020,8/20/2020,3,Audubon,Inner,NA,10:33,NA,19.6,NA,NA,NA,NA,NA
+2020_063_06,2020,8/20/2020,6,Mackworth Island - North,Mid,NA,11:05,NA,20,NA,NA,NA,NA,NA
+2020_063_04,2020,8/20/2020,4,Mussel Cove,Mid,NA,11:36,NA,20.5,NA,NA,NA,NA,NA
+2020_063_09,2020,8/20/2020,9,Great Diamond Island,Outer,NA,12:09,NA,19.5,NA,NA,NA,NA,NA
+2020_064_07,2020,9/3/2020,7,Mackworth Island - Beach,Mid,NA,09:50,NA,18.8,NA,NA,NA,NA,NA
+2020_064_03,2020,9/3/2020,3,Audubon,Inner,NA,10:30,NA,19.1,NA,NA,NA,NA,NA
+2020_064_01,2020,9/3/2020,1,Presumpscot Moorings,Inner,NA,11:00,NA,20,NA,NA,NA,NA,NA
+2020_064_02,2020,9/3/2020,2,Skitterygusset,Inner,NA,11:24,NA,19,NA,NA,NA,NA,NA
+2020_064_04,2020,9/3/2020,4,Mussel Cove,Mid,NA,11:44,NA,19.6,NA,NA,NA,NA,NA
+2020_064_05,2020,9/3/2020,5,The Brothers - North,Mid,NA,12:15,NA,19,NA,NA,NA,NA,NA
+2020_065_12,2020,9/4/2020,12,Alewife Cove,Outer,NA,11:30,sunny,17,NA,NA,NA,NA,NA
+2020_065_11,2020,9/4/2020,11,Cushing Island,Outer,NA,12:00,sunny,18.5,NA,NA,NA,NA,NA
+2020_065_10,2020,9/4/2020,10,SMCC,Outer,NA,12:30,sunny,17.4,NA,NA,NA,NA,NA
+2020_065_08,2020,9/4/2020,8,Back Cove,Mid,NA,13:10,sunny,NA,NA,NA,NA,NA,NA
+2020_065_06,2020,9/4/2020,6,Mackworth Island - North,Mid,NA,14:15,sunny,NA,NA,NA,NA,NA,NA
+2020_065_09,2020,9/4/2020,9,Great Diamond Island,Outer,NA,14:45,sunny,NA,NA,NA,NA,NA,NA
+2021_066_11,2021,6/10/2021,11,Cushing Island,Outer,NA,10:55,sunny,NA,NA,NA,present,low,NA
+2021_066_10,2021,6/10/2021,10,SMCC,Outer,NA,11:25,sunny,NA,NA,NA,present,absent,NA
+2021_066_09,2021,6/10/2021,9,Great Diamond Island,Outer,NA,11:53,sunny,NA,NA,NA,absent,absent,NA
+2021_066_04,2021,6/10/2021,4,Mussel Cove,Mid,NA,12:22,sunny,NA,NA,NA,absent,low,NA
+2021_066_05,2021,6/10/2021,5,The Brothers - North,Mid,NA,12:41,sunny,NA,NA,NA,NA,NA,NA
+2021_066_06,2021,6/10/2021,6,Mackworth Island - North,Mid,NA,13:09,sunny,NA,NA,NA,NA,NA,NA
+2021_067_12,2021,6/17/2021,12,Alewife Cove,Outer,NA,09:51,sunny,15.4,16.1,27.08,absent,medium,NA
+2021_067_03,2021,6/17/2021,3,Audubon,Inner,NA,11:14,sunny,16.6,9.6,15.74,absent,high,NA
+2021_067_02,2021,6/17/2021,2,Skitterygusset,Inner,NA,11:54,sunny,21.4,6.2,6.06,absent,absent,NA
+2021_067_01,2021,6/17/2021,1,Presumpscot Moorings,Inner,NA,12:08,sunny,21.3,12.5,2.42,present,absent,NA
+2021_067_07,2021,6/17/2021,7,Mackworth Island - Beach,Mid,NA,13:24,sunny,21,15,20,present,low,NA
+2021_067_08,2021,6/17/2021,8,Back Cove,Mid,NA,14:00,sunny,20.5,12,27.79,present,low,NA
+2021_068_03,2021,6/25/2021,3,Audubon,Inner,NA,10:20,sunny,16,12,24.99,present,NA,NA
+2021_068_01,2021,6/25/2021,1,Presumpscot Moorings,Inner,NA,10:58,sunny,21.3,7.6,3.7,NA,NA,NA
+2021_068_02,2021,6/25/2021,2,Skitterygusset,Inner,NA,11:25,sunny,18.2,9.2,13.22,NA,NA,NA
+2021_068_07,2021,6/25/2021,7,Mackworth Island - Beach,Mid,NA,12:04,sunny,15.7,7.7,26.8,present,low,NA
+2021_068_08,2021,6/25/2021,8,Back Cove,Mid,NA,12:40,sunny,NA,NA,NA,NA,NA,NA
+2021_068_10,2021,6/25/2021,10,SMCC,Outer,NA,13:17,sunny,15.6,7.9,28,absent,absent,NA
+2021_069_12,2021,6/30/2021,12,Alewife Cove,Outer,NA,09:52,overcast,14.7,8,29.05,absent,low,NA
+2021_069_11,2021,6/30/2021,11,Cushing Island,Outer,NA,10:33,overcast,16.7,15.3,28.84,present,medium,NA
+2021_069_05,2021,6/30/2021,5,The Brothers - North,Mid,NA,11:03,overcast,22.7,17.3,28.89,present,low,NA
+2021_069_06,2021,6/30/2021,6,Mackworth Island - North,Mid,NA,11:52,sunny,18.8,14.1,29.08,present,low,NA
+2021_069_09,2021,6/30/2021,9,Great Diamond Island,Outer,NA,12:35,sunny,19.6,19.4,30.1,present,high,NA
+2021_069_04,2021,6/30/2021,4,Mussel Cove,Mid,NA,13:08,sunny,23.8,10.1,29.35,NA,NA,NA
+2021_070_10,2021,7/7/2021,10,SMCC,Outer,NA,09:36,sunny,18.2,14.6,27.78,present,low,NA
+2021_070_08,2021,7/7/2021,8,Back Cove,Mid,NA,10:19,sunny,17.8,13.1,23.4,absent,absent,NA
+2021_070_07,2021,7/7/2021,7,Mackworth Island - Beach,Mid,NA,10:48,sunny,18.9,12.6,25.88,absent,absent,NA
+2021_070_03,2021,7/7/2021,3,Audubon,Inner,NA,11:21,sunny,21.6,11.1,11.21,absent,low,NA
+2021_070_01,2021,7/7/2021,1,Presumpscot Moorings,Inner,NA,11:52,sunny,21.5,8.1,10.45,absent,low,NA
+2021_070_02,2021,7/7/2021,2,Skitterygusset,Inner,NA,12:18,sunny,23.6,13,12.66,absent,absent,NA
+2021_071_12,2021,7/13/2021,12,Alewife Cove,Outer,NA,10:03,overcast,16.4,7.3,25.01,absent,low,NA
+2021_071_11,2021,7/13/2021,11,Cushing Island,Outer,NA,10:42,overcast,17.2,12,26.84,present,low,NA
+2021_071_09,2021,7/13/2021,9,Great Diamond Island,Outer,NA,11:16,overcast,17.8,13.3,26.24,absent,low,NA
+2021_071_06,2021,7/13/2021,6,Mackworth Island - North,Mid,NA,11:45,overcast,18.4,10.2,26.62,present,low,NA
+2021_071_05,2021,7/13/2021,5,The Brothers - North,Mid,NA,12:25,overcast,18,10.3,28.46,absent,absent,NA
+2021_071_04,2021,7/13/2021,4,Mussel Cove,Mid,NA,13:03,overcast,17.8,9.9,26.66,absent,absent,NA
+2021_072_10,2021,7/23/2021,10,SMCC,Outer,NA,09:20,sunny,18.3,13.2,25.22,absent,absent,NA
+2021_072_08,2021,7/23/2021,8,Back Cove,Mid,NA,10:09,sunny,19.4,13.9,23.46,absent,low,NA
+2021_072_07,2021,7/23/2021,7,Mackworth Island - Beach,Mid,NA,10:39,sunny,19.8,15.1,26.45,absent,low,NA
+2021_072_02,2021,7/23/2021,2,Skitterygusset,Inner,NA,11:22,sunny,21.4,14.5,11.68,absent,absent,NA
+2021_072_01,2021,7/23/2021,1,Presumpscot Moorings,Inner,NA,12:04,sunny,24.9,15.4,9.15,absent,absent,NA
+2021_072_03,2021,7/23/2021,3,Audubon,Inner,NA,12:42,sunny,22,15.5,11.68,absent,absent,NA
+2021_073_12,2021,7/28/2021,12,Alewife Cove,Outer,NA,10:05,overcast,17,10.8,27.41,absent,low,NA
+2021_073_11,2021,7/28/2021,11,Cushing Island,Outer,NA,10:32,overcast,18.5,11.8,28.39,absent,medium,NA
+2021_073_09,2021,7/28/2021,9,Great Diamond Island,Outer,NA,11:12,overcast,18.3,8,28.17,present,low,NA
+2021_073_05,2021,7/28/2021,5,The Brothers - North,Mid,NA,11:32,overcast,20.5,8.5,28.28,absent,low,NA
+2021_073_06,2021,7/28/2021,6,Mackworth Island - North,Mid,NA,12:25,overcast,21.7,10.3,27.85,absent,absent,NA
+2021_073_04,2021,7/28/2021,4,Mussel Cove,Mid,NA,12:42,overcast,23.4,7.2,27.88,absent,low,NA
+2021_074_07,2021,8/6/2021,7,Mackworth Island - Beach,Mid,NA,09:37,sunny,18.3,7.3,26.92,absent,low,NA
+2021_074_03,2021,8/6/2021,3,Audubon,Inner,NA,10:20,sunny,18.9,5.7,19.27,absent,low,NA
+2021_074_01,2021,8/6/2021,1,Presumpscot Moorings,Inner,NA,11:00,sunny,21.3,7.5,7.83,absent,absent,NA
+2021_074_02,2021,8/6/2021,2,Skitterygusset,Inner,NA,11:29,sunny,18.5,10.4,24.31,absent,absent,NA
+2021_074_08,2021,8/6/2021,8,Back Cove,Mid,NA,12:10,sunny,18.3,9.1,27.3,absent,absent,NA
+2021_074_10,2021,8/6/2021,10,SMCC,Outer,NA,12:56,sunny,17.9,12.3,27.62,absent,low,NA
+2021_075_12,2021,8/11/2021,12,Alewife Cove,Outer,NA,10:37,sunny,18.4,25.4,28.53,absent,absent,NA
+2021_075_11,2021,8/11/2021,11,Cushing Island,Outer,NA,11:11,sunny,19.3,17.3,28.14,present,low,NA
+2021_075_09,2021,8/11/2021,9,Great Diamond Island,Outer,NA,11:43,sunny,20,16.1,27.63,absent,absent,NA
+2021_075_06,2021,8/11/2021,6,Mackworth Island - North,Mid,NA,12:04,sunny,20,13,27.92,present,low,NA
+2021_075_05,2021,8/11/2021,5,The Brothers - North,Mid,NA,12:24,sunny,20.2,12.3,27.23,present,low,NA
+2021_075_04,2021,8/11/2021,4,Mussel Cove,Mid,NA,12:53,sunny,21,15.4,28.07,absent,low,NA
+2021_076_02,2021,8/16/2021,2,Skitterygusset,Inner,NA,09:54,overcast,22.1,5.8,17.12,absent,high,NA
+2021_076_10,2021,8/16/2021,10,SMCC,Outer,NA,11:34,overcast,21.8,11.6,27.6,absent,high,NA
+2021_077_08,2021,8/20/2021,8,Back Cove,Mid,NA,09:45,overcast,19.7,7,27.36,absent,absent,NA
+2021_077_07,2021,8/20/2021,7,Mackworth Island - Beach,Mid,NA,10:22,overcast,19.1,6.9,28.2,absent,low,NA
+2021_077_03,2021,8/20/2021,3,Audubon,Inner,NA,11:12,overcast,21.2,6.5,19.5,absent,low,NA
+2021_077_01,2021,8/20/2021,1,Presumpscot Moorings,Inner,NA,11:53,overcast,21.8,11.1,17.67,absent,absent,NA
+2021_077_04,2021,8/20/2021,4,Mussel Cove,Mid,NA,12:39,overcast,22.1,0.9,27.78,present,low,NA
+2021_077_05,2021,8/20/2021,5,The Brothers - North,Mid,NA,13:15,overcast,21.6,7.3,28.4,present,low,NA
+2021_078_12,2021,8/24/2021,12,Alewife Cove,Outer,NA,09:33,sunny,18.2,9.2,28.35,absent,low,NA
+2021_078_11,2021,8/24/2021,11,Cushing Island,Outer,NA,10:05,sunny,20.1,12.3,27.32,present,low,NA
+2021_078_09,2021,8/24/2021,9,Great Diamond Island,Outer,NA,10:37,sunny,19.8,7.4,27.47,absent,absent,NA
+2021_078_06,2021,8/24/2021,6,Mackworth Island - North,Mid,NA,11:00,sunny,20.5,14,28.5,absent,absent,NA
+2022_079_11,2022,6/1/2022,11,Cushing Island,Outer,sand,09:30,overcast,12.06,NA,32.76,present,low,NA
+2022_079_10,2022,6/1/2022,10,SMCC,Outer,sand/gravel,10:02,overcast,12.07,NA,32.83,present,low,NA
+2022_079_05,2022,6/1/2022,5,The Brothers - North,Mid,gravel,10:37,partly cloudy,13.68,NA,32.99,absent,absent,NA
+2022_079_06,2022,6/1/2022,6,Mackworth Island - North,Mid,sand/gravel,11:06,partly cloudy,13.85,NA,32.86,present,low,NA
+2022_079_03,2022,6/1/2022,3,Audubon,Inner,sand,11:36,partly cloudy,14,NA,28.47,absent,absent,NA
+2022_080_12,2022,6/14/2022,12,Alewife Cove,Outer,sand/gravel,09:53,sunny,13.9,NA,33.3,absent,absent,NA
+2022_080_02,2022,6/14/2022,2,Skitterygusset,Inner,mud,11:03,overcast,15.5,NA,30.3,absent,absent,NA
+2022_080_01,2022,6/14/2022,1,Presumpscot Moorings,Inner,mud,11:45,partly cloudy,20.3,NA,4.68,absent,absent,"had to go the left of the usual site, dock was in the way"
+2022_080_04,2022,6/14/2022,4,Mussel Cove,Mid,mud,12:32,sunny,16.2,NA,32.91,absent,low,NA
+2022_080_07,2022,6/14/2022,7,Mackworth Island - Beach,Mid,sand,13:15,sunny,16.5,NA,32.28,absent,low,NA
+2022_080_08,2022,6/14/2022,8,Back Cove,Mid,mud,14:00,sunny,15.6,NA,31.89,present,absent,tide going out rapidly
+2022_081_03,2022,6/21/2022,3,Audubon,Inner,sand,10:00,partly cloudy,15.2,NA,29.74,absent,low,"tide moving too fast, seine set was flipped"
+2022_081_09,2022,6/21/2022,9,Great Diamond Island,Outer,sand/gravel,10:49,partly cloudy,14.3,NA,32.9,present,high,"the in eDNA sample was not collected, forgot due to challenging set"
+2022_081_11,2022,6/21/2022,11,Cushing Island,Outer,sand,11:27,partly cloudy,13.2,NA,33.4,present,medium,a lot of macroalgae
+2022_081_10,2022,6/21/2022,10,SMCC,Outer,sand/gravel,12:22,sunny,14.7,NA,32.2,present,high,NA
+2022_082_06,2022,6/23/2022,6,Mackworth Island - North,Mid,sand/gravel,09:25,overcast,15.5,NA,32.6,absent,low,had to do two net sets
+2022_082_05,2022,6/23/2022,5,The Brothers - North,Mid,gravel,10:16,overcast,14.78,NA,30.93,absent,low,NA
+2022_082_04,2022,6/23/2022,4,Mussel Cove,Mid,mud,10:53,partly cloudy,15.9,NA,33.16,absent,low,had to hand haul the net
+2022_083_03,2022,6/27/2022,3,Audubon,Inner,sand,09:49,rain,17.54,NA,29.76,absent,low,NA
+2022_083_02,2022,6/27/2022,2,Skitterygusset,Inner,mud,10:17,rain,18.08,NA,28.31,absent,absent,"net snagged, probably released most of catch"
+2022_083_01,2022,6/27/2022,1,Presumpscot Moorings,Inner,mud,10:49,rain,18.92,NA,26.27,absent,absent,NA
+2022_083_07,2022,6/27/2022,7,Mackworth Island - Beach,Mid,sand,11:20,rain,15.98,NA,32.37,absent,low,pouring rain!
+2022_083_08,2022,6/27/2022,8,Back Cove,Mid,mud,11:57,overcast,16.3,NA,28.02,absent,absent,NA
+2022_084_10,2022,6/30/2022,10,SMCC,Outer,sand/gravel,10:24,sunny,16.5,NA,31.86,present,absent,NA
+2022_084_11,2022,6/30/2022,11,Cushing Island,Outer,sand,11:02,sunny,15.4,NA,32.95,absent,low,NA
+2022_084_12,2022,6/30/2022,12,Alewife Cove,Outer,sand/gravel,11:40,sunny,14.6,NA,33.62,absent,absent,"good set, no fish"
+2022_085_09,2022,7/8/2022,9,Great Diamond Island,Outer,sand/gravel,08:23,partly cloudy,15.813,NA,33.39,present,low,NA
+2022_085_05,2022,7/8/2022,5,The Brothers - North,Mid,gravel,09:02,partly cloudy,15.02,NA,33.78,present,absent,squid!
+2022_085_06,2022,7/8/2022,6,Mackworth Island - North,Mid,sand/gravel,09:36,sunny,15.18,NA,33.76,absent,absent,"no fish, nothing in seine"
+2022_085_03,2022,7/8/2022,3,Audubon,Inner,sand,10:18,sunny,18.23,NA,30.42,absent,low,"surface (in) sample only filtered 900mL, filter too clogged"
+2022_086_04,2022,7/12/2022,4,Mussel Cove,Mid,mud,09:28,partly cloudy,15.6,NA,33.78,absent,low,NA
+2022_086_07,2022,7/12/2022,7,Mackworth Island - Beach,Mid,sand,10:18,partly cloudy,15.6,NA,33.38,absent,low,NA
+2022_086_03,2022,7/12/2022,3,Audubon,Inner,sand,11:00,partly cloudy,16.57,NA,31.73,absent,low,a lot of little silversides swam through seine net holes
+2022_086_02,2022,7/12/2022,2,Skitterygusset,Inner,mud,11:30,partly cloudy,17.11,NA,31.05,absent,absent,"first set, bottom of ledge caught net, no fish, did a second set after the Presumpscot site - no other data was collected at second visit, just the fish in seine"
+2022_086_01,2022,7/12/2022,1,Presumpscot Moorings,Inner,mud,11:38,windy,19.21,NA,23.41,absent,absent,NA
+2022_087_12,2022,7/19/2022,12,Alewife Cove,Outer,sand/gravel,13:28,sunny,14.11,NA,34.08,absent,absent,eDNA sample cooler packed with ice
+2022_087_11,2022,7/19/2022,11,Cushing Island,Outer,sand,14:07,sunny,15.68,NA,33.68,present,absent,"tons of macroalgae, eDNA sample cooler packed with ice"
+2022_087_10,2022,7/19/2022,10,SMCC,Outer,sand/gravel,14:46,sunny,16.83,NA,33.44,present,absent,"did seine first, then sonde and plankton. eDNA sample cooler packed with ice"
+2022_087_09,2022,7/19/2022,9,Great Diamond Island,Outer,sand/gravel,15:15,sunny,18.53,NA,32.8,present,low,eDNA sample cooler packed with ice
+2022_088_05,2022,7/20/2022,5,The Brothers - North,Mid,gravel,13:47,overcast,19.72,NA,33.59,NA,low,eDNA sample cooler packed with ice
+2022_088_06,2022,7/20/2022,6,Mackworth Island - North,Mid,sand/gravel,14:21,overcast,16.51,NA,33.77,present,low,eDNA sample cooler packed with ice
+2022_088_03,2022,7/20/2022,3,Audubon,Inner,sand,14:56,rain,19.12,NA,30.54,absent,low,eDNA sample cooler packed with ice
+2022_088_08,2022,7/20/2022,8,Back Cove,Mid,mud,15:47,overcast,17.2,NA,33.07,absent,absent,"no fish, eDNA sample cooler packed with ice"
+2022_089_04,2022,7/25/2022,4,Mussel Cove,Mid,mud,09:46,rain,17.32,NA,33.61,present,low,many silversides escape net
+2022_089_05,2022,7/25/2022,5,The Brothers - North,Mid,gravel,10:25,not recorded,16.23,NA,33.95,absent,absent,NA
+2022_089_06,2022,7/25/2022,6,Mackworth Island - North,Mid,sand/gravel,10:54,not recorded,15.79,NA,33.98,NA,NA,NA
+2022_089_08,2022,7/25/2022,8,Back Cove,Mid,mud,11:51,not recorded,17.92,NA,33.37,absent,absent,NA
+2022_089_10,2022,7/25/2022,10,SMCC,Outer,sand/gravel,12:32,not recorded,16.18,NA,33.79,present,absent,NA
+2022_090_07,2022,7/26/2022,7,Mackworth Island - Beach,Mid,sand,10:42,partly cloudy,17.7,NA,33.26,absent,low,quahog bay intern day
+2022_090_03,2022,7/26/2022,3,Audubon,Inner,sand,11:21,partly cloudy,17.88,NA,32.01,absent,low,"quahog bay intern day, a lot of silversides escaping net, huge schools"
+2022_091_12,2022,8/3/2022,12,Alewife Cove,Outer,sand/gravel,09:40,mostly sunny,15.93,NA,34.08,present,low,many sandlance escaped
+2022_091_11,2022,8/3/2022,11,Cushing Island,Outer,sand,10:31,mostly sunny,16.45,NA,33.68,present,absent,"a lot of macroalge, a lot left in seine"
+2022_091_09,2022,8/3/2022,9,Great Diamond Island,Outer,sand/gravel,11:25,partly cloudy,17.54,NA,33.68,present,medium,NA
+2022_091_03,2022,8/3/2022,3,Audubon,Inner,sand,12:06,partly cloudy,21.43,NA,26,absent,medium,"caught alewife, on dry ice"
+2022_092_02,2022,8/4/2022,2,Skitterygusset,Inner,mud,08:00,sunny,21.74,NA,24.29,absent,absent,"tide moving too fast, no fish, had to walk in seine net"
+2022_092_01,2022,8/4/2022,1,Presumpscot Moorings,Inner,mud,08:42,sunny,20.9,NA,28.24,absent,low,"not normal site, set on the point"
+2022_093_04,2022,8/8/2022,4,Mussel Cove,Mid,mud,09:50,partly cloudy,20.78,NA,33.84,NA,low,little silversides escaping from net as pulling in
+2022_093_03,2022,8/8/2022,3,Audubon,Inner,sand,10:32,sunny,19.76,NA,31.77,absent,low,NA
+2022_093_02,2022,8/8/2022,2,Skitterygusset,Inner,mud,11:08,partly cloudy,21.15,NA,29.69,absent,absent,NA
+2022_093_01,2022,8/8/2022,1,Presumpscot Moorings,Inner,mud,11:48,partly cloudy,20.82,NA,29.99,absent,absent,done at edge of river bank
+2022_094_08,2022,8/10/2022,8,Back Cove,Mid,mud,09:33,overcast,19.17,NA,32.74,absent,absent,NA
+2022_094_07,2022,8/10/2022,7,Mackworth Island - Beach,Mid,sand,10:19,overcast,20.64,NA,33.55,absent,low,a little to the right of the regular site
+2022_094_06,2022,8/10/2022,6,Mackworth Island - North,Mid,sand/gravel,10:54,overcast,20.67,NA,33.83,present,medium,large horseshoe crab present
+2022_094_09,2022,8/10/2022,9,Great Diamond Island,Outer,sand/gravel,11:38,overcast,18.65,NA,33.62,present,low,NA
+2022_095_12,2022,8/15/2022,12,Alewife Cove,Outer,sand/gravel,09:45,mostly sunny,17.07,NA,34,absent,low,many silversides escaping net
+2022_095_11,2022,8/15/2022,11,Cushing Island,Outer,sand,10:46,mostly sunny,17.99,NA,33.66,present,medium,NA
+2022_095_10,2022,8/15/2022,10,SMCC,Outer,sand/gravel,11:27,mostly sunny,18.3,NA,33.28,present,low,"dogs at beach, lots of seaweed"
+2022_095_05,2022,8/15/2022,5,The Brothers - North,Mid,gravel,12:15,mostly sunny,18.76,NA,33.97,NA,NA,NA
+2022_096_10,2022,8/19/2022,10,SMCC,Outer,sand/gravel,12:35,sunny,19.74,NA,32.88,NA,low,dogs and people at beach and in water
+2022_096_09,2022,8/19/2022,9,Great Diamond Island,Outer,sand/gravel,13:15,mostly sunny,18.9,NA,33.21,present,medium,some people at beach
+2022_096_01,2022,8/19/2022,1,Presumpscot Moorings,Inner,mud,14:18,mostly sunny,19.95,NA,27.74,absent,absent,"bad set, net did not get a chance to open up, mummichog outside of net"
+2022_096_03,2022,8/19/2022,3,Audubon,Inner,sand,14:52,mostly sunny,19.73,NA,30.14,present,low,NA
+2022_097_04,2022,8/25/2022,4,Mussel Cove,Mid,mud,12:38,mostly sunny,20.99,NA,33.86,absent,low,NA
+2022_097_02,2022,8/25/2022,2,Skitterygusset,Inner,mud,13:45,mostly sunny,21.61,NA,25.27,absent,low,NA
+2022_097_07,2022,8/25/2022,7,Mackworth Island - Beach,Mid,sand,14:45,mostly sunny,22.18,NA,29.32,present,high,"plankton tow not collected, tide too low; several people at beach, in water"
+2022_098_12,2022,8/29/2022,12,Alewife Cove,Outer,sand/gravel,09:40,mostly sunny,17.18,NA,33.92,present,absent,several hundred sanlance were swimming out of net
+2022_098_11,2022,8/29/2022,11,Cushing Island,Outer,sand,10:39,mostly sunny,17.78,NA,33.59,present,low,"seals and ducks close to boat during water collecting, heavy macroalgae"
+2022_098_05,2022,8/29/2022,5,The Brothers - North,Mid,gravel,11:29,mostly sunny,19.86,NA,33.39,absent,low,NA
+2022_098_06,2022,8/29/2022,6,Mackworth Island - North,Mid,sand/gravel,12:13,mostly sunny,18.43,NA,33.84,absent,low,NA
+2022_098_08,2022,8/29/2022,8,Back Cove,Mid,mud,13:12,mostly sunny,19.67,NA,32.53,absent,absent,"lots of schools swimming nearby, very small fish"
+2022_099_03,2022,9/9/2022,3,Audubon,Inner,sand,07:22,sunny,18.24,NA,24.22,absent,high,NA
+2022_099_01,2022,9/9/2022,1,Presumpscot Moorings,Inner,mud,08:00,sunny,18.77,NA,11.74,absent,absent,"check salinity on sonde file, set was done at grass ledge"
+2022_099_02,2022,9/9/2022,2,Skitterygusset,Inner,mud,08:29,sunny,17.98,NA,26.5,absent,low,seal present during water collection
+2022_099_07,2022,9/9/2022,7,Mackworth Island - Beach,Mid,sand,09:01,sunny,17.44,NA,32.7,absent,low,1 alewife on dry ice
+2022_100_11,2022,9/16/2022,11,Cushing Island,Outer,sand,09:24,mostly sunny,16.46,NA,33.85,present,high,NA
+2022_100_10,2022,9/16/2022,10,SMCC,Outer,sand/gravel,10:00,mostly sunny,16.78,NA,32.85,absent,high,shrimp are large!
+2022_100_07,2022,9/16/2022,7,Mackworth Island - Beach,Mid,sand,10:56,mostly sunny,18.43,NA,24.39,absent,low,"had to wait after plankton tow for tide to rise enough to reach the beach, net came in folded - lots of fish escaping, alewife in ziploc #1"
+2022_100_03,2022,9/16/2022,3,Audubon,Inner,sand,11:52,mostly sunny,18.37,NA,22.4,absent,low,alewife in ziploc #2
+2022_101_01,2022,9/30/2022,1,Presumpscot Moorings,Inner,mud,13:04,partly cloudy,15.22,NA,25.7,absent,low,did at original site location
+2022_101_02,2022,9/30/2022,2,Skitterygusset,Inner,mud,13:32,partly cloudy,15.06,NA,29,absent,low,no flowmeter
+2022_101_11,2022,9/30/2022,11,Cushing Island,Outer,sand,14:14,partly cloudy,14.38,NA,34.14,present,low,NA
+2022_101_10,2022,9/30/2022,10,SMCC,Outer,sand/gravel,14:39,partly cloudy,14.62,NA,33.66,absent,absent,no flowmeter
+2023_108_08,2023,5/31/2023,8,Back Cove,Mid,mud/gravel,09:06,sunny,13.9,NA,NA,absent,low,NA
+2023_108_01,2023,5/31/2023,1,Presumpscot Moorings,Inner,mud/gravel,09:30,sunny,16.7,NA,NA,absent,absent,no fish
+2023_108_02,2023,5/31/2023,2,Skitterygusset,Inner,mud,09:52,sunny,17.5,NA,NA,absent,absent,no fish
+2023_108_03,2023,5/31/2023,3,Audubon,Inner,mud/sand,10:15,sunny,17.3,NA,NA,absent,low,no fish
+2023_108_07,2023,5/31/2023,7,Mackworth Island - Beach,Mid,sand/shell,10:35,sunny,15.7,NA,NA,absent,low,NA
+2023_108_10,2023,5/31/2023,10,SMCC,Outer,sand/gravel,11:05,sunny,13.3,NA,NA,present,low,NA
+2023_109_12,2023,6/2/2023,12,Alewife Cove,Outer,sand/gravel,08:56,overcast,13.6,NA,NA,absent,absent,NA
+2023_109_11,2023,6/2/2023,11,Cushing Island,Outer,mud/sand,09:21,overcast,13.7,NA,NA,absent,low,NA
+2023_109_09,2023,6/2/2023,9,Great Diamond Island,Outer,sand/gravel,09:45,sunny,15,NA,NA,absent,absent,NA
+2023_109_04,2023,6/2/2023,4,Mussel Cove,Mid,mud,10:08,sunny,17.7,NA,NA,absent,absent,NA
+2023_109_05,2023,6/2/2023,5,The Brothers - North,Mid,sand/gravel,10:32,sunny,18.6,NA,NA,present,absent,no fish
+2023_109_06,2023,6/2/2023,6,Mackworth Island - North,Mid,mud/shell,10:48,sunny,18.6,NA,NA,absent,absent,NA
+2023_110_08,2023,6/14/2023,8,Back Cove,Mid,mud/gravel,09:40,overcast,15,NA,NA,absent,low,NA
+2023_110_03,2023,6/14/2023,3,Audubon,Inner,mud/sand,10:25,overcast,17.1,NA,NA,absent,low,NA
+2023_110_02,2023,6/14/2023,2,Skitterygusset,Inner,mud,10:53,overcast,17.8,NA,NA,absent,absent,bad set
+2023_110_01,2023,6/14/2023,1,Presumpscot Moorings,Inner,mud/gravel,11:29,overcast,17.5,NA,NA,absent,absent,NA
+2023_q01_22,2023,6/15/2023,22,Snow Island,north,mud,07:57,overcast,16.1,8.52,30.28,absent,absent,NA
+2023_q01_26,2023,6/15/2023,26,Long Point Cove,north,sand/gravel,08:36,partly cloudy,15,8.07,29.48,absent,low,NA
+2023_q01_23,2023,6/15/2023,23,Lowell Cove,north,mud/sand,09:05,overcast,14.4,8.59,29.47,absent,low,NA
+2023_q01_24,2023,6/15/2023,24,Cedar Beach,north,sand,09:29,overcast,14.6,9.13,29.45,absent,low,NA
+2023_q01_25,2023,6/15/2023,25,Garrison Cove,north,sand/gravel,09:50,sunny,15,8.83,29.77,absent,low,NA
+2023_q01_21,2023,6/15/2023,21,Orrs Cove,north,mud,10:45,overcast,17.5,8.34,30.4,absent,absent,NA
+2023_111_07,2023,6/16/2023,7,Mackworth Island - Beach,Mid,sand/shell,10:50,overcast,14.57,NA,NA,absent,low,NA
+2023_111_06,2023,6/16/2023,6,Mackworth Island - North,Mid,mud/shell,11:19,overcast,15.18,NA,NA,NA,NA,NA
+2023_111_04,2023,6/16/2023,4,Mussel Cove,Mid,mud,#VALUE!,overcast,16.46,NA,NA,absent,absent,NA
+2023_111_05,2023,6/16/2023,5,The Brothers - North,Mid,sand/gravel,#VALUE!,overcast,16.37,NA,NA,NA,NA,NA
+2023_112_12,2023,6/21/2023,12,Alewife Cove,Outer,sand/gravel,10:20,partly cloudy,15.6,NA,NA,absent,absent,NA
+2023_q02_26,2023,6/21/2023,26,Long Point Cove,north,sand/gravel,12:26,sunny,16.4,10.6,26.17,present,low,NA
+2023_q02_21,2023,6/21/2023,21,Orrs Cove,north,mud,13:15,sunny,18.7,9.17,29.79,absent,absent,NA
+2023_q02_22,2023,6/21/2023,22,Snow Island,north,sand/gravel,13:55,sunny,16.8,8.93,28.9,absent,low,NA
+2023_112_11,2023,6/21/2023,11,Cushing Island,Outer,mud/sand,#VALUE!,partly cloudy,15.6,NA,NA,present,low,NA
+2023_112_09,2023,6/21/2023,9,Great Diamond Island,Outer,sand/gravel,#VALUE!,partly cloudy,17,NA,NA,present,low,NA
+2023_112_10,2023,6/21/2023,10,SMCC,Outer,sand/gravel,#VALUE!,partly cloudy,NA,NA,NA,present,low,temp missing
+2023_q03_24,2023,6/27/2023,24,Cedar Beach,north,sand,08:41,overcast,19,7.71,25.91,absent,absent,NA
+2023_q03_25,2023,6/27/2023,25,Garrison Cove,north,sand/gravel,09:02,foggy,17.5,8.43,28.61,absent,absent,failed set
+2023_q03_23,2023,6/27/2023,23,Lowell Cove,north,mud/sand,09:32,foggy,19.2,7.85,25.45,present,low,redone 30 minutes after failed set
+2023_113_03,2023,6/28/2023,3,Audubon,Inner,mud/sand,09:13,rain,20.3,NA,NA,absent,low,NA
+2023_113_02,2023,6/28/2023,2,Skitterygusset,Inner,mud,09:36,rain,20.7,NA,NA,absent,low,NA
+2023_113_01,2023,6/28/2023,1,Presumpscot Moorings,Inner,mud/gravel,09:59,rain,20.7,NA,NA,absent,low,NA
+2023_113_07,2023,6/28/2023,7,Mackworth Island - Beach,Mid,sand/shell,10:32,rain,19.46,NA,NA,absent,medium,NA
+2023_113_11,2023,6/28/2023,11,Cushing Island,Outer,mud/sand,11:14,rain,16,NA,NA,present,low,NA
+2023_113_10,2023,6/28/2023,10,SMCC,Outer,sand/gravel,11:38,rain,15.52,NA,NA,present,medium,sandlance escaping through net
+2023_q04_25,2023,7/5/2023,25,Garrison Cove,north,sand/gravel,10:40,sunny,18.1,8.77,27.31,present,low,NA
+2023_q04_23,2023,7/5/2023,23,Lowell Cove,north,sand,11:35,sunny,23,8.37,23.44,absent,absent,failed set
+2023_q04_26,2023,7/5/2023,26,Long Point Cove,north,sand/gravel,12:20,sunny,20.9,8.9,26.34,absent,low,NA
+2023_q04_21,2023,7/5/2023,21,Orrs Cove,north,mud,13:05,sunny,24.7,8.63,25.68,absent,low,teeny tiny school of fish passed through mesh
+2023_q04_22,2023,7/5/2023,22,Snow Island,north,mud/sand,13:55,sunny,25.1,9.65,26.74,present,absent,NA
+2023_114_09,2023,7/11/2023,9,Great Diamond Island,Outer,sand/gravel,09:19,overcast,16.3,NA,NA,absent,low,NA
+2023_114_11,2023,7/11/2023,11,Cushing Island,Outer,mud/sand,10:47,overcast,16.4,NA,NA,present,medium,sandlance escaping through net
+2023_114_10,2023,7/11/2023,10,SMCC,Outer,sand/gravel,11:51,overcast,16.2,NA,NA,present,high,"dogs in water, pipefish escaping through net"
+2023_q05_23,2023,7/12/2023,23,Lowell Cove,north,sand/gravel,07:42,sunny,19.4,8.14,27.45,absent,medium,NA
+2023_q05_24,2023,7/12/2023,24,Cedar Beach,north,sand/gravel,08:09,sunny,20,8.42,27.48,absent,low,NA
+2023_q05_25,2023,7/12/2023,25,Garrison Cove,north,sand/gravel,08:38,sunny,18.2,8.49,28.55,present,low,gravid female green crab caught in seine
+2023_q05_26,2023,7/12/2023,26,Long Point Cove,north,gravel,09:42,sunny,21,9.11,27.54,absent,low,unidentified sculpin taken back to lab
+2023_q06_21,2023,7/13/2023,21,Orrs Cove,north,mud,07:49,sunny,23.4,6.6,27.51,absent,absent,reset net
+2023_q06_22,2023,7/13/2023,22,Snow Island,north,gravel,08:49,sunny,22.4,7.92,27.89,absent,absent,unidentified fish taken back to lab
+2023_115_12,2023,7/14/2023,12,Alewife Cove,Outer,sand/gravel,09:49,overcast,16.22,NA,NA,absent,NA,sandlance escaping through net
+2023_115_04,2023,7/14/2023,4,Mussel Cove,Mid,mud,10:43,overcast,18.74,NA,NA,absent,low,silversides escaping net
+2023_115_05,2023,7/14/2023,5,The Brothers - North,Mid,sand/gravel,11:23,overcast,17.69,NA,NA,absent,low,bad set
+2023_115_06,2023,7/14/2023,6,Mackworth Island - North,Mid,mud/shell,12:00,overcast,18.03,NA,NA,present,medium,NA
+2023_116_07,2023,7/19/2023,7,Mackworth Island - Beach,Mid,sand/shell,10:40,overcast,13.21,NA,NA,absent,high,thousands of alewife escaping net
+2023_116_03,2023,7/19/2023,3,Audubon,Inner,mud/sand,11:27,overcast,19.9,NA,NA,absent,low,please measure alewife - cajun spice bag
+2023_116_02,2023,7/19/2023,2,Skitterygusset,Inner,mud,12:01,overcast,20.8,NA,NA,absent,absent,please measure alewife - purple small ziploc
+2023_116_01,2023,7/19/2023,1,Presumpscot Moorings,Inner,mud/gravel,12:39,overcast,24.9,NA,NA,absent,absent,please measure alewife - ziploc w black tape
+2023_116_08,2023,7/19/2023,8,Back Cove,Mid,mud/gravel,13:39,overcast,17.4,NA,NA,absent,low,NA
+2023_q07_21,2023,7/20/2023,21,Orrs Cove,north,mud,10:08,sunny,24.3,6.73,26.91,present,absent,Many sand shrimp; seine set across the cove from the normal site
+2023_q07_22,2023,7/20/2023,22,Snow Island,north,mud/gravel,11:03,sunny,24.6,8.52,27.23,present,low,small silverside went through the net
+2023_q07_26,2023,7/20/2023,26,Long Point Cove,north,sand/gravel,11:38,sunny,24.1,7.5,27.29,present,absent,NA
+2023_q07_23,2023,7/20/2023,23,Lowell Cove,north,sand,12:17,sunny,22.6,9.13,27.61,present,absent,NA
+2023_q07_25,2023,7/20/2023,25,Garrison Cove,north,sand,12:45,sunny,22.3,8.59,28.08,absent,absent,NA
+2023_117_11,2023,7/24/2023,11,Cushing Island,Outer,mud/sand,09:25,overcast,17.67,NA,NA,NA,low,NA
+2023_117_10,2023,7/24/2023,10,SMCC,Outer,sand/gravel,09:57,overcast,19.59,NA,NA,absent,medium,dogs in water
+2023_117_05,2023,7/24/2023,5,The Brothers - North,Mid,sand/gravel,11:20,partly cloudy,23.05,NA,NA,present,low,NA
+2023_117_09,2023,7/24/2023,9,Great Diamond Island,Outer,sand/gravel,12:05,partly cloudy,20.46,NA,NA,present,low,NA
+2023_118_02,2023,7/26/2023,2,Skitterygusset,Inner,mud,08:53,sunny,24.71,NA,NA,absent,low,"low tide, set not ideal"
+2023_118_01,2023,7/26/2023,1,Presumpscot Moorings,Inner,mud/gravel,09:28,sunny,24.48,NA,NA,absent,NA,"fish fleeing net, low tide and seine set on ledge"
+2023_118_03,2023,7/26/2023,3,Audubon,Inner,mud/sand,10:02,sunny,22.7,NA,NA,absent,low,please measure alewife
+2023_118_12,2023,7/26/2023,12,Alewife Cove,Outer,sand/gravel,11:40,sunny,16.87,NA,NA,absent,low,sandlance escaping through net
+2023_q08_25,2023,8/2/2023,25,Garrison Cove,north,sand/gravel,10:51,sunny,18.5,8.18,30.7,present,low,NA
+2023_q08_24,2023,8/2/2023,24,Cedar Beach,north,sand/gravel,11:17,sunny,19.1,8.51,30.55,absent,absent,NA
+2023_q08_23,2023,8/2/2023,23,Lowell Cove,north,sand,11:40,sunny,19.2,8.12,30.72,absent,absent,NA
+2023_q08_26,2023,8/2/2023,26,Long Point Cove,north,gravel,12:14,sunny,20.4,8.43,30.63,absent,low,2 squished herring and 2 herrings heads counted
+2023_q08_21,2023,8/2/2023,21,Orrs Cove,north,mud,13:15,sunny,21.1,7.8,30.01,absent,absent,"large school of fish, big silverside 136 mm"
+2023_q08_22,2023,8/2/2023,22,Snow Island,north,gravel,13:56,sunny,21.6,8.34,30.38,absent,absent,NA
+2023_119_06,2023,8/7/2023,6,Mackworth Island - North,Mid,mud/shell,09:46,overcast,17.55,NA,NA,present,high,"low tide, walked seine in"
+2023_119_04,2023,8/7/2023,4,Mussel Cove,Mid,mud,10:43,overcast,17.51,NA,NA,present,low,"low tide, seine set to left of cove by sand bar"
+2023_119_07,2023,8/7/2023,7,Mackworth Island - Beach,Mid,sand/shell,11:55,rain,21.56,NA,NA,absent,low,"low tide, walked seine in"
+2023_119_08,2023,8/7/2023,8,Back Cove,Mid,mud/gravel,13:02,rain,16.38,NA,NA,absent,low,NA
+2023_q09_21,2023,8/9/2023,21,Orrs Cove,north,mud,07:40,partly cloudy,20.1,6.31,30.45,absent,absent,NA
+2023_q09_22,2023,8/9/2023,22,Snow Island,north,sand/gravel,08:25,partly cloudy,19.6,6.85,30.82,absent,absent,estimated start and end times
+2023_q10_24,2023,8/10/2023,24,Cedar Beach,north,sand,07:25,sunny,17.9,7.75,30.18,present,absent,NA
+2023_q10_25,2023,8/10/2023,25,Garrison Cove,north,sand,07:48,sunny,18,8.12,30.44,absent,absent,NA
+2023_q10_23,2023,8/10/2023,23,Lowell Cove,north,sand/gravel,08:12,sunny,18.6,7.85,30.13,present,low,NA
+2023_q10_26,2023,8/10/2023,26,Long Point Cove,north,sand/gravel,08:41,sunny,18.7,7.11,30.37,present,absent,NA
+2023_120_12,2023,8/10/2023,12,Alewife Cove,Outer,sand/gravel,09:05,partly cloudy,15.8,NA,NA,absent,low,NA
+2023_120_09,2023,8/10/2023,9,Great Diamond Island,Outer,sand/gravel,09:57,partly cloudy,15.7,NA,NA,absent,absent,please measure alewife
+2023_120_10,2023,8/10/2023,10,SMCC,Outer,sand/gravel,10:37,overcast,16.21,NA,NA,absent,low,NA
+2023_120_11,2023,8/10/2023,11,Cushing Island,Outer,mud/sand,11:12,overcast,16.78,NA,NA,present,medium,NA
+2023_121_04,2023,8/11/2023,4,Mussel Cove,Mid,mud,10:07,NA,17.4,NA,NA,absent,low,boat grounded
+2023_122_08,2023,8/14/2023,8,Back Cove,Mid,mud/gravel,09:45,sunny,17.27,NA,NA,absent,absent,NA
+2023_122_07,2023,8/14/2023,7,Mackworth Island - Beach,Mid,sand/shell,10:18,sunny,18.93,NA,NA,absent,low,NA
+2023_122_03,2023,8/14/2023,3,Audubon,Inner,mud/sand,10:53,sunny,18.93,NA,NA,absent,low,second set
+2023_122_02,2023,8/14/2023,2,Skitterygusset,Inner,mud,11:33,partly cloudy,18.44,NA,NA,absent,absent,NA
+2023_122_01,2023,8/14/2023,1,Presumpscot Moorings,Inner,mud/gravel,12:04,overcast,22.79,NA,NA,absent,absent,"no fish, good set"
+2023_q11_25,2023,8/16/2023,25,Garrison Cove,north,sand/gravel,10:20,NA,20.1,8.1,29.01,present,absent,NA
+2023_q11_24,2023,8/16/2023,24,Cedar Beach,north,sand/gravel,10:40,NA,20.8,8.08,27.21,absent,absent,people in water
+2023_q11_23,2023,8/16/2023,23,Lowell Cove,north,sand,11:04,NA,21.3,8,27.21,present,low,NA
+2023_q11_26,2023,8/16/2023,26,Long Point Cove,north,sand/gravel,11:47,NA,20.9,8.1,26.74,present,medium,NA
+2023_q11_22,2023,8/16/2023,22,Snow Island,north,gravel,12:25,NA,21.3,8.79,27.45,absent,absent,NA
+2023_q11_21,2023,8/16/2023,21,Orrs Cove,north,mud,13:23,overcast,22.4,8.64,28.85,absent,absent,NA
+2023_123_05,2023,8/17/2023,5,The Brothers - North,Mid,sand/gravel,10:50,overcast,19.8,NA,NA,absent,low,NA
+2023_123_06,2023,8/17/2023,6,Mackworth Island - North,Mid,mud/shell,11:52,overcast,18.8,NA,NA,present,medium,NA
+2023_124_12,2023,8/22/2023,12,Alewife Cove,Outer,sand/gravel,10:52,sunny,17.4,NA,NA,absent,low,NA
+2023_124_11,2023,8/22/2023,11,Cushing Island,Outer,mud/sand,11:54,sunny,18.4,NA,NA,present,low,NA
+2023_124_10,2023,8/22/2023,10,SMCC,Outer,sand/gravel,12:34,sunny,19.57,NA,NA,present,medium,NA
+2023_124_09,2023,8/22/2023,9,Great Diamond Island,Outer,sand/gravel,13:06,sunny,19.98,NA,NA,present,low,NA
+2023_124_04,2023,8/22/2023,4,Mussel Cove,Mid,mud,13:45,sunny,20.3,NA,NA,absent,low,first instance of summer flounder
+2023_124_05,2023,8/22/2023,5,The Brothers - North,Mid,sand/gravel,14:20,sunny,19.87,NA,NA,absent,low,NA
+2023_124_06,2023,8/22/2023,6,Mackworth Island - North,Mid,mud/shell,14:54,partly cloudy,20.3,NA,NA,absent,low,NA
+2023_125_08,2023,8/24/2023,8,Back Cove,Mid,mud/gravel,07:40,sunny,16.1,NA,NA,absent,low,NA
+2023_125_07,2023,8/24/2023,7,Mackworth Island - Beach,Mid,sand/shell,08:25,sunny,19.45,NA,NA,absent,high,NA
+2023_125_02,2023,8/24/2023,2,Skitterygusset,Inner,mud,09:11,sunny,21.28,NA,NA,absent,absent,"no fish, bag tangled in low water"
+2023_125_01,2023,8/24/2023,1,Presumpscot Moorings,Inner,mud/gravel,09:44,sunny,22.08,NA,NA,absent,absent,NA
+2023_125_03,2023,8/24/2023,3,Audubon,Inner,mud/sand,10:35,sunny,21.81,NA,NA,absent,low,NA
+2023_q12_21,2023,8/28/2023,21,Orrs Cove,north,mud,08:40,sunny,20.2,6.76,29.24,absent,low,NA
+2023_q12_22,2023,8/28/2023,22,Snow Island,north,mud,09:10,sunny,19.8,7.42,29.5,absent,absent,NA
+2023_q12_26,2023,8/28/2023,26,Long Point Cove,north,mud/gravel,09:55,sunny,19.4,8.2,28.99,present,medium,NA
+2023_q12_23,2023,8/28/2023,23,Lowell Cove,north,sand/gravel,10:25,sunny,19.9,7.44,28.81,absent,absent,NA
+2023_q12_24,2023,8/28/2023,24,Cedar Beach,north,sand/gravel,10:50,sunny,19.5,7.8,29.04,absent,absent,NA
+2023_q12_25,2023,8/28/2023,25,Garrison Cove,north,sand/gravel,11:25,sunny,18.8,7.78,29.6,absent,absent,NA
+2024_001_28,2024,6/6/2024,28,Stovers Point,north,sand/gravel,08:40,fog,14.5,8.74,30.7,absent,absent,NA
+2024_001_25,2024,6/6/2024,25,Garrison Cove,north,sand/gravel,09:12,fog,15.3,8.99,30.3,present,low,NA
+2024_001_23,2024,6/6/2024,23,Lowell Cove,north,sand/gravel,09:48,fog,17.3,9.48,30.05,present,absent,NA
+2024_001_26,2024,6/6/2024,26,Long Point Cove,north,sand/gravel,11:11,fog,17,8.96,30.19,absent,low,NA
+2024_001_21,2024,6/6/2024,21,Orrs Cove,north,sand,12:18,fog,18.9,8.27,30.16,absent,low,NA
+2024_001_22,2024,6/6/2024,22,Snow Island,north,sand/gravel,12:36,fog,17.9,8.62,30.37,absent,absent,NA
+2024_001_09,2024,6/11/2024,9,Great Diamond Island,Outer,sand/gravel,10:20,partly cloudy,15.4,NA,NA,absent,medium,sonde not working
+2024_001_11,2024,6/11/2024,11,Cushing Island,Outer,mud/sand,10:55,NA,14.8,NA,NA,absent,low,sonde not working
+2024_001_10,2024,6/11/2024,10,SMCC,Outer,sand/gravel,11:30,NA,14.8,NA,NA,present,medium,sonde not working
+2024_001_06,2024,6/11/2024,6,Mackworth Island - North,Mid,mud/shell,12:10,NA,15.4,NA,NA,NA,NA,sonde not working
+2024_002_21,2024,6/17/2024,21,Orrs Cove,north,mud,07:41,cloudy/windy,16.1,7.31,31,absent,low,NA
+2024_002_22,2024,6/17/2024,22,Snow Island,north,rock,08:26,cloudy/windy,15.2,8.26,31.16,absent,absent,NA
+2024_002_26,2024,6/17/2024,26,Long Point Cove,north,mud/gravel,09:15,cloudy/windy,14.8,8.22,31.19,present,low,NA
+2024_002_23,2024,6/17/2024,23,Lowell Cove,north,sand/gravel,09:42,cloudy/windy,16.1,8.32,31.7,absent,low,NA
+2024_002_25,2024,6/17/2024,25,Garrison Cove,north,sand/gravel,10:15,cloudy/windy,13.2,8.68,31.58,absent,absent,NA
+2024_002_28,2024,6/17/2024,28,Stovers Point,north,rock,10:40,cloudy/windy,14.5,9.01,31.43,absent,absent,NA
+2024_002_07,2024,6/18/2024,7,Mackworth Island - Beach,Mid,sand,10:10,mostly sunny,14.52,766.5,22.7,absent,low,NA
+2024_002_03,2024,6/18/2024,3,Audubon,Inner,NA,10:40,NA,14.9,766.4,21.35,NA,low,tree downed on usual site
+2024_002_02,2024,6/18/2024,2,Skitterygusset,Inner,mud,11:08,NA,15.77,766.5,19.7,absent,low,NA
+2024_002_01,2024,6/18/2024,1,Presumpscot Moorings,Inner,mud,11:35,NA,19.9,766.4,14.65,NA,NA,no fish
+2024_003_05,2024,6/21/2024,5,The Brothers - North,Mid,sand/gravel,09:54,mostly cloudy,18,767.1,22.84,present,low,seaweed
+2024_003_04,2024,6/21/2024,4,Mussel Cove,Mid,mud,10:22,mostly cloudy,18.3,767,22.73,absent,low,NA
+2024_003_08,2024,6/21/2024,8,Back Cove,Mid,mud/gravel,11:02,mostly cloudy,15.85,767.1,22.02,absent,absent,NA
+2024_003_28,2024,6/24/2024,28,Stovers Point,north,sand/gravel,10:37,sunny,15.6,8.41,30.14,absent,low,NA
+2024_003_25,2024,6/24/2024,25,Garrison Cove,north,sand/gravel,11:01,sunny,15.9,8.74,30.18,present,medium,NA
+2024_003_26,2024,6/24/2024,26,Long Point Cove,north,mud/gravel,12:20,sunny,19.4,8.42,30.33,absent,low,NA
+2024_003_23,2024,6/24/2024,23,Lowell Cove,north,mud,12:25,sunny,20.9,8.19,30.14,absent,low,NA
+2024_003_22,2024,6/24/2024,22,Snow Island,north,mud/gravel,14:01,sunny,20.2,9.8,30.57,absent,absent,NA
+2024_003_21,2024,6/24/2024,21,Orrs Cove,north,mud,15:00,sunny,21.3,7.59,28.69,absent,low,NA
+2024_004_12,2024,6/28/2024,12,Alewife Cove,Outer,sand/gravel,09:05,sunny,13.1,NA,22.9,absent,low,windy; sand lance escaping net
+2024_004_11,2024,6/28/2024,11,Cushing Island,Outer,mud/sand,09:30,NA,13.3,NA,23.15,absent,low,no fish; inverted set
+2024_004_10,2024,6/28/2024,10,SMCC,Outer,sand/gravel,10:20,sunny,14.7,NA,22.41,NA,low,NA
+2024_005_08,2024,7/2/2024,8,Back Cove,Mid,mud/gravel,09:45,sunny,15.6,NA,22.71,absent,absent,no fish
+2024_005_06,2024,7/2/2024,6,Mackworth Island - North,Mid,mud/shell,10:19,sunny,16.04,NA,23.21,present,medium,NA
+2024_005_04,2024,7/2/2024,4,Mussel Cove,Mid,mud,10:54,NA,16.79,NA,23.04,present,low,NA
+2024_005_05,2024,7/2/2024,5,The Brothers - North,Mid,sand/gravel,11:31,sunny,15.96,NA,23.33,present,low,NA
+2024_005_09,2024,7/2/2024,9,Great Diamond Island,Outer,sand/gravel,12:03,sunny,15.96,NA,23.14,present,low,NA
+2024_004_25,2024,7/3/2024,25,Garrison Cove,north,sand/gravel,07:59,sunny,15.5,8.3,31.32,present,low,NA
+2024_004_28,2024,7/3/2024,28,Stovers Point,north,rock,08:27,sunny,15.4,8.73,31.2,absent,absent,NA
+2024_004_23,2024,7/3/2024,23,Lowell Cove,north,sand/gravel,09:15,sunny,16.4,8.69,30.66,absent,absent,NA
+2024_004_26,2024,7/3/2024,26,Long Point Cove,north,sand/gravel,09:48,sunny,17.1,8.37,31.42,absent,absent,NA
+2024_004_22,2024,7/3/2024,22,Snow Island,north,sand/gravel,10:13,sunny,17.6,8.39,31.71,absent,absent,NA
+2024_004_21,2024,7/3/2024,21,Orrs Cove,north,mud/gravel,10:46,sunny,19.9,8.48,31.48,absent,absent,NA
+2024_006_07,2024,7/5/2024,7,Mackworth Island - Beach,Mid,sand,08:40,cloudy,16.23,NA,22.48,present,low,seaweed
+2024_006_03,2024,7/5/2024,3,Audubon,Inner,NA,09:10,cloudy,16.49,NA,20.84,absent,low,NA
+2024_006_01,2024,7/5/2024,1,Presumpscot Moorings,Inner,mud,09:30,cloudy,20.89,NA,11.42,absent,absent,NA
+2024_006_02,2024,7/5/2024,2,Skitterygusset,Inner,mud,10:16,cloudy,17.05,NA,20.14,absent,absent,NA
+2024_005_28,2024,7/8/2024,28,Stovers Point,north,rock,10:35,sunny,18.3,9.03,31.33,absent,absent,NA
+2024_005_25,2024,7/8/2024,25,Garrison Cove,north,sand/shell,10:57,sunny,18,8.72,31.09,present,low,NA
+2024_005_23,2024,7/8/2024,23,Lowell Cove,north,sand/gravel,11:25,sunny,24.1,8.29,31.19,absent,absent,NA
+2024_005_26,2024,7/8/2024,26,Long Point Cove,north,mud/gravel,12:31,sunny,22.3,9.32,31.1,present,absent,NA
+2024_005_22,2024,7/8/2024,22,Snow Island,north,mud,13:24,sunny,23,9.96,33.53,absent,absent,NA
+2024_005_21,2024,7/8/2024,21,Orrs Cove,north,mud,14:03,sunny,24.9,10.7,31.56,absent,absent,NA
+2024_007_11,2024,7/11/2024,11,Cushing Island,Outer,mud/sand,10:19,cloudy,15.56,NA,23.33,present,medium,NA
+2024_007_10,2024,7/11/2024,10,SMCC,Outer,sand/gravel,10:49,cloudy,15.9,NA,23.3,present,medium,NA
+2024_007_09,2024,7/11/2024,9,Great Diamond Island,Outer,sand/gravel,11:23,cloudy,17.48,NA,22.97,present,low,NA
+2024_007_05,2024,7/11/2024,5,The Brothers - North,Mid,sand/gravel,11:45,mostly cloudy,19.69,NA,22.39,present,low,NA
+2024_008_12,2024,7/16/2024,12,Alewife Cove,Outer,sand/gravel,09:43,partly cloudy,12.94,NA,23.64,absent,absent,lots of rocks
+2024_008_02,2024,7/16/2024,2,Skitterygusset,Inner,mud,10:41,mostly sunny,21.32,NA,19.44,absent,absent,NA
+2024_008_01,2024,7/16/2024,1,Presumpscot Moorings,Inner,mud,11:17,partly cloudy,21.66,NA,4.77,absent,low,set done at river ledge
+2024_008_03,2024,7/16/2024,3,Audubon,Inner,NA,11:52,partly cloudy,20.75,NA,20.27,NA,low,sturgeon
+2024_006_21,2024,7/17/2024,21,Orrs Cove,north,mud/sand,07:41,sunny,25.5,6.24,31.22,absent,absent,NA
+2024_006_22,2024,7/17/2024,22,Snow Island,north,rock,08:21,sunny,24.3,7.6,31.29,absent,absent,NA
+2024_006_26,2024,7/17/2024,26,Long Point Cove,north,mud/gravel,08:57,sunny,23.3,6.89,31,present,low,NA
+2024_006_23,2024,7/17/2024,23,Lowell Cove,north,mud/gravel,09:28,sunny,23.5,7.4,30.92,absent,absent,NA
+2024_006_25,2024,7/17/2024,25,Garrison Cove,north,sand/shell,09:54,sunny,19.9,8.08,31.77,absent,absent,NA
+2024_006_28,2024,7/17/2024,28,Stovers Point,north,rock,10:18,sunny,20.2,8.44,31.61,present,absent,NA
+2024_009_08,2024,7/18/2024,8,Back Cove,Mid,mud/gravel,10:00,mostly cloudy,17.21,NA,22.95,absent,absent,NA
+2024_009_04,2024,7/18/2024,4,Mussel Cove,Mid,mud,10:30,partly cloudy,22.06,NA,23.08,NA,low,NA
+2024_009_06,2024,7/18/2024,6,Mackworth Island - North,Mid,mud/shell,11:00,mostly cloudy,18.43,NA,23.14,present,medium,NA
+2024_009_07,2024,7/18/2024,7,Mackworth Island - Beach,Mid,sand,11:38,mostly cloudy,18.87,NA,21.89,absent,low,NA
+2024_007_28,2024,7/22/2024,28,Stovers Point,north,rock,09:52,sunny,19.4,7.94,31.94,absent,absent,NA
+2024_007_25,2024,7/22/2024,25,Garrison Cove,north,sand/shell,10:20,sunny,18.4,8.2,31.73,present,low,NA
+2024_007_23,2024,7/22/2024,23,Lowell Cove,north,mud/gravel,10:45,sunny,21.7,7.81,31.56,present,low,NA
+2024_007_26,2024,7/22/2024,26,Long Point Cove,north,sand/gravel,11:17,sunny,21.4,8.14,31.62,absent,low,NA
+2024_007_22,2024,7/22/2024,22,Snow Island,north,mud,11:50,sunny,22.8,8.97,31.6,absent,absent,NA
+2024_007_21,2024,7/22/2024,21,Orrs Cove,north,gravel,12:31,sunny,22.7,8.36,31.56,absent,absent,NA
+2024_010_08,2024,7/30/2024,8,Back Cove,Mid,mud/gravel,09:28,cloudy,17.09,NA,22.59,absent,absent,NA
+2024_010_04,2024,7/30/2024,4,Mussel Cove,Mid,mud,10:10,cloudy,17.17,NA,23.42,absent,low,NA
+2024_010_05,2024,7/30/2024,5,The Brothers - North,Mid,sand/gravel,10:48,NA,18.02,NA,22.64,present,absent,NA
+2024_010_06,2024,7/30/2024,6,Mackworth Island - North,Mid,mud/shell,11:15,cloudy,17.04,NA,23.38,present,medium,NA
+2024_010_09,2024,7/30/2024,9,Great Diamond Island,Outer,sand/gravel,11:56,cloudy,17.02,NA,23.07,present,low,NA
+2024_010_10,2024,7/30/2024,10,SMCC,Outer,sand/gravel,12:15,NA,16.03,NA,23.25,present,medium,dog in water before sampling
+2024_008_28,2024,8/1/2024,28,Stovers Point,north,rock,07:57,sunny,17.6,8.309,31.37,present,low,NA
+2024_008_25,2024,8/1/2024,25,Garrison Cove,north,sand/shell,08:17,sunny,18.3,8.45,31.26,present,low,NA
+2024_008_23,2024,8/1/2024,23,Lowell Cove,north,sand,09:04,sunny,20.3,7.2,31.11,present,absent,NA
+2024_008_26,2024,8/1/2024,26,Long Point Cove,north,mud/gravel,09:25,sunny,19.8,7.47,31.24,present,low,NA
+2024_008_22,2024,8/1/2024,22,Snow Island,north,mud/gravel,10:12,sunny,21,8.03,31.46,absent,absent,NA
+2024_008_21,2024,8/1/2024,21,Orrs Cove,north,mud/sand,10:49,sunny,22.3,7.55,31.54,absent,absent,NA
+2024_009_28,2024,8/5/2024,28,Stovers Point,north,mud,10:53,sunny,19.5,8.15,31.26,absent,absent,NA
+2024_009_25,2024,8/5/2024,25,Garrison Cove,north,sand/shell,11:15,sunny,20.2,8.45,30.8,present,absent,NA
+2024_009_23,2024,8/5/2024,23,Lowell Cove,north,sand,11:40,sunny,20.6,8.53,30.84,absent,absent,NA
+2024_009_26,2024,8/5/2024,26,Long Point Cove,north,mud/gravel,12:20,sunny,21.7,7.98,30.94,present,low,NA
+2024_009_22,2024,8/5/2024,22,Snow Island,north,mud/gravel,13:10,sunny,24.3,9.06,31.38,absent,low,NA
+2024_009_21,2024,8/5/2024,21,Orrs Cove,north,mud/sand,13:39,sunny,23.8,9.4,30.64,present,absent,NA
+2024_010_28,2024,8/13/2024,28,Stovers Point,north,sand/gravel,14:01,mostly sunny,19.6,8.75,31.36,present,low,NA
+2024_010_25,2024,8/13/2024,25,Garrison Cove,north,sand/shell,14:25,sunny,21.1,8.61,31.2,absent,absent,NA
+2024_011_21,2024,8/14/2024,21,Orrs Cove,north,mud/shell,07:13,sunny,20.6,7.26,30.95,present,absent,NA
+2024_011_22,2024,8/14/2024,22,Snow Island,north,mud/shell,07:42,sunny,20.3,7.51,31.16,absent,absent,NA
+2024_011_26,2024,8/14/2024,26,Long Point Cove,north,sand/gravel,08:19,cloudy,19.9,7.44,31.07,present,low,NA
+2024_011_23,2024,8/14/2024,23,Lowell Cove,north,mud/gravel,08:45,sunny,18.3,6.92,31.13,present,absent,NA
+2024_012_28,2024,8/21/2024,28,Stovers Point,north,rock/gravel,09:52,partly cloudy,18.1,8.6,30.48,absent,absent,NA
+2024_012_25,2024,8/21/2024,25,Garrison Cove,north,sand/gravel,10:16,partly cloudy,17.7,8.13,30.25,absent,absent,NA
+2024_012_23,2024,8/21/2024,23,Lowell Cove,north,sand,10:39,partly cloudy,19.7,7.51,29.85,absent,absent,NA
+2024_012_26,2024,8/21/2024,26,Long Point Cove,north,sand/gravel,11:11,partly cloudy,20.2,7.41,29.75,absent,absent,NA
+2024_012_22,2024,8/21/2024,22,Snow Island,north,sand,11:45,partly cloudy,20.5,8.07,29.87,present,absent,NA
+2024_012_21,2024,8/21/2024,21,Orrs Cove,north,mud,12:19,partly cloudy,21,6.83,29.8,absent,absent,NA
+2024_013_28,2024,9/6/2024,28,Stovers Point,north,sand/gravel,11:48,cloudy,16.8,8.54,32.17,absent,absent,NA
+2024_013_26,2024,9/6/2024,25,Garrison Cove,north,sand,12:17,partly cloudy,17.2,8.1,32.04,present,absent,NA
+2024_013_23,2024,9/6/2024,23,Lowell Cove,north,mud/sand,12:40,cloudy,19.5,7.69,31.81,absent,absent,NA
+2024_013_26,2024,9/6/2024,26,Long Point Cove,north,mud/sand,13:19,sunny,18.6,7.89,31.95,absent,absent,NA
+2024_013_22,2024,9/6/2024,22,Snow Island,north,mud/sand,14:00,mostly cloudy,19.1,8.06,31.91,absent,absent,NA
+2024_013_21,2024,9/6/2024,21,Orrs Cove,north,mud,14:59,sunny,19.2,7.9,31.9,absent,absent,NA
+2024_011_10,2024,9/24/2024,10,SMCC,Outer,sand/gravel,10:45,cloudy,NA,NA,NA,absent,absent,NA
+2024_012_10,2024,9/26/2024,10,SMCC,Outer,sand/gravel,10:17,rain,NA,NA,NA,present,low,NA
+2024_013_08,2024,9/27/2024,8,Back Cove,Mid,mud/gravel,09:35,sunny,15.78,NA,22.6,absent,absent,NA
+2024_013_01,2024,9/27/2024,1,Presumpscot Moorings,Inner,mud,10:08,sunny,16.6,NA,7.79,absent,medium,NA
+2024_013_02,2024,9/27/2024,2,Skitterygusset,Inner,mud,10:31,sunny,15.95,NA,20.84,absent,medium,NA
+2024_013_03,2024,9/27/2024,3,Audubon,Inner,NA,10:50,sunny,15.75,NA,21.86,absent,medium,NA
+2024_013_07,2024,9/27/2024,7,Mackworth Island - Beach,Mid,sand,11:14,sunny,16.67,NA,16.54,NA,NA,NA
+2024_013_06,2024,9/27/2024,6,Mackworth Island - North,Mid,mud/shell,11:40,sunny,16.1,NA,23.55,present,medium,NA
+2024_014_12,2024,10/2/2024,12,Alewife Cove,Outer,sand/gravel,09:36,mostly cloudy,15.49,NA,23.42,NA,NA,bad set
+2024_015_11,2024,10/9/2024,11,Cushing Island,Outer,mud/sand,10:45,partly cloudy,14.98,NA,23.58,absent,low,NA
+2024_015_09,2024,10/9/2024,9,Great Diamond Island,Outer,sand/gravel,11:15,NA,14.71,NA,22.86,absent,low,NA
+2024_015_05,2024,10/9/2024,5,The Brothers - North,Mid,sand/gravel,11:30,NA,15.26,NA,23.55,NA,low,no fish
+2024_015_04,2024,10/9/2024,4,Mussel Cove,Mid,mud,12:10,NA,15.3,NA,23.66,NA,NA,NA
+2025_01_28,2025,5/14/2025,28,Stovers Point,north,sand/gravel,10:28,sunny,9.6,8.51,,absent,absent ,salinity sensor broken
+2025_01_25,2025,5/14/2025,25,Garrison Cove,north,sand/gravel,11:00,sunny,11.6,8.14,,absent,medium,caught small jellies
+2025_01_23,2025,5/14/2025,23,Lowell Cove,north,sand/mud,11:32,sunny,12.5,8.2,,present,low,high seaweed content
+2025_01_26,2025,5/14/2025,26,Long Point Cove,north,sand,12:18,sunny,12.2,8.01,,absent,medium,"caught small jellies, no fish good set"
+2025_01_22,2025,5/14/2025,22,Snow Island,north,mud,12:44,sunny,12.9,7.8,,absent,low,caught small jellies
+2025_01_21,2025,5/14/2025,21,Orrs Cove,north,mud,13:15,sunny,13,7.59,,absent,low,caught small jellies
+2025_02_22,2025,6/6/2025,22,Snow Island,north,mud,07:45,overcast,17.1,9.04,26.57,present,low,caught jellyfish
+2025_02_21,2025,6/6/2025,21,Orrs Cove,north,mud,08:36,overcast,18.2,8.17,27.62,absent ,low,"caught jellyfish, bag flipped on rock "
+2025_02_26,2025,6/6/2025,26,Long Point Cove,north,sand,09:22,rain,17,9.08,25.29,present,medium,caught jellyfish
+2025_01_10,2025,6/11/2025,10,SMCC,Outer,sand/gravel,10:36,,,,,present,low,lots of macroalgae
+2025_01_09,2025,6/11/2025,9,Back Cove,Mid,mud/gravel,11:08,sunny,,,,,,silversides ripe & runnning; mating horseshoe crabs
+2025_01_03,2025,6/11/2025,3,Audubon,Inner,mud/sand,11:37,,,,,,,good set no fish
+2025_01_02,2025,6/11/2025,2,Skitterygusset,Inner,mud,11:57,,,,,absent,low,NA
+2025_01_01,2025,6/11/2025,1,Presumpscot Moorings,Inner,mud,12:13,,,,,,,good set no fish; no sonde
+2025_01_12,2025,6/11/2025,12,Alewife Cove,Outer,sand/gravel,,,,,,,,good set no fish
+2025_03_28,2025,6/12/2025,28,Stovers Point ,north,gravel ,10:47,sunny,15.4,9.11,29.23,absent ,absent ,good set no fish 
+2025_03_25,2025,6/12/2025,25,Garrison Cove,north,sand,11:11,sunny,14.9,9.04,29.06,present,low,lots of hermit crabs 
+2025_03_23,2025,6/12/2025,23,Lowell Cove,north,mud/sand,11:40,partly cloudy,16.6,8.88,28.09,present,medium,NA
+2025_03_26,2025,6/12/2025,26,Long Point Cove,north,sand,12:28,sunny,17.1,9.01,28.16,absent,low,lots of pollen on the surface; jellyfish
+2025_03_22,2025,6/12/2025,22,Snow Island,north,mud/sand,13:06,sunny,20.5,8.9,27.88,present,medium,NA
+2025_03_21,2025,6/12/2025,21,Orrs Cove,north,mud,13:42,sunny,21.3,8.85,27.36,present,low,lots of pollen in the water 
+2025_02_07,2025,6/18/2025,7,Mussel Cove,Mid,mud,09:45,rain,,,,,low,good set no fish
+2025_02_06,2025,6/18/2025,6,The Brothers - North,Mid,sand/gravel,10:20,,,,,,low,NA
+2025_02_05,2025,6/18/2025,5,Mackworth Island - North,Mid,mud/shell,10:55,,,,,present,medium,NA
+2025_02_08,2025,6/18/2025,8,Great Diamond Island,Outer,sand/gravel,11:28,,,,,present,medium,NA
+2025_02_04,2025,6/18/2025,4,Mackworth Island - Beach,Mid,sand,12:00,,,,,present,low,NA
+2025_02_11,2025,6/18/2025,11,Cushing Island,Outer,mud/sand,13:10,,,,,present,low,lots of macroalgae; no sonde
+2025_04_23,2025,6/19/2025,23,Lowell Cove,north,sand,07:32,fog,16.7,7.45,29.93,present,low,jellyfish
+2025_04_25,2025,6/19/2025,25,Garrison Cove,north,sand/gravel,08:04,fog,14.9,8.75,30.45,present,low,jellyfish
+2025_04_28,2025,6/19/2025,28,Stovers Point,north,gravel ,08:31,fog,15.2,8.36,30.35,absent,low,jellyfish
+2025_04_21,2025,6/20/2025,21,Orrs Cove,north,mud,07:23,sun,19,8.03,24.42,absent,absent,jellyfish
+2025_04_22,2025,6/20/2025,22,Snow Island,north,mud/sand,08:03,sun,,,,,,bad set
+2025_04_22,2025,6/20/2025,22,Snow Island,north,mud/sand,08:15,sun,18.1,7.97,29.89,absent,absent,good set no fish
+2025_04_26,2025,6/20/2025,26,Long Point Cove,north,sand,08:38,sun,17.3,7.75,29.95,absent,medium,jellyfish
+2025_03_12,2025,6/25/2025,12,Alewife Cove,Outer,sand/gravel,10:00,overcast,,,,absent,low,good set no fish; started to rain leaving site
+2025_05_28,2025,6/25/2025,28,Stovers Point,north,gravel ,10:28,overcast,15.3,8.71,31.25,absent,absent,good set no fish
+2025_03_11,2025,6/25/2025,11,Cushing Island,Outer,mud/sand,10:40,rain,,,,present,low,jellyfish
+2025_05_25,2025,6/25/2025,25,Garrison Cove,north,sand,10:47,overcast,17,8.52,31.03,present,medium,NA
+2025_03_10,2025,6/25/2025,10,SMCC,Outer,sand/gravel,11:12,rain,,,,present,low,NA
+2025_05_23,2025,6/25/2025,23,Lowell Cove,north,mud/sand,11:16,overcast,19.5,8.34,30.84,absent,low,NA
+2025_03_08,2025,6/25/2025,8,Great Diamond Island,Outer,sand/gravel,11:38,rain,,,,present,low,good set no fish
+2025_03_07,2025,6/25/2025,7,Mussel Cove,Mid,mud,12:05,rain,,,,,,good set no fish
+2025_05_26,2025,6/25/2025,26,Long Point Cove,north,sand/gravel,12:10,sun,18.7,8.29,30.89,absent,low,NA
+2025_03_06,2025,6/25/2025,6,The Brothers - North,Mid,sand/gravel,12:33,rain,,,,present,absent,good set no fish
+2025_05_22,2025,6/25/2025,22,Snow Island,north,mud/sand,12:47,sun,21.1,8.89,30.87,absent,absent,cove filled with dead pogies from purse seine release
+2025_05_21,2025,6/25/2025,21,Orrs Cove,north,mud,13:28,sunny,20.8,7.17,30.86,absent,low,NA
+2025_03_09,2025,6/26/2025,9,Back Cove,Mid,mud/gravel,09:55,mostly sunny,,,,present,low,mating horseshoe crabs
+2025_03_05,2025,6/26/2025,5,Mackworth Island - North,Mid,mud/shell,10:35,mostly sunny,,,,present,low,NA
+2025_03_03,2025,6/26/2025,3,Audubon,Inner,mud/sand,11:25,,,,,,,bad set no fish
+2025_03_02,2025,6/26/2025,2,Skitterygusset,Inner,mud,11:53,,,,,absent,low,NA
+2025_03_01,2025,6/26/2025,1,Presumpscot Moorings,Inner,mud,12:16,,,,,absent,absent,good set no fish
+2025_04_03,2025,6/30/2025,3,Audubon,Inner,mud/sand,11:45,,,,,absent,medium,SITE CONFIRMED W SB
+2025_04_04,2025,6/30/2025,4,Mackworth Island - Beach,Mid,sand,12:40,,,,,present,medium,NA
+2025_06_23,2025,7/2/2025,23,Lowell Cove,north,mud/sand,07:01,partly cloudy,18.8,7.89,30.18,absent,low,NA
+2025_06_25,2025,7/2/2025,25,Garrison Cove,north,sand,07:33,partly sunny ,16.7,8.42,30.59,present,low,NA
+2025_06_28,2025,7/2/2025,28,Stovers Point,north,gravel ,07:54,partly sunny ,16.6,8.21,30.94,absent,absent ,good set no fish 
+2025_06_22,2025,7/3/2025,22,Snow Island,north,mud,07:03,partly sunny ,20.3,7.28,30.57,absent,absent,"pogie bones in the cove, giant lions mane jelly"
+2025_06_21,2025,7/3/2025,21,Orrs Cove,north,mud,07:41,sunny,21.6,7.02,30.3,absent ,low,NA
+2025_06_26,2025,7/3/2025,26,Long Point Cove,north,sand,08:17,partly sunny ,19.2,7.92,30.44,present,low,NA
+2025_07_28,2025,7/7/2025,28,Stovers Point,north,gravel ,07:37,sunny,16.1,8.08,31.36,absent,absent,bad set no fish 
+2025_07_25,2025,7/7/2025,25,Garrison Cove,north,sand,08:12,sunny,15.5,8.14,31.35,present,low,NA
+2025_07_23,2025,7/7/2025,23,Lowell Cove,north,sand,08:36,sunny,19.6,7.41,31.04,absent,low,NA
+2025_07_26,2025,7/7/2025,26,Long Point Cove,north,sand,09:11,sunny,18.5,7.94,31.02,absent,absent,NA
+2025_07_22,2025,7/7/2025,22,Snow Island,north,mud,09:41,partly cloudy ,20.3,7.88,31.12,absent,absent,short set 
+2025_07_21,2025,7/7/2025,21,Orrs Cove,north,mud,10:20,partly cloudy ,21.3,8.19,30.9,absent,low,NA
+2025_05_12,2025,7/8/2025,12,Alewife Cove,Outer,sand/gravel,09:37,,,,,absent,low,good set no fish
+2025_05_11,2025,7/8/2025,11,Cushing Island,Outer,mud/sand,10:12,,,,,absent,low,NA
+2025_05_08,2025,7/8/2025,8,Great Diamond Island,Outer,sand/gravel,10:49,,,,,,low,some fish escaping through net
+2025_05_07,2025,7/8/2025,7,Mussel Cove,Mid,mud,11:25,,,,,present,medium,NA
+2025_05_04,2025,7/9/2025,4,Mackworth Island - Beach,Mid,sand,09:25,cloudy,,,,absent,high,NA
+2025_05_03,2025,7/9/2025,3,Audubon,Inner,mud/sand,10:02,cloudy,,,,absent,low,set to left of downed tree; like this for rest of year
+2025_05_02,2025,7/9/2025,2,Skitterygusset,Inner,mud,10:30,cloudy,,,,absent,medium,caught sturgeon
+2025_05_01,2025,7/9/2025,1,Presumpscot Moorings,Inner,mud,11:00,cloudy,,,,absent,low,Aaron has photo of chub
+2025_05_09,2025,7/9/2025,9,Back Cove,Mid,mud/gravel,11:45,cloudy,,,,absent,low,NA
+2025_05_10,2025,7/11/2025,10,SMCC,Outer,sand/gravel,09:27,cloudy,,,,present,low,many sandlance escaping through net
+2025_05_05,2025,7/11/2025,5,Mackworth Island - North,Mid,mud/shell,10:04,cloudy,,,,present,medium,NA
+2025_05_06,2025,7/11/2025,6,The Brothers - North,Mid,sand/gravel,10:39,cloudy,,,,present,low,CONFIRM DATES
+2025_08_28,2025,7/23/2025,28,Stovers Point,north,gravel ,07:54,sun,15.2,8.9,31.5,absent,absent,NA
+2025_08_25,2025,7/23/2025,25,Garrison Cove,north,sand,08:22,sun,15.3,8.66,31.63,absent,absent,NA
+2025_08_23,2025,7/23/2025,23,Lowell Cove,north,sand,08:50,sun,15.8,8.13,31.54,present,low,NA
+2025_08_26,2025,7/23/2025,26,Long Point Cove,north,sand,09:20,sun,15.8,8.22,31.57,present,low,NA
+2025_08_21,2025,7/23/2025,21,Orrs Cove,north,mud,10:01,sun,16.7,7.43,31.54,absent,absent ,good set no fish
+2025_08_22,2025,7/23/2025,22,Snow Island,north,mud,10:41,sun,16.2,8.31,31.77,absent,absent ,NA
+2025_06_12,2025,7/24/2025,12,Alewife Cove,Outer,sand/gravel,09:41,,,,,,,NA
+2025_06_11,2025,7/24/2025,11,Cushing Island,Outer,mud/sand,10:17,,,,,absent,low,NA
+2025_06_08,2025,7/24/2025,8,Great Diamond Island,Outer,sand/gravel,10:50,,,,,absent,low,NA
+2025_06_07,2025,7/24/2025,7,Mussel Cove,Mid,mud,11:20,,,,,,low,good set no fish; small fish escaping net
+2025_06_06,2025,7/24/2025,6,The Brothers - North,Mid,sand/gravel,11:50,,,,,present,absent,NA
+2025_06_05,2025,7/24/2025,5,Mackworth Island - North,Mid,mud/shell,12:24,,,,,absent,absent,bad set no fish
+2025_06_10,2025,7/25/2025,10,SMCC,Outer,sand/gravel,09:34,overcast,,,,present,low,NA
+2025_06_04,2025,7/25/2025,4,Mackworth Island - Beach,Mid,sand,10:19,cloudy,,,,present,low,NA
+2025_06_03,2025,7/25/2025,3,Audubon,Inner,mud/sand,11:00,cloudy,,,,absent,low,NA
+2025_06_02,2025,7/25/2025,2,Skitterygusset,Inner,mud,11:35,cloudy,,,,absent,low,NA
+2025_06_01,2025,7/25/2025,1,Presumpscot Moorings,Inner,mud,12:24,cloudy,,,,,,NA
+2025_06_09,2025,7/25/2025,9,Back Cove,Mid,mud/gravel,13:08,cloudy,,,,,,bad set
+2025_09_26,2025,7/28/2025,26,Long Point Cove,north,sand,13:00,fog,20,8.84,31.78,present,low,NA
+2025_09_22,2025,7/28/2025,22,Snow Island,north,mud,13:30,sun,20.5,8.67,31.71,absent,absent,NA
+2025_09_21,2025,7/28/2025,21,Orrs Cove,north,mud,14:10,sun,21.4,7.77,31.68,absent,low,NA
+2025_09_28,2025,7/29/2025,28,Stovers Point,north,gravel ,12:38,sun,16.5,8.69,31.98,absent,absent,good set no fish
+2025_09_25,2025,7/29/2025,25,Garrison Cove,north,sand,12:59,sun,16.9,8.59,31.85,present,low,good set no fish
+2025_09_23,2025,7/29/2025,23,Lowell Cove,north,mud/sand,13:22,sun,22.4,9,31.85,present,low,NA
+2025_07_12,2025,8/4/2025,12,Alewife Cove,Outer,sand/gravel,09:30,partly cloudy,,,,absent,absent,good set no fish
+2025_07_11,2025,8/4/2025,11,Cushing Island,Outer,mud/sand,10:00,partly cloudy,,,,present,low,many sandlance escaping through net
+2025_07_07,2025,8/4/2025,7,Mussel Cove,Mid,mud,10:37,partly cloud,,,,absent,medium,NA
+2025_07_06,2025,8/4/2025,6,The Brothers - North,Mid,sand/gravel,11:04,partly cloudy,,,,present,low,NA
+2025_07_05,2025,8/4/2025,5,Mackworth Island - North,Mid,mud/shell,11:26,partly cloudy,,,,absent,medium,5male 4female gcrab
+2025_07_08,2025,8/4/2025,8,Great Diamond Island,Outer,sand/gravel,11:48,partly cloudy,,,,present,low,4male 3female
+2025_07_09,2025,8/5/2025,9,Back Cove,Mid,mud/gravel,09:30,,,,,absent,low,NA
+2025_07_04,2025,8/5/2025,4,Mackworth Island - Beach,Mid,sand,09:59,,,,,present,medium,NA
+2025_07_03,2025,8/5/2025,3,Audubon,Inner,mud/sand,10:33,,,,,absent,low,NA
+2025_07_02,2025,8/5/2025,2,Skitterygusset,Inner,mud,11:00,,,,,absent,low,NA
+2025_07_01,2025,8/5/2025,1,Presumpscot Moorings,Inner,mud,11:21,,,,,absent,low,NA
+2025_07_10,2025,8/5/2025,10,SMCC,Outer,sand/gravel,11:56,,,,,present,low,NA
+2025_10_28,2025,8/7/2025,28,Stovers Point,north,gravel ,08:15,partly cloudy,18,8.48,31.54,absent,absent,NA
+2025_10_25,2025,8/7/2025,25,Garrison Cove,north,sand,08:40,partly cloudy,18.6,8.6,31.51,present,absent,NA
+2025_10_23,2025,8/7/2025,23,Lowell Cove,north,mud/sand,09:09,overcast,20,7.35,31.56,present,low,NA
+2025_10_26,2025,8/7/2025,26,Long Point Cove,north,sand,09:40,partly cloudy,19.6,7.88,31.54,present,low,NA
+2025_10_21,2025,8/7/2025,21,Orrs Cove,north,mud,10:20,overcast,21,6.88,31.66,absent,low,crab ate a silverside before measure
+2025_10_22,2025,8/7/2025,22,Snow Island,north,mud,11:02,partly cloudy,20.4,8.38,31.77,absent,low,NA
+2025_11_21,2025,8/11/2025,21,Orrs Cove,north,mud,13:00,sun,24.3,8.33,31.85,present,absent,NA
+2025_11_22,2025,8/11/2025,22,Snow Island,north,mud/sand,13:40,sun,25,8.14,31.9,absent,absent,NA
+2025_11_26,2025,8/11/2025,26,Long Point Cove,north,sand,14:33,sun,23.8,9.1,31.62,present,absent,NA
+2025_11_28,2025,8/12/2025,28,Stovers Point,north,gravel ,12:52,sun,19.2,8.65,31.78,present,absent,NA
+2025_11_25,2025,8/12/2025,25,Garrison Cove,north,sand,13:19,sun,20.7,8.63,31.72,absent,absent,good set no fish
+2025_11_23,2025,8/12/2025,23,Lowell Cove,north,mud/sand,13:42,sun,26.7,8.2,31.96,absent,absent,NA
+2025_08_12,2025,8/14/2025,12,Alewife Cove,Outer,sand/gravel,09:36,partly cloudy,,,,present,low,NA
+2025_08_11,2025,8/14/2025,11,Cushing Island,Outer,mud/sand,10:10,partly cloudy,,,,present,medium,5male
+2025_08_10,2025,8/14/2025,10,SMCC,Outer,sand/gravel,10:50,partly cloudy,,,,absent,low,16male
+2025_08_08,2025,8/14/2025,8,Great Diamond Island,Outer,sand/gravel,11:13,partly cloudy,,,,absent,low,1male gc
+2025_08_06,2025,8/14/2025,6,The Brothers - North,Mid,sand/gravel,11:38,partly cloudy,,,,absent,low,3 femalegc
+2025_08_05,2025,8/14/2025,5,Mackworth Island - North,Mid,mud/shell,12:05,partly cloudy,,,,absent,medium,5 male gc
+2025_12_21,2025,8/20/2025,21,Orrs Cove,north,mud,07:48,overcast,18,7.05,31.98,absent,low,"2m 1f green crabs, lots swimming through net"
+2025_12_22,2025,8/20/2025,22,Snow Island,north,sand,08:30,overcast,17.3,Jul-56,31.99,absent,absent,NA
+2025_12_26,2025,8/20/2025,26,Long Point Cove,north,sand,09:28,overcast,17.3,7.82,31.89,absent,low,NA
+2025_12_23,2025,8/20/2025,23,Lowell Cove,north,sand,09:45,overcast,18.1,7.1,31.87,present,low,NA
+2025_12_25,2025,8/20/2025,25,Garrison Cove,north,sand,10:10,overcast,16.9,8.28,31.93,absent,absent,bad set no fish
+2025_12_28,2025,8/20/2025,28,Stovers Point,north,gravel ,10:30,overcast,16.7,8.36,31.99,absent,low,NA
+2025_09_09,2025,8/21/2025,9,Back Cove,Mid,mud/gravel,09:36,sunny,,,,absent,low,NA
+2025_09_07,2025,8/21/2025,7,Mussel Cove,Mid,mud,10:17,sunny,,,,absent,absent,NA
+2025_09_04,2025,8/21/2025,4,Mackworth Island - Beach,Mid,sand,10:46,sunny,,,,present,low,NA
+2025_09_03,2025,8/21/2025,3,Audubon,Inner,mud/sand,11:10,sunny,,,,absent,low,NA
+2025_09_02,2025,8/21/2025,2,Skitterygusset,Inner,mud,11:33,sunny,,,,absent,low,NA
+2025_09_01,2025,8/21/2025,1,Presumpscot Moorings,Inner,mud,11:58,sunny,,,,absent,absent,NA
+2025_10_12,2025,8/29/2025,12,Alewife Cove,Outer,sand/gravel,09:40,,,,,,low,NA
+2025_10_11,2025,8/29/2025,11,Cushing Island,Outer,mud/sand,10:00,,,,,absent,low,NA
+2025_10_10,2025,8/29/2025,10,SMCC,Outer,sand/gravel,10:43,,,,,,medium,NA
+2025_10_08,2025,8/29/2025,8,Great Diamond Island,Outer,sand/gravel,10:55,,,,,present,low,NA
+2025_10_06,2025,8/29/2025,6,The Brothers - North,Mid,sand/gravel,11:34,,,,,present,low,NA
+2025_10_05,2025,8/29/2025,5,Mackworth Island - North,Mid,mud/shell,11:50,,,,,present,medium,NA
+2025_13_21,2025,9/3/2025,21,Orrs Cove,north,mud,07:03,partly cloudy,20.3,6.17,32.14,absent,absent,NA
+2025_13_22,2025,9/3/2025,22,Snow Island,north,mud,07:40,partly cloudy,19.2,7.74,32.13,absent,absent,NA
+2025_13_26,2025,9/3/2025,26,Long Point Cove,north,sand,08:15,sunny,18.2,7.41,32.11,present,low,NA
+2025_13_23,2025,9/3/2025,23,Lowell Cove,north,mud/sand,08:45,sunny,18.4,7.3,32.09,present,low,dog on site
+2025_13_25,2025,9/3/2025,25,Garrison Cove,north,sand,09:12,sunny,17.9,8.22,32.2,absent,low,good set no fish
+2025_13_28,2025,9/3/2025,28,Stovers Point,north,gravel,09:31,sunny,17.8,8.3,32.35,absent,absent,NA
+2025_11_09,2025,9/4/2025,9,Back Cove,Mid,mud/gravel,09:41,sunny,,,,absent,absent,NA
+2025_11_03,2025,9/4/2025,3,Audubon,Inner,mud/sand,10:05,sunny,,,,absent,low,NA
+2025_11_02,2025,9/4/2025,2,Skitterygusset,Inner,mud,10:22,sunny,,,,absent,low,NA
+2025_11_01,2025,9/4/2025,1,Presumpscot Moorings,Inner,mud,10:40,sunny,,,,absent,absent,good set no fish
+2025_11_04,2025,9/4/2025,4,Mackworth Island - Beach,Mid,sand,11:00,sunny,,,,absent,low,11male gc 6 female gc
+2025_11_07,2025,9/4/2025,7,Mussel Cove,Mid,mud,11:29,sunny,,,,present,low,all male gc

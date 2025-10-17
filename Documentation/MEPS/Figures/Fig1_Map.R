@@ -75,7 +75,8 @@ cities <- st_transform(cities, st_crs(sites.sf))
 # Plot Casco Bay
 cascobay <- ggplot() +
   geom_sf(data=coast, fill='gray', col='gray30') +
-  geom_sf(data=sites.sf, cex=0.4) +
+  geom_sf(data=sites.sf, cex=0.4,
+          col='blue') +
   geom_sf_label_repel(data=sites.sf, aes(label=`abbrev`),
                       min.segment.length = unit(0, 'lines'), 
                       seed=150,

@@ -1,0 +1,460 @@
+---
+title: "Silverside Spawning"
+author: "Katie Lankowicz"
+date: "`r format(Sys.time(), '%B %Y')`"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+# Default to showing all code in HTML document
+knitr::opts_chunk$set(echo = TRUE)
+
+# Remove old data
+rm(list=ls())
+
+# Load packages
+library(here)
+library(tidyverse)
+library(lmtest)
+library(suntools)
+library(noaaoceans)
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+
+# Set GGplot auto theme
+# This is a bunch of information telling R how we want our plots made through ggplot to look. We'll actually go over a lot of this information later this summer. Don't worry if it doesn't make sense.
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', 
+                                            linewidth=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=12),
+                axis.text.y=element_text(size=12),
+                axis.title.x=element_text(size=12),
+                axis.title.y=element_text(size=12, angle=90, 
+                                          vjust=2),
+                plot.title=element_text(size=14, hjust = 0, 
+                                        vjust = 1.2),
+                plot.caption=element_text(hjust=0, 
+                                          face='italic', size=12)))
+```
+
+## Logistics
+
+All data needed to run this script are contained within this folder. Do not alter the file structure. Keep all data in the Data folder, etc. When you change filepaths, just change your username. Example: I'm "/Users/Katie/etc...". You'll be "/Users/[Your Name]/etc...".
+
+I have loaded some packages that you may not have. Make sure to install them first by clicking into the console (NOT this script) and using the function `install.packages("package name")`.
+
+## Background
+Atlantic silverside is the only truly annual fish in the Northwest Atlantic, with little evidence of individuals reaching age 2 (Conover 2024). Spawning occurs in shallow nearshore waters in the spring,  and young-of-year migrate to deeper offshore waters in the winter to maintain a warmer thermal habitat. It’s expected that less than 1% of the year class returns from this overwintering period on the inner continental shelf to recolonize shallow nearshore and estuarine habitats and spawn (Conover & Murawski 1982, Conover 2024). Silverside are known to spawn in the spring through early summer, indicating a temperature-related cue for the beginning of the spawning season. Laboratory studies indicate that optimum spawning temperature is somewhere around 12 degrees C (Conover, unpublished data). Field studies indicate that spawning range is between 9 and 21 degrees C (Conover and Kynard 1984).
+
+Silverside spawning is also linked to tidal and sunlight cues. Several field studies indicate that spawning occurs just after high tide, and the intensity and frequency of spawning is correlated with the height of high tide (Conover and Kynard 1984). Spawning only occurs during daylight. There is a range of sun conditions reported as coinciding with maximum spawning, from around sunrise to mid-morning (Conover and Kynard 1984, Middaugh et al. 1984). 
+
+Silverside are distributed from southern Florida, USA to the northern Gulf of St. Lawrence, Canada, implying a diversity of genetic and phenotypic adaptations to a wide range of temperatures. Casco Bay, Maine, is in the northern half of this spatial range. The rapid generation time and ubiquity of silversides to much of the North American Atlantic coast have made them a useful tool to study the varied effects of temperature on various facets of their life history. 
+
+We are interested in figuring out when Casco Bay silverside spawn. We can do this through modeling the growth of the newly-spawned (juvenile) silverside that we catch, then back-calculating to figure out how long ago they hatched. You should also be thinking about how shifts in the timing of spring seasonal warming may cause a change in the timing of silverside spawning.
+
+### CBASS seine data consistency
+Let's start by loading and cleaning up our seine dataset. GMRI has been operating the Casco Bay Aquatic Systems Survey (CBASS) out of Portland from late May through early September each year since 2014. The 12 sites GMRI samples have remained fairly consistent and range from the Presumpscot River in the north to Cape Elizabeth in the south. QBC has run an identical program across our 6 sites that has run since 2023. We will use data from both programs.
+
+Ideally, we would survey each site exactly the same way at least once a week in every summer. This ensures that any population fluctuations we observe are _real reflections of silverside population dynamics_, and not just because of weird discrepancies from our sampling scheme.
+
+Unfortunately, there have been some limited interruptions and discrepancies. Due to low funding, few seine trips were accomplished in 2019. We do not have enough data coverage in this year to figure out when the silversides were spawned. We also have a data gap in 2024, because GMRI's boat broke and they didn't go out for basically all of July and August. We can't use data from this year because this leaves a big gap and will skew our results.
+
+I have already done a ton of data cleaning to make sure we're only looking at newly-spawned juvenile silversides. It's a whole complicated process that is beyond what you have learned so far; we will discuss the basics of it when I get back. You can also read Courtney's paper from last year and the EIR_TempGrowthData.pdf file I have provided in your project folder to get an idea of what has to happen to pull the newly-spawned juvenile cohort out from the entire dataset of silversides we caught.
+
+```{r load-silverside-data}
+# Load all fish data
+load(here('QBC_Intern_Projects/2025/Silverside_Spawning/Data/Cohort_Data_2024.RData'))
+
+# Clean data
+cohort.1 <- cohort.1 %>% 
+  # Rename week
+  rename(week = wk) %>% 
+  # Include only silversides
+  filter(species_name == 'atlantic silverside') %>% 
+  # Include only juveniles
+  filter(Group == 1) %>% 
+  # Exclude data from 2024 because GMRI's boat broke
+  filter(year != 2024) %>% 
+  # keep only useful data
+  dplyr::select(-date, -period, -Group)
+
+# Remove intermediate data we don't need
+rm(abund, bio, growth.est, model.1, trips)
+
+# Check out the data
+head(cohort.1)
+
+# Plot the data
+ggplot(data=cohort.1) +
+  # Points where x position is week of year and y position is length
+  geom_point(aes(x=week, y=length_mm),
+             # Push points slightly apart on x axis to see better
+             pos=position_jitter(width = 0.2),
+             # Change transparency so we can see points better
+             alpha=0.2) +
+  # Simple linear model to check relationship of length to week
+  geom_smooth(aes(x=week, y=length_mm, 
+                  group=year),
+              # Linear model method
+              method='lm',
+              # No standard errors
+              se=F) +
+  # One year per plot
+  facet_wrap(vars(year)) +
+  # Axis labels
+  labs(x='Week of year', y='Length')
+```
+
+The dataframe includes column for species (we filtered this to only show silversides), the length of the fish, the date (this somehow got broken opening in Excel but we dont' need it), the week of the year (the week with January 1 in it is week 1), the year, and some leftover columns from other projects (period, Group). 
+
+Week, length, and year are important to us. We'll use those to figure out the growth rate of our fish. We'll then use the estimated growth rate to calculate approximate hatch time for the fish.
+
+## Calculating growth
+
+Growth of a fish over its life is calculated as a special case of a logistic growth equation, called the von Bertalanffy equation. The early life stages of fish grow quickly relative to their current body size. As they age, this growth rate slows as fish reach a maximum length. This is pretty similar to how you would have grown from an infant to an adult. 
+
+We capture and observe our juvenile silversides over an extremely short period of time. We won't see them reach their maximum size. Instead, we will treat juvenile silverside growth as a linear function of time. Growth will be be treated as consistent in every week that we observe juvenile fish. The most appropriate model would therefore be a linear regression.
+
+We need to make sure that we meet the assumptions of a linear regression. As a reminder, these are:
+* Independence of the observations in the data, and thus errors.
+* Linearity between the response and explanatory variables.
+* Normal or nearly normally distributed residuals. This is not a strict requirement if we have many samples.
+* Constant variance of the residuals.
+
+Here is our assessment of whether we meet the assumptions:
+* Independence: We know that most of the silversides we handle die, so we are not likely to be sampling the same ones in multiple weeks. 
+* Linearity: Our plot above indicates growth is approximately linear, with a constant growth rate every week
+* Normality: We have to assess this for the residuals
+* Constant variance: we have to assess this for the residuals
+
+Let's make some models and pull the residuals. We will do this for every year separately. It looks complicated, but the best way to do this is in a loop function. We will index the years so we are looking at each year at a time along the values of 2014 to 2024. The year we are using is called year _i_. For year _i_, we subset the juvenile cohort length data to only include data for that year. Then we use a generalized linear model (ordinary least squares regression) to identify how many millimeters our sampled population of silverside grow every week.
+
+We have many samples in every year (between 375 and 677 fish with length information), so we will not bother to assess the normality of residuals. What's more important is equality of variance.
+
+We can see from our above plots that the length of fishes we sample has very low variance in early weeks (all fish are around the same size). In later weeks, the variation in achieved sizes increases. This is an indication that we will fail to meet the assumption of equal variance and cannot use ordinary least squares regression. We will statistically test for equal variance using a Breusch-Pagan test (`bptest()` in the `lmtest` package). The null hypothesis of this test is that variance is equal along the range of observed length values. The alternative is that variance is not equal along the range of observed length values. We will use a confidence value of 95%, so if our p-value is less than 0.05 we will reject the null hypothesis.
+
+If we find that variance is not equivalent along the range of observed length values, we will have to use a weighted least squares regression. This is a method that does not treat observations equally-- observations with less variance in their residuals get treated as more important than observations with more variance in their residuals This helps us get more accurate growth estimates.
+
+Once we are satisfied that our model passes the assumptions of normality of residuals and equality of variance of residuals
+
+```{r calculate-growth}
+# Make blank dataframe where we will save output
+growth.1 <- data.frame(
+  year = unique(cohort.1$year),
+  growth.week = NA
+)
+
+# Loop through years
+for(i in 1:length(unique(cohort.1$year))){
+  # Do one year at a time
+  len.year <- cohort.1[cohort.1$year == unique(cohort.1$year)[i],]
+      # Use ordinary Least Squares Regression to model growth
+      mod <- glm(length_mm ~ week,
+                 data=len.year,
+                 family='gaussian')
+      # If variance is not constant, Use Weighted Least Squares Regression
+      if(lmtest::bptest(mod)$p.value < 0.05){
+        # Indicate which years failed
+        print(paste0(len.year$species_name[1], ' in ',
+                     len.year$year[1], ' has failed BP test, using WLS'))
+        # Find weights
+        wt <- 1 / lm(abs(mod$residuals) ~ mod$fitted.values)$fitted.values^2
+        
+        # Refit linear regression with weights
+        mod <- glm(length_mm ~ week,
+                  data = len.year,
+                  weights = wt,
+                  family='gaussian')
+      }
+      
+      # Extract weekly (per 7 day) growth rate and save it to the blank df
+      growth.1$growth.week[i] <- coef(mod)[2]
+}
+
+growth.1
+```
+
+In every year, the equality of variance assumption was failed and we used a weighted least squares regression instead of an ordinary least squares. That's fine. We have ended up with weekly growth rate estimates for every year.
+
+## Hatch week
+
+From other sources (Bengtson et al 1987), we can assume a size of around 4-6 mm right when silverside hatch. So, we'd want to figure out how many days it has been since our silversides were that size. This should be easy; we can use our model to predict which week of the year had fish of this size. We will use 5mm as our assumed size at hatch.
+
+```{r predict-hatchweek}
+# Merge length and growth information
+cohort.1 <- left_join(cohort.1, growth.1, by='year')
+
+# Show how growth rates vary over years
+ggplot(data=unique(dplyr::select(cohort.1, year, growth.week))) +
+  geom_point(aes(x=year, y=growth.week))
+
+# If fish are 5 mm at hatch, when were they hatched
+# Should be the difference between 5 mm (hatch size) and current size, divided by that year's weekly growth rate
+cohort.1$hatch.date.5mm <- (cohort.1$length_mm - 5) / cohort.1$growth.week
+
+# Round to a whole number
+cohort.1$hatch.date.5mm <- floor(cohort.1$hatch.date.5mm)
+
+# Plot to view overall hatch timing
+ggplot(data=cohort.1) +
+  geom_histogram(aes(x=hatch.date.5mm), binwidth = 1) +
+  labs(x='Hatch Week', y='Frequency', fill='Year')
+
+# Plot to view differences in hatch timing per year
+# This is a density plot. It is like a histogram, but shows us the proportion of responses in each week as a continuous distribution.
+ggplot(data=cohort.1) +
+  geom_density(aes(x=hatch.date.5mm, col=year, group=year)) +
+  scale_color_viridis_c() +
+  labs(x='Hatch Week', y='Proportion of fish sampled',
+       color='Year') 
+
+```
+
+Extremely cool results here. The plots indicate that silverside hatching peaks between weeks 11 and 17. Eggs develop over a period of 5 to 20 days (less than one to around three weeks), so spawning could have happened any time between week 8 and week 17. This represents a period from early March to the end of April. This is earlier than expected for the Gulf of Maine, in which silverside are thought to spawn May through July. It could be that our assumption that silversides grow at a consistent rate once they hatch is not true (I think this is probably the case). It is also possible that the large juvenile silversides we catch early in the season weren't spawned in February, like the model suggests, but instead represent a group with much faster growth rates than the average silverside.
+
+The second plot indicates that silverside hatching timing has shifted earlier since 2014. This is exacly what we were looking for. Now let's move on to shifting that to potential spawn dates.
+
+## Shifting hatching to spawning
+
+So, let's create a variable in our dataframe that characterizes the earliest possible and latest possible time our observed silversides could have hatched. If hatching takes 5-20 days (0 to 2 weeks) from spawning, we will estimate spawn week as hatch week - three weeks for earliest and hatch week - one week as the latest.
+
+```{r spawnweek}
+# Earliest week
+cohort.1$early.spawn <- cohort.1$hatch.date.5mm - 3
+cohort.1$ts.early <- paste0(cohort.1$year, '-', cohort.1$early.spawn)
+
+# Latest week
+cohort.1$late.spawn <- cohort.1$hatch.date.5mm - 0
+cohort.1$ts.late <- paste0(cohort.1$year, '-',
+                           cohort.1$late.spawn)
+```
+
+## Finding times that silverside could spawn
+
+Again, we know that silversides rely on tidal and sun cues to spawn, as well as temperature cues. We will extract sunrise and high tide information to find which dates have suitable spawning conditions in the expected spawning period.
+
+We know silverside eggs hatch 5-20 days after being laid, depending on the temperature. With this in mind, we should look for optimal sun and tide conditions up to three weeks before our captured herring were modeled to have newly-hatched larval silverside length.
+
+### Sunlight hours
+
+```{r sun-data}
+# Vector of dates (potential spawn weeks)
+datevec.early <- as.Date(paste(cohort.1$year, 
+              cohort.1$early.spawn, 1, sep="-"), "%Y-%U-%u")
+datevec.late <- as.Date(paste(cohort.1$year, 
+              cohort.1$late.spawn, 1, sep="-"), "%Y-%U-%u")
+
+# Remove duplicates
+datevec <- unique(c(datevec.early, datevec.late))
+datevec <- datevec[!is.na(datevec)]
+
+# Make a function
+get.suncondition.data <- function(datevec){
+  
+  # Sunrise times
+  sunrises <- round_date(
+    sunriset(
+      matrix(c(-69.917007, 43.758762), nrow = 1),
+      as.POSIXct(datevec, tz = "America/New_York"),
+      direction = "sunrise",
+      POSIXct.out = TRUE)$time,
+    unit='1 minute'
+  )
+  
+  # Sunset times
+  sunsets <- round_date(
+    sunriset(
+      matrix(c(-69.917007, 43.758762), nrow = 1),
+      as.POSIXct(datevec, tz = "America/New_York"),
+      direction = "sunset",
+      POSIXct.out = TRUE)$time,
+    unit='1 minute'
+  )
+  
+  # Merge into single dataset
+  suncondition <-  c(sunrises, sunsets)
+  
+  # Order by time
+  suncondition <- suncondition[order(suncondition)]
+  
+  # Convert to dataframe
+  suncondition <- data.frame(
+    time = suncondition
+  )
+  
+  # Assign crepuscular period
+  suncondition$condition <- rep(c('sunrise', 'sunset'),
+                                nrow(suncondition)/2)
+  
+  # Return to user on completion
+  return(suncondition)
+}
+
+# Run function
+# Get data
+sunlight <- get.suncondition.data(datevec)
+
+# Keep only sunrise and sunset times
+sunlight <- sunlight[sunlight$condition %in% c('sunrise', 'sunset'),]
+
+# Sequence time by the minute
+suncon <- seq.POSIXt(sunlight$time[1], sunlight$time[nrow(sunlight)],
+                     by='min')
+
+# Make a blank dataframe with the sequenced minutes
+suncon <- data.frame(
+  time = suncon,
+  condition = NA
+)
+
+# Assign sunrise times to be light
+suncon$condition[suncon$time %in%
+                   sunlight$time[sunlight$condition == 'sunrise']] <- 'light'
+
+# Assign sunset times to be dark
+suncon$condition[suncon$time %in%
+                   sunlight$time[sunlight$condition == 'sunset']] <- 'dark'
+
+# Carry forward last observations for light condition
+suncon$condition <- zoo::na.locf(suncon$condition)
+
+# Add sunrise time back in
+suncon$condition[suncon$time %in%
+                   sunlight$time[sunlight$condition == 'sunrise']] <- 'sunrise'
+
+# Clean
+suncon <- suncon %>% 
+  # Remove dark hours
+  filter(condition %in% c('sunrise', 'light')) %>% 
+  # Add week and year columns
+  mutate(week = isoweek(time),
+         year = year(time)) %>%
+  # Add short timestamp column
+  mutate(ts = paste0(year, '-', week))
+
+# Keep only weeks with suspected spawning
+suncon <- suncon %>% 
+  filter(ts %in% cohort.1$ts.early |
+         ts %in% cohort.1$ts.late)
+
+```
+
+### Tides
+
+Now we pull tidal information for the same period.
+
+```{r tides}
+# Load data
+tides <- read.csv(here("QBC_Intern_Projects/2025/Silverside_Spawning/Data/Portland_tides2.csv"))
+
+# Clean
+tides <- tides %>% 
+  # Convert timestamp to a format R understands
+  mutate(timestamp = as.POSIXct(timestamp,
+                                format = '%Y-%m-%d %H:%M:%S')) %>% 
+  # Add week variable
+  mutate(week = isoweek(timestamp)) %>% 
+  # Combine week and year variable
+  mutate(ts = paste0(year , '-', week)) %>% 
+  # Remove instances with invalid time
+  filter(!is.na(timestamp)) %>% 
+  # Remove low tides
+  filter(type == 'H')
+```
+
+## Pulling potential spawning weeks
+
+Now for the final bit of magic. We will filter the tides dataset so that the only remaining days are the ones that likely contain good silverside spawning conditions (high tide happens in daylight, our growth rate calculations indicate silverside are spawned in this week).
+
+We will then calcualte the earliest, midpoint, and latest weeks in each year spawning could have occurred. This can be plotted to visualize a trend over time.
+
+```{r spawningweeks}
+# Filter tides and sun to only come from weeks where we think silverside eggs were present
+tides <- tides %>% 
+  filter(ts %in% cohort.1$ts.early |
+         ts %in% cohort.1$ts.late)
+
+# Keep only tides that occur within daylight
+tides <- tides %>% 
+  filter(timestamp %in% suncon$time)
+
+# Characterize potential spawning periods per year
+spawning.periods <- tides %>% 
+  group_by(year) %>% 
+  summarise(mindate = min(isoweek(as.Date(timestamp))),
+            meandate = mean(isoweek(as.Date(timestamp))),
+            maxdate = max(isoweek(as.Date(timestamp))))
+
+# Plot midpoint of spawning period as compared to year
+ggplot(data=spawning.periods) +
+  geom_ribbon(aes(x=year, ymin=mindate, ymax=maxdate),
+              fill='cadetblue', alpha=0.4) +
+  geom_line(aes(x=year, y=meandate)) +
+  labs(x='Year', y='Average Spawning Week')
+
+
+```
+
+## Modeling the change
+
+This isn't the approach we would take in analysis for peer review, but we can use a linear model to estimate the rate of change. 
+
+First, we load in a dataset of average spring surface water temperature as taken by the Portland Harbor tide gauge. We will focus on the spring season (March to the end of May) which is when our spawning activity is suspected to happen given our modeling outcomes.
+
+Next, we run a linear model. We can be reasonably certain of independence of the data and it looks like the relationship may be linear. We will test for normality of the distribution of residuals using a Shapiro-Wilk test and test for equality of variance of residuals using a Breusch-Pagan test. If we fail to reject the null for both tests, we can assume normal and equally-distributed residuals.
+
+The linear model is set up to test for the ability of spring temperature anomalies 
+
+```{r}
+# Load data
+temp.data <- read.csv(here('QBC_Intern_Projects/2025/Silverside_Spawning/Data/Portland_Daily_Temps.csv'))
+
+# Clean
+temp.data <- temp.data %>% 
+  # Remove any extra years
+  filter(year >=2014 & year <=2023) %>% 
+  # Remove 2019
+  filter(year != 2019) %>% 
+  # Filter to just springtime
+  filter(month %in% c(3, 4, 5)) %>% 
+  # Group by year, find average temperature in spring
+  group_by(year) %>% 
+  summarise(spring.temp = mean(daily.temp, na.rm=T))
+
+# Merge temperature data to spawning week data
+spawning.periods <- merge(spawning.periods,
+                          temp.data,
+                          by="year",
+                          all=T)
+
+# Plot, with points colored by year
+ggplot(data=spawning.periods) +
+    geom_point(aes(x=spring.temp, y=meandate, col=year)) +
+    scale_color_viridis_c()+
+    geom_smooth(aes(x=spring.temp, y=meandate),
+                method='lm') +
+  labs(y='Spawning week', x='Average Spring Temp (C)',
+       col='Year')
+
+# Relationship looks roughly linear, model using linear regression
+mod.1 <- lm(meandate ~ spring.temp, 
+            data=spawning.periods)
+summary(mod.1)
+
+## Test assumptions
+# Normality of residuals
+shapiro.test(mod.1$residuals)
+
+# Equality of variance
+lmtest::bptest(mod.1)
+```
+
+## Conclusions
+
+What do you think we can conclude about silverside spawning dates from looking at this final graph? What does the linear model say is the estimated number of weeks spawning date will change given each 1 degree increase in spring average surface water temperature?
+
+We made lots of assumptions here. We assumed that growth rates were consistent over time for individual silversides. We also assumed that our subsample of silversides was representative of the true distribution of sizes of the population. These may not be true, resulting in our inaccurate characterization of growth rates. The final linear model only includes Casco Bay spring surface water temperature as an explanatory variable for spawning time, when we know there may be other factors. We also know from the last paper we wrote that we can't expect ecological change to be linear or immediate given environmental change. When you write your discussion, we will have to talk about these assumptions.

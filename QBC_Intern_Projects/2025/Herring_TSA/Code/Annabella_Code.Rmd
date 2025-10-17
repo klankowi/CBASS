@@ -1,0 +1,498 @@
+---
+title: "Herring TSA"
+author: "Katie Lankowicz & Annabella Williams"
+date: "`r format(Sys.time(), '%B %Y')`"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+# Default to showing all code in HTML document
+knitr::opts_chunk$set(echo = TRUE)
+
+# Remove old data
+rm(list=ls())
+
+# Load packages
+library(here)
+library(tidyverse)
+library(forecast)
+library(tseries)
+library(noaaoceans)
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+
+# Set GGplot auto theme
+# This is a bunch of information telling R how we want our plots made through ggplot to look. We'll actually go over a lot of this information later this summer. Don't worry if it doesn't make sense.
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', 
+                                            linewidth=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=12),
+                axis.text.y=element_text(size=12),
+                axis.title.x=element_text(size=12),
+                axis.title.y=element_text(size=12, angle=90, 
+                                          vjust=2),
+                plot.title=element_text(size=14, hjust = 0, 
+                                        vjust = 1.2),
+                plot.caption=element_text(hjust=0, 
+                                          face='italic', size=12)))
+```
+
+## Logistics
+
+All data needed to run this script are contained within this folder. Do not alter the file structure. Keep all data in the Data folder, etc. When you change filepaths, just change your username. Example: I'm "/Users/Katie/etc...". You'll be "/Users/[Your Name]/etc...".
+
+I have loaded some packages that you may not have (example: forecast package). Make sure to install them first by clicking into the console (NOT this script) and using the function `install.packages("package name")`.
+
+## Background
+
+Atlantic Herring are relatively long-lived (12-16 years) species with a wide range across the North Atlantic. Their life cycle includes extensive north-south / inshore-offshore seasonal migrations between feeding, spawning, and overwintering areas. We can view the growth, reproductive success, and survival of a single herring as the culmination of what happens to it over its life and across this wide expanse of space. In other words, there are multiple spatial and temporal scales at which we can examine herring population dynamics. The population size of juvenile herring in Casco Bay could be affected by food availability in Casco Bay (small spatial scale, near-immediate time scale), offshore winter water temperatures experienced by their parents before spawning (medium spatial scale, seasonal time scale), or long-term increases in sea surface temperature (ocean-wide spatial scale, multi-year time scale).
+
+Our seine data presents an *index of relative abundance* for juvenile Atlantic herring in a limited spatial area from 2014 to 2024. By this, I mean that we can use catch per unit effort (CPUE; number of herring caught over a defined period of time divided by the number of seines sets we did over that same period of time) as a measure of population size. Think of this as a time series. We will calculate our CPUE for each time step, and then can visualize population size fluctuations along our 11 year time series.
+
+Several of the studies I sent you attempted to link adult herring population sizes to abiotic environmental conditions (sea surface temperature and salinity) and biotic factors (prey availibility, predation, density dependence). Some also discuss the effect of human harvest. Most of these studies are focused on the _spatial_ aspects of population dynamics. Few use time series analysis to look at the _temporal_ aspects (Boyce et al. 2021 is an exception). Because herring live quite a while and take 3-5 years to reach sexual maturity, it's possible that their populations at time _x_ are affected not only by things that are happening in time _x_, but also in times _x_-1, _x_-2, etc. We would understand this as a lagged effect.
+
+We will be testing for connections between herring abundance and various biotic/abiotic factors in the framework of time series analysis, where we can look for lagged effects.
+
+## Seine-derived juvenile herring indices of abundance
+
+### CBASS seine data consistency
+Let's start by loading and cleaning up our seine dataset. GMRI has been operating the Casco Bay Aquatic Systems Survey (CBASS) out of Portland from late May through early September each year since 2014. The 12 sites GMRI samples have remained fairly consistent and range from the Presumpscot River in the north to Cape Elizabeth in the south. Ideally, we would survey each site exactly the same way at least once a week in every summer. This ensures that any population fluctuations we observe are _real reflections of juvenile herring population dynamics_, and not just because of weird discrepancies from our sampling scheme.
+
+Unfortunately, there have been some limited interruptions and discrepancies. Due to low funding, few seine trips were accomplished in 2019. We have to re-apply for a sampling license from the Maine Department of Resources every year. Some years (like 2023), they are slow to approve our license and we are delayed a few weeks in starting our program. We'll have to keep this in mind when we clean our data.
+
+### What do we know about the herring we catch?
+
+Atlantic herring spawn in the late summer to fall, with peak spawning occurring in October (Graham et al. 1972b). Eggs are deposited onto the sea bed. Time to hatch is variable with temperature.
+
+Like many fishes, herring have several developmental stages. When they hatch from eggs, they're around 4-9 mm total length. The larvae go through several stages of development (called metamorphosis) where their identifying features develop. This takes several weeks. When all stages of development are complete, they are around 80 mm total length. By the end of their first year of life, Gulf of Maine Atlantic Herring usually reach around 160 mm total length (NOAA). When herring reach sexual maturity at ages 3-4, they're normally around 275 mm total length (Boyar 1968). Herring can live 15-18 years, and the maximum achieved size is around 390 mm (Anthony 1972). 
+
+Larvae are dispersed into coastal zones where they overwinter (Graham et al. 1972a, Graham & Townsend 1985) and grow rapidly in the following spring and summer (Anthony 1972, Lough et al. 1982). Until they reach sexual maturity around ages 3-4 (O’Brien et al. 1993, Chamberland et al. 2022), herring will annually move offshore or to deeper bays to overwinter in more suitable thermal habitats (Boyar 1968) and generally remain close to these overwintering grounds (Creaser & Libby 1986, 1988). They will not make the big north-south seasonal migrations that adults do.
+
+All herring individuals caught in our seine sampling efforts were 14-139 mm long. It is clear that these are all under 1 year of age. Some of these fish are probably only a month or two post-hatch (closer to 14mm), while others are nearing one year old (closer to 139 mm). We should expect these juveniles to be affected by environmental conditions in and around Casco Bay, and not necessarily those in the further-south overwintering grounds. 
+
+### Calculating CPUE
+
+We will calculate herring CPUE as total herring caught in early June through early July each year (this is when we know they are present and we catch most of the herring we observe) divided by the number of seines we set in this period each year. We will only focus on data collected by GMRI. We don't have a long enough time series for QBC data yet.
+
+Step one is to load the trip information and trim that to the period we are interested in.
+
+```{r load-trip-data}
+# Load trip data (Date, YSI temperature, notes, etc)
+trips <- read.csv(here('QBC_Intern_Projects/2025/Herring_TSA/Data/trips_through_2024.csv'))
+
+# Clean trip data
+trips <- trips %>% 
+  # Remove QBC sites
+  filter(site_id < 20) %>% 
+  # Format date so R understands it as a date
+  mutate(date = as.Date(date, format = '%m/%d/%Y')) %>%
+  # Add column to identify year
+  mutate(year = year(date)) %>% 
+  # Add column to identify month
+  mutate(month = month(date)) %>% 
+  # Keep only necessary variables
+  dplyr::select(date, year, month, loc_id, notes) %>% 
+  # Filter to keep only June and July
+  filter(month %in% c(6, 7)) %>% 
+  # Convert month to Name month and not Number month
+  mutate(month = month.abb[month]) %>% 
+  mutate(month = factor(month, levels=c('Jun', 'Jul')))
+
+# Get rid of "bad" seines-- noted bad sets (caught on rocks, tide too low)
+trips <- trips %>% 
+  # Filter bad trips
+  filter(notes %notin% c(
+    'very low tide, seine taken in about 1 ft of water',
+    'site assumed, not indicated on sheet',
+    'bad set',
+    'tide moving too fast, seine set was flipped',
+    'net snagged, probably released most of catch',
+    'tide moving too fast, no fish, had to walk in seine net',
+    'bad set, net did not get a chance to open up, mummichog outside of net',
+    'no fish, bag tangled in low water'
+  )) %>% 
+  # Remove notes column
+  dplyr::select(-notes)
+
+# Calculate the number of trips in each summer
+ntrips <- trips %>% 
+  # Group by month and year
+  group_by(month, year) %>% 
+  # Count number of trips in each month of each year
+  summarise(ntrips = n()) %>% 
+  # Save as a data frame
+  as.data.frame()
+
+# Plot to visualize number of samples in each month of each year
+ggplot(data=ntrips) +
+    # Make tiles, where each tile represents a month in a year
+    # The color of the tile indicates the number of trips in that week
+    geom_tile(aes(x=month, y=year, fill=ntrips),
+              width = 0.9) +
+    # Set color scale (this is annoying)
+    binned_scale(aesthetics = "fill",
+                 scale_name = "stepsn", 
+                 palette = function(x) c(viridis::viridis(n=6)),
+                 breaks = c(seq(0, 30, 5)),
+                 limits = c(0, 30),
+                 guide = "colorsteps"
+    ) +
+    # Set title
+    ggtitle('Assessment of sampling effort') +
+    # Set axis titles
+    labs(x='Month', y='Year', fill = 'Number\n of trips')
+
+```
+
+We have between 5 and 27 trips for each month-year combo to characterize herring relative abundance. This should be sufficient. Next, let's load the herring catch data and match it to the trip data. We can then calculate yearly catch per unit effort and plot it to see the trends.
+
+```{r load-herring-catch}
+# Load abundance data (fish caught per seine)
+abund <- read.csv(here('QBC_Intern_Projects/2025/Herring_TSA/Data/abund_through_2024.csv'))
+
+# Clean abundance data
+abund <- abund %>% 
+  # Only keep seine sets that we selected through cleaning trip data
+  filter(loc_id %in% trips$loc_id) %>% 
+  # Only keep herring data
+  filter(species_name == "atlantic herring") %>% 
+  # Keep only the variables we want
+  dplyr::select(loc_id, catch)
+
+# Merge trip and catch data
+herring <- merge(trips, abund, all=TRUE)
+
+# If catch is NA, it means no herring were caught. Switch NA to 0.
+herring$catch[is.na(herring$catch)] <- 0
+
+# Calculate yearly catch (in June and July)
+herring <- herring %>% 
+  # Group by year
+  group_by(year) %>% 
+  summarise(ncatch = sum(catch))
+
+# Calculate yearly number of seines (in June and July)
+ntrips <- ntrips %>% 
+  # Group by year
+  group_by(year) %>% 
+  summarise(ntrips = sum(ntrips))
+
+# Merge Catch and Trips
+dat <- merge(herring, ntrips, by=c('year'))
+
+# Calculate catch per unit effort
+dat$cpue <- dat$ncatch / dat$ntrips
+
+# Plot
+ggplot(data=dat) +
+  geom_line(aes(x=year, y=cpue)) +
+  geom_point(aes(x=year, y=cpue))
+
+# Remove intermediate data products
+rm(abund, herring, ntrips, trips)
+```
+
+## Abiotic factors
+
+Now we will load and clean abiotic factors we hypothesize may affect juvenile herring abundance in Casco Bay.
+
+### Casco Bay surface temperature (Portland Harbor tide gauge)
+
+This is the most obvious abiotic factor. We will use Portland harbor tide gauge data (that I extracted from NOAA's website). I have already cleaned the data and calculated daily average temperatures (column: daily.c). We will use these data to calculate yearly average temperatures indicative of long-term change. We will also calculate seasonal average temperatures, as herring are unlikely to be present in Casco Bay year-round and perhaps will only be affected by, for example, summer and fall temperatures.
+
+We will define winter as December/ January/ February, spring as March/ April/ May, summer as June/ July/ August, and fall as September/ October/ November. This means we have to shift our perception of when a year "starts" to December 1. This is a common occurrence when dealing with ecological data as a time series.
+
+```{r load-portland-tide}
+# Load data
+portland.temp <- read.csv(here('QBC_Intern_Projects/2025/Herring_TSA/Data/Portland_watertemp.csv'))
+
+# Remove data from before December 1, 2013
+portland.temp <- portland.temp %>% 
+  filter(yearseason >= 2014)
+
+# Calculate yearly average temperature
+casco.annual <- portland.temp %>% 
+  group_by(yearseason) %>% 
+  summarise(yearlytemp = mean(daily.c, na.rm=T))
+
+# Calculate seasonal average temperature
+casco.seasonal <- portland.temp %>% 
+  # Order the seasons so they line up with our understanding of time
+  mutate(season = factor(season,
+                         levels=c('winter', 'spring',
+                                  'summer', 'fall'))) %>% 
+  group_by(yearseason, season) %>% 
+  summarise(season.temp = mean(daily.c, na.rm = T))
+
+casco.winter <- casco.seasonal[casco.seasonal$season == 'winter',]
+casco.spring <- casco.seasonal[casco.seasonal$season == 'spring',]
+casco.summer <- casco.seasonal[casco.seasonal$season == 'summer',]
+casco.fall   <- casco.seasonal[casco.seasonal$season == 'fall',]
+
+# Remove intermediates 
+rm(portland.temp)
+
+```
+
+### Wider Gulf of Maine surface temperature (NOAA satellite data)
+
+Casco Bay is a small subset of a much larger area used by Atlantic Herring. Temperature trends in Casco Bay are likely reflective of what is going on in the Gulf of Maine as a whole, but we would like to confirm this. 
+
+We will use a cleaned dataset put together by my friend Adam Kemberling as part of his annual Gulf of Maine Warming Report project (https://gmri.org/stories/2024-gulf-of-maine-warming-update/). You can read about Adam's methods to create this dataset in the 2021 version of the report, which was the first year he did it.
+
+```{r load-oisst}
+# Load data
+oisst <- read.csv(here('QBC_Intern_Projects/2025/Herring_TSA/Data/GulfofMaineSST.csv'))
+
+# Light cleaning
+oisst <- oisst %>% 
+  # Convert time to a date format
+  mutate(time = as.Date(time)) %>%
+  # Add month and year variables
+  mutate(month = month(time),
+         year = year(time)) %>% 
+  # Remove data from before 2013
+  filter(year >=2013) %>% 
+  # Get rid of fahrenheit values (we work with celsius)
+  dplyr::select(-sst_f) %>% 
+  as.data.frame()
+
+# Shift our perception of a year so it begins on December 1st
+oisst$yearseason <- oisst$year
+oisst$yearseason[oisst$month == 12] <- oisst$year[oisst$month==12] + 1
+
+# Remove data from before 2014 and after 2024
+oisst <- oisst[oisst$yearseason>=2014 &
+               oisst$yearseason <=2024,]
+
+# Add names of seasons
+oisst$season[oisst$month %in% c(3, 4, 5)] <- 'spring'
+oisst$season[oisst$month %in% c(6, 7, 8)] <- 'summer'
+oisst$season[oisst$month %in% c(9, 10, 11)] <- 'fall'
+oisst$season[oisst$month %in% c(12, 1, 2)] <- 'winter'
+
+# order seasons
+oisst$season <- factor(oisst$season, 
+                       levels=c('winter','spring','summer','fall'))
+
+# Calculate yearly average gulf of maine temperature
+gom.annual <- oisst %>% 
+  # Group by year
+  group_by(yearseason) %>% 
+  # Calculate mean
+  summarise(yearlytemp = mean(sst_c, na.rm=T)) %>% 
+  as.data.frame()
+
+# Calculate seasonal average temperatures in the gulf of maine
+gom.seasonal <- oisst %>% 
+  # Group by year and season
+  group_by(yearseason, season) %>% 
+  # Calculate mean
+  summarise(season.temp = mean(sst_c, na.rm=T)) %>% 
+  as.data.frame()
+
+# Separate dataframes for each season
+gom.winter <- gom.seasonal[gom.seasonal$season == 'winter',]
+gom.spring <- gom.seasonal[gom.seasonal$season == 'spring',]
+gom.summer <- gom.seasonal[gom.seasonal$season == 'summer',]
+gom.fall   <- gom.seasonal[gom.seasonal$season == 'fall',]
+
+# Remove intermediates
+rm(oisst)
+```
+
+Let's see how similar our Casco Bay vs. whole Gulf of Maine temperature trends are.
+
+```{r temperature-comparison}
+# Average annual temps
+allannualtemps <- rbind(casco.annual %>% mutate(Area = 'Casco Bay'),
+                        gom.annual %>% mutate(Area = 'GOM'))
+ggplot(data=allannualtemps) +
+  geom_line(aes(x=yearseason, y=yearlytemp)) +
+  facet_wrap(vars(Area)) +
+  labs(x='Year', y='Average annual temperature')
+
+# Seasonal average temps
+allseasonaltemps <- rbind(casco.seasonal %>% mutate(Area = 'Casco Bay'),
+                  gom.seasonal %>% mutate(Area = 'GOM'))
+ggplot(data=allseasonaltemps) +
+  geom_line(aes(x=yearseason, y=season.temp, col=season)) +
+  facet_wrap(vars(Area)) +
+  labs(x='Year', y='Average annual temperature')
+
+```
+
+Interesting! The wider Gulf of Maine spatial area does not have the same rapidly-increasing annual temperature trend as Casco Bay does. We also see that the Casco Bay reaches its coldest temperatures in winter, while the Gulf of Maine reaches its coldest temperatures in spring. This may be important when we consider the seasonal variations in the way herring distribute themselves.
+
+### Food availability (ECOMON Zooplankton index)
+Sorry to change things up. Found a much better index of Gulf of Maine-wide zooplankton indices. These data come from the annual Northeast Fisheries Science Center Spring Bottom Trawl Survey. They do some concurrent zooplankton tows and run the results through a complicated spatiotemporal modeling process (called Vector Autoregressie SpatioTemporal [VAST] modeling, I also use this framework for my cod research). From the data, they can estimate seasonal relative indices of zooplankton abundance for large ( __Calanus__ spp., __Metridia lucens__, and __Eucalanus__ spp.) and small (so many species, but definitely including __Pseudocalanus__ spp. __Centropages__ spp., __Temora__ spp.), and euphausiids (krill). 
+
+The timeline doesn't algign perfectly with ours. Their data only runs through 2022. Additionally, the "Spring" label for this survey is a bit misleading. Usually the surveys happen March through May. We'd love to have a measure of food availability that at least goes through July. But this should be a much clearer link between true food availability and herring abundance.
+
+The data are online in the Ecodata package page (https://github.com/NOAA-EDAB/ecodata). The project managers have included a huge cache of information and resources for their modeling process at (https://noaa-edab.github.io/zooplanktonindex/ZoopVASTworkflow.html#). But don't worry too much about understanding that part of the process. I have extracted and cleaned the necessary data for you.
+
+You can test for correlations between herring abundance and Euphausiid Abundance / Small Copepod Abundance/ Large Copepod Abundance / All Prey Abundance.
+
+```{r herring-food}
+# Load data
+zp <- read.csv(here('QBC_Intern_Projects/2025/Herring_TSA/Data/Zooplankton_Indices.csv'))
+
+add23 <- data.frame(
+  species = unique(zp$species),
+  year = 2023,
+  abund.per.100cum = NA
+)
+
+add24 <- data.frame(
+  species = unique(zp$species),
+  year = 2024,
+  abund.per.100cum = NA
+)
+
+zp <- rbind(zp, add23, add24)
+
+zp <- zp %>% 
+  arrange(year, species)
+
+# Add NA values to years without data
+
+# Separate by species
+zp <- split(zp, f=zp$species)
+list2env(zp, envir=.GlobalEnv)
+
+# Should have one dataframe in the environment per species group
+# Remove extra data
+rm(zp)
+
+```
+
+### Long-term climate indices (AMO)
+
+We've talked a bit about how Atlantic Multidecadal Oscillation is a record of long-term climate trends. In brief, it is a record of changes in atmospheric pressure gradients across the Atlantic Ocean. Atmospheric pressure differences drive changes in wind and sea currents, which in turn affect sea surface temperatures. 
+
+I have downloaded monthly values of AMO from NOAA (https://psl.noaa.gov/gcos_wgsp/Timeseries/AMO/). We will gently clean these data.
+
+```{r load-amo}
+# Load data
+amo <- read.csv(here('QBC_Intern_Projects/2025/Herring_TSA/Data/monthly_amo.csv'))
+
+# Shift our perception of a year so it begins on December 1st
+amo$yearseason <- amo$year
+amo$yearseason[amo$month == 12] <- amo$year[amo$month==12] + 1
+
+# Calculate average AMO index
+amo <- amo %>% 
+  # Group by year
+  group_by(yearseason) %>% 
+  # Calculate yearly average AMO
+  summarise(amo = mean(amo, na.rm=T)) %>% 
+  # Rename year column
+  rename(year = yearseason) %>% 
+  # Convert to data frame
+  as.data.frame()
+```
+
+## Biotic factors
+
+### Adult population size (spawning stock biomass)
+
+I extracted spawning stock biomass from the 2025 Atlantic Herring Research Track Stock Assessment. You can find the stock assessment report at https://apps-nefsc.fisheries.noaa.gov/saw/sasi.php. I had to use a plot digitizer, but I extracted the data from figure 35, which visualizes modeled SSB and Recruitment.
+
+```{r load-ssb}
+# Load data
+ssb <- read.csv(here('QBC_Intern_Projects/2025/Herring_TSA/Data/Herring_SSB.csv'))
+
+# We don't have monthly SSB data, so we have to just use the definition of a year that they give us (January-December)
+```
+
+## Treating data as a time series
+
+Next, we have to convert our data to a time series. There are many components of a time series. All these components can introduce correlation, where the observed variable is at least partially dependent on the time step. Time series need to be stationary for us to detect identifiable patterns in the data. This means the processes generating a time series cannot change over time. The mean and the variance should remain the same. Therefore, we have to make time series stationary before using them to make forecasts or identify relationships between time series. We can do this through decomposition of a time series into its individual components.
+
+Most time series can be decomposed through the *AutoRegressive Integrated Moving Average (ARIMA)* method.
+
+When the observation at any time step is at least partially dependent on the observation at the previous time step, the time series has autocorrelation. For example, imagine the population of the earth in any year. The number of people in year _x_ will be partially dependent on the number of people in year _x-1_. The time series can be regressed against itself at a lag of 1 year. This is understood as an *AutoRegressive (AR) process*.
+
+Time series can also have an obviously increasing trend, also known as a *Moving Average (MA)*. Think of the cost of a Big Mac. In 2000, you could buy one for around \$2. The price has increased with a steady, increasing linear trend since this time, and now a Big Mac costs around \$6. There is a clear relationship between the time step and the price.
+
+Even if you de-trend a time series to remove a moving average, you might have issues with the variance. To fix this, you would identify the difference in observed values between successive steps. This is called differencing. The *I* in ARIMA stands for *Integrated*, which has to do with this differencing.
+
+## ARIMA modeling
+
+Testing relationsips between time series relies on a few assumptions. The most important is stationarity. We have already plotted the abundance of herring over time and can see a clear decreasing trend, indicating non-stationarity. We should quantitatively determine if this is indeed happening.
+
+Stationarity of a time series can be statistically determined using a unit root test– we will use the Kwiatkowski-Phillips-Schmidt-Shin test `kpss.test()`. The null hypothesis of this test is stationarity. p-values less than the significance level of α =0.05 can assume the alternative of non-stationarity. If the KPSS test indicates non-stationarity, the time series can be made stationary through differencing. 
+
+When ARIMA modeling with `auto.arima()` is implemented, the AutoRegressive (AR), differencing (I: Integrated), and Moving Average (MA) components of the time series will be algorithmically computed. The output of the function will be a time series model where all issues of stationarity have been dealt with. We will confirm that our time series is stationary after ARIMA modeling by testing its residuals with the Ljung-Box test. The null hypothesis of that test is that the residuals come from a white noise (random) process. The alternative hypothesis is that some form of autocorrelation is still present in the data. Ideally, we'd like to fail to reject the null hypothesis.
+
+```{r herring-ts}
+# Convert abundance to time series
+dat.ts <- ts(dat$cpue)
+
+# Kwiatkowski-Phillips-Schmidt-Shin test to check for stationarity
+kpss.test(dat.ts)
+
+# Use automated process to fit ARIMA model to best deal with non-stationarity
+dat.tsaa <- auto.arima(dat.ts, seasonal=F, test="kpss")
+
+# Check residuals
+checkresiduals(dat.tsaa)
+Box.test(dat.tsaa$residuals, type="Lj")
+```
+
+Our test of stationarity indicates that the index of relative herring abundance is actually stationary. The AR/ I/ MA components are all 0, indicating there are no autoregressive, drift, or moving average processes at work here. The residuals plot also states that our data (the herring abundance, NOT the residuals of the time series model) have a non-zero mean, which is fine.
+
+Thankfully, `auto.arima()` handles all the component selection for us! We can check the residuals of the outcome. It should look like there is no trend in the top plot (knowing that the first year had an absurdly high catch ONE time that pulls the entire year's CPUE up), the bottom right should show normality in the residuals, and the bottom left plot should show no significant autocorrelation.
+
+That last plot (bottom left) illustrates the AutoCorrelation Function (ACF). This is the tendency for a time series to have steps correlated to each other. If there was autocorrelation, those vertical black bars would extend outside the area enclosed by the two dashed blue lines.
+
+We have to repeat this process for all our time series. Let's quickly do that for the average yearly temperature.
+
+```{r annualtemp-ts}
+# Convert abundance to time series
+atp.ts <- ts(LgCopepods$abund.per.100cum)
+
+# Kwiatkowski-Phillips-Schmidt-Shin test to check for stationarity
+kpss.test(atp.ts)
+
+# Use automated process to fit ARIMA model to best deal with non-stationarity
+atp.tsaa <- auto.arima(atp.ts, test='kpss', seasonal = FALSE)
+
+# Check residuals
+checkresiduals(atp.tsaa)
+Box.test(atp.tsaa$residuals, type="Lj", lag=2)
+```
+
+## Cross correlation functions
+
+Now, we can proceed to running cross-correlation functions (CCF) to test the relationship between CBASS-derived juvenile herring abundance and the various selected biotic and abiotic factors across multiple time shifts. 
+
+The actual CCF will be run on the residuals of both models to avoid erroneously identifying spurious correlations as true correlations.
+
+```{r cross-correlation}
+# Test correlation
+cf1 <- ccf(dat.tsaa$residuals, # The x time series
+           atp.tsaa$residuals, # The y time series
+           type='correlation',
+           main = 'Herring abundance vs. GOM Zoopl Abund',
+           na.action = na.exclude)
+
+```
+
+Super interesting results here. If the vertical black bars exceed the area bounded by the dashed blue lines, it is an indication of a strong correlation at that lag value. Here, we see that happen at a lag of -3. 
+
+For positive lag values, the _x_ time series is said to lead the _y_. This means changes in the _x_ time series will affect the _y_ time series later on.
+
+For negative lag values, the _y_ time series leads the x. Changes in _y_ will affect the _x_ time series later on.
+
+Our results indicate that the _y_ time series (Average Annual temperature) leads the _x_ time series (herring abundance) at a lag of 3 years. The black bar at this lag value is _below_ the confidence interval, indicating a negative correlation. Increases in the _y_ time series value lead to decreases in the _x_ time series value.
+
+We can state that Casco Bay juvenile herring abundance in any year is related to the Casco Bay average annual temperature three years prior. Our data also provide insight into the direction of this relationship-- high temperatures lead to low abundance. This all makes ecological sense, especially considering that herring take around 3 years to reach sexual maturity. The number of juvenile herring in any year is at least partially dependent on the number of spawning adults. If high temperatures lead to high juvenile mortality, then we can expect fewer individuals will reach sexual maturity. Therefore, there will be fewer adults around to reproduce and make the next generation.
+
+## Moving forward
+
+We will complete the ARIMA modeling process for all the data we have loaded. We will then run CCFs to test relationships between the juvenile herring abundance time series and all the biotic/ abiotic factors we think may shape the population of herring. Don't feel compelled to get this all done while I'm gone; we will have at least three good weeks of work time together to go through any questions you may have.

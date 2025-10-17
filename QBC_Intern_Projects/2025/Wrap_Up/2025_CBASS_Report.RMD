@@ -1,0 +1,310 @@
+---
+title: "2025 CBASS Wrap Up \\vspace{-0.75cm}"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  bookdown::pdf_document2:
+    number_sections: false
+    toc: false
+    latex_engine: lualatex
+    includes: 
+always_allow_html: true
+header-includes:
+    - \usepackage{titling}
+    - \setlength{\droptitle}{-2.5cm} 
+    - \usepackage{setspace}\onehalfspacing
+    - \usepackage{float}
+    - \usepackage{caption}
+    - \usepackage[none]{hyphenat}
+    - \captionsetup[figure]{labelformat=empty}
+    - \usepackage[medium]{titlesec}
+    - \titlespacing{\section}{0pt}{10pt plus 2pt minus 1pt}{0pt plus 1pt minus 1pt}
+    - \titlespacing{\subsection}{0pt}{12pt plus 2pt minus 1pt}{0pt plus 1pt minus 1pt}
+---
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+library(tidyverse)
+library(treemapify)
+library(chron)
+library(data.table)
+library(kableExtra)
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+
+# Set GGplot auto theme
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', size=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=11),
+                axis.text.y=element_text(size=11),
+                axis.title.x=element_text(size=12),
+                axis.title.y=element_text(size=12, angle=90, vjust=2),
+                plot.title=element_text(size=14, hjust = 0, vjust = 1.2),
+                plot.caption=element_text(hjust=0, face='italic', size=12)))
+```
+
+```{r loaddata}
+# Load 2024 qbc data
+trips <- read.csv('C:/Users/Katie/Documents/GitHub/CBASS/Data/Clean_Data/Seine/trips_through_2025.csv')
+abund <- read.csv('C:/Users/Katie/Documents/GitHub/CBASS/Data/Clean_Data/Seine/abund_through_2025.csv')
+length <- read.csv('C:/Users/Katie/Documents/GitHub/CBASS/Data/Clean_Data/Seine/lengths_through_2025.csv')
+
+# Clean trips
+trips <- trips %>% 
+  mutate(date = as.POSIXct(date, format='%m/%d/%Y'),
+         week = isoweek(date),
+         year = year(date),
+         site_name = trimws(site_name),
+         substrate = trimws(substrate),
+         weather=trimws(weather),
+         #tide = trimws(tide),
+         hermit_crabs = trimws(hermit_crabs),
+         shrimp = trimws(shrimp)) %>% 
+  dplyr::select(loc_id, date, week, set_time_local, site_name, site_id, substrate,
+                weather, #tide, time_of_high_tide,
+                temp_degc,do_mg.l, salinity_ppt, hermit_crabs, shrimp)
+
+# Clean abundance
+abund <- abund %>% 
+  mutate(site_name = trimws(site_name),
+         species_name = trimws(species_name),
+         species_name = tolower(species_name),
+         date = as.POSIXct(date, format = '%m/%d/%Y')) %>% 
+  dplyr::select(loc_id, date, site_name, species_name, catch) %>% 
+  unique() %>% as.data.frame()
+abund$site_name[abund$site_name == 'Lowel Cove'] <- 'Lowell Cove'
+abund$species_name[abund$species_name %in% c('sandlance', 'sand lance')] <- 'sand lance'
+abund$species_name[abund$species_name %in% c('striped mummichog')] <- 'mummichog'
+abund$species_name[abund$species_name %in% c('red hake')] <- 'hake'
+abund$species_name[abund$species_name %in% c('sculpin')] <- 'grubby sculpin'
+
+
+# Clean length
+length <- length %>% 
+  dplyr::select(loc_id, date, site_name, species_name, sex, length_mm) %>% 
+  mutate(species_name = trimws(species_name),
+         species_name = tolower(species_name),
+         date = as.POSIXct(date, format = '%m/%d/%Y'))
+```
+
+# QBC Field Season
+
+This year, QBC interns and staff sampled 75 CBASS sites across 13 weeks, beginning on May 14th and ending on September 3rd. QBC staff (and Katie) completed a shakedown trip before the interns arrived and discovered that the salinity sensor on the YSI was malfunctioning. The shakedown trip gave us the time we needed to repair the issue before the interns arrived. We completed a full trip (hitting all 6 sites) in all but two weeks of the internship-- in the first week of the internship, thunderstorms forced us inside before we could complete the further sites. In July, we skipped a week in which we had both unfavorable tides and scheduling conflicts. QBC staff (and Katie) completed an additional trip after the interns returned to college. This is a slight increase in effort as compared to 2024, in which we completed 72 CBASS sites over 12 weeks.
+
+Tides were a challenge this year. Between low tide and mid-tide, most sites are too shallow to be sampled. Some are not even reachable at low tide. Therefore, we often split sites over 2 days. This increased our total on-the-water time to over 50 hours. 
+
+QBC interns collected, identified, and measured more than 3,400 fish representing 16 distinct species. This is a decrease, despite higher sampling effort; last year, we caught 5,500 fish from 20 different species. Most species observed are common to CBASS (e.g., silversides, alewife, mummichog, bluefish, green crabs). However, we did observe spot _Leiostomus xanthurus_ for the first time. They were present in small groups at Lowell Cove throughout July and August. We also observed juvenile Atlantic cod _Gadus morhua_ for the first time in more than 10 years-- we caught them in June at Stovers Point, and the last recorded observation was at Cushing Island in June 2014. Pollock _Pollachius virens_ were also observed for the first time in the QBC-sampled sites.
+
+In the eDNA realm, we collected 225 field samples and 17 field blanks. All samples have been filtered and securely stored in a deep freezer to prevent decay of genetic material. We have adjusted filtering protocol to include a "lab blank", which is designed to help us identify any contamination issues that may arise in the lab. We hope this will help us track down some contamination issues that became obvious in the eDNA progress report submitted earlier this year.
+
+# GMRI Field Season
+
+GMRI interns and staff sampled 85 CBASS sites across 11 weeks, beginning on June 11th and ending on September 4th. GMRI samples at 12 sites in Casco Bay; each site was visited approximately once every two weeks. Time on the water exceeded 57 hours. This is an increase in effort over 2024, in which mechanical issues on the skiff prevented sampling in July and August. Significant effort went into coordinating CBASS sampling this summer, as one staff member was out on paternity leave for most of July.
+
+GMRI interns observed 5,000 fish representing 20 distinct species. This is also a decrease in catch; last year, GMRI caught 11,300 individuals representing 21 species. We observed the native creek chub _Semotilus atromaculatus_ for the fist time in the Presumpscot River. Rainbow smelt _Osmerus mordax_ appeared for the first time in nearly 10 years when they were observed in August near Willard Beach in South Portland.
+
+GMRI staff collected 255 eDNA field samples and 16 field blanks. All samples have been filtered and securely stored in a deep freezer. The eDNA library from the last several years of CBASS data collection has finally exceeded the capacity of our single deep freezer, so an additional (larger) unit was purchased and set up in the molecular lab in September.
+
+Another change at GMRI this year was the introduction of field iPads to immediately digitize data. Though data are still first recorded on waterproof paper, a student or staff member will transfer those data to a digital form set up by Riley Young-Morse of GMRI Ocean Data Products. We can reduce the likelihood of missing some aspect of data collection (weather, set times, etc) and confirm any handwriting questions right away. It is easy to pull the digitized data down from the cloud and run it through our QA-QC and analysis procedures. We're hoping to replicate this process at QBC next summer.
+
+# Community assemblage
+
+We can assess nearshore fish community assemblage and diversity by looking at the abundance data from this summer as a whole (as opposed to site-by-site). Here, we will use tree plots to visualize the relative abundance of species we encountered across more than one sampling trip. We will also provide raw catch data for each species.
+
+Most of our catch comes from a combination of surface-dwelling residential forage fish (silverside, mummichog) and surface-dwelling migratory forage fish (herring, alewife). Green crabs, winter flounder, and sand lance were also commonly caught. We will discuss changes in the relative abundance of commonly-caught species in the next section.
+
+Catch of "Gulf Stream Orphans," or subtropical/ tropical species native to southern regions and advected to coastal Gulf of Maine waters through eddies of the Gulf Stream, was decreased this year. No GSOs were caught in GMRI samples. Only a few permit and spot were caught in QBC samples; we did not see white mullet _Mugil curema_ or crevalle jack _Caranx hippos_ reappear, though they were present in samples from 2022-2024. This phenomenon of likely decreased advection of larval fish from south to north was noted by other east coast seine survey programs. Notably, the Stony Brook University School of Marine and Atmospheric Sciences commented that they caught fewer tropical and subtropical fishes in their seines this summer.
+
+```{r communityassemblage}
+abundy <- abund[year(abund$date) == 2025,]
+abundy$species_name[abundy$species_name %in% c('sandlance', 'sand lance')] <- 'sand lance'
+abundy$species_name[abundy$species_name %in% c('striped mummichog')] <- 'mummichog'
+abundy$species_name[abundy$species_name %in% c('red hake')] <- 'hake'
+abundy$species_name[abundy$species_name %in% c('sculpin')] <- 'grubby sculpin'
+
+top <- as.data.frame(table(abundy$species_name))
+colnames(top) <- c('species_name', 'n_encounters')
+top <- top[with(top, order(n_encounters, decreasing = T)),]
+
+top.spec <- top[top$n_encounters > 1,]
+top.spec <- droplevels(top.spec)
+
+abundy$Species <- abundy$species_name
+abundy$Species[abundy$Species %notin% top.spec$species_name]  <- 'Other'
+abundy$Species[abundy$Species %in% c('sturgeon')] <- 'Other'
+
+abundy$Species[abundy$Species == 'atlantic silverside'] <- 'silverside'
+abundy$Species[abundy$Species == 'atlantic herring'] <- 'herring'
+abundy$Species[abundy$Species == 'atlantic tomcod'] <- 'tomcod'
+abundy$Species[abundy$Species == 'fourspine stickleback'] <- 'stickleback'
+abundy$Species[abundy$Species == 'northern pipefish'] <- 'pipefish'
+
+abundy$Species <- factor(abundy$Species,
+                         levels=c('Other', 'silverside',
+                                  'stickleback',
+                                  'green crab', 
+                                  'sand lance', 'winter flounder',
+                                  'bluefish', 'alewife', 
+                                  'pipefish',
+                                  'pollock',
+                                  'tomcod','grubby sculpin',
+                                  'mummichog', 'hake',
+                                  'permit', 'spot',
+                                  'rock gunnel', 
+                                  'herring'))
+```
+
+```{r mosaicplot, fig.height=8, fig.width=7}
+abund0.1 <- abundy %>% 
+  group_by(Species) %>% 
+  summarise(catch=sum(catch))
+
+ggplot(data=abund0.1) +
+  geom_treemap(aes(area=catch, fill=Species)) +
+  scale_fill_viridis_d(option='viridis',
+                       direction=1,
+                       begin=0.1, end=1) +
+  geom_treemap_text(aes(area = catch, fill = Species, 
+                        label = Species))+
+  theme(legend.position = 'bottom',
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=10),
+        legend.key.size = unit(0.5, 'cm')) +
+  labs(fill='Species')
+```
+
+```{r speciescaught, fig.pos="H"}
+sum.caught <- abund %>%
+  filter(year(date) == 2025) %>% 
+  rename(Species = species_name) %>%
+  group_by(Species) %>% 
+  summarise(Catch = sum(catch))
+
+sum.caught <- sum.caught[with(sum.caught, order(Catch, decreasing = T)),]
+rownames(sum.caught) <- NULL
+
+sum.caught %>%
+  kable(caption = "Species caught in all 2025 CBASS samples",
+        col.names = c('Species', 'Total catch'),
+        row.names = FALSE) %>%
+  row_spec(0, background="black", color="white") %>% 
+  kable_styling(font_size = 9, latex_options = 'HOLD_position')
+```
+\newpage
+# Catch trends
+
+In general, fish catch per unit effort (individuals caught per seine haul) was down this summer. Decreased catch despite increased effort by both institutes is solid evidence that some environmental forcing affected either the distribution or productivity of nearshore fishes. It was very useful to have separate seine records in two locations of Casco Bay to confirm this finding.
+
+```{r}
+trips$collector <- 'GMRI'
+trips$collector[trips$site_id>20] <- 'QBC'
+
+abund$collector <- 'GMRI'
+abund$collector[abund$site_name %in% c('Snow Island', 'Orrs Cove',
+                                       'Lowell Cove', 'Stovers Point',
+                                       'Garrison Cove', 
+                                       'Long Point Cove')] <- 'QBC'
+
+trips.week <- trips %>% 
+  mutate(year = year(date)) %>% 
+  group_by(year, week, collector) %>% 
+  summarise(nsets = n())
+
+totc <- abund %>% 
+  mutate(year = year(date),
+         week = isoweek(date)) %>% 
+  group_by(year, week, collector) %>% 
+  summarise(totc = sum(catch))
+
+totc.spec <- abund %>% 
+    mutate(year = year(date),
+         week = isoweek(date)) %>% 
+  group_by(year, week, species_name, collector) %>% 
+  summarise(totc = sum(catch))
+
+totc <- merge(totc,
+              trips.week,
+              by=c('year', 'week', 'collector'))
+
+totc$cpue <- totc$totc / totc$nsets
+
+totc.spec <- merge(totc.spec,
+                   trips.week,
+                   by=c('year', 'week', 'collector'))
+totc.spec$cpue <- totc.spec$totc / totc.spec$nsets
+
+ggplot(data=totc[totc$year >= 2020 &
+                   totc$week %in% seq(23, 36, 1),]) + 
+  geom_point(aes(x=week, y=cpue, col=as.factor(year)),
+             alpha=0.6) +
+  geom_line(aes(x=week, y=cpue, col=as.factor(year)),
+            lwd=1, alpha=0.6) +
+  scale_color_viridis_d(end = 0.9) +
+  labs(x='Week of year', y='Catch per unit effort',
+       col='Year') +
+  facet_wrap(vars(collector)) +
+  ggtitle('Total fish volume per week, 2020-2025')
+
+```
+
+We noticed changes in catch patterns for silversides, mummichogs, and Atlantic herring. These species normally account for the bulk of our catch, so changes in their catch patterns have driven the reduction in overall catch volume.
+
+Unusually low catches Atlantic herring _Clupea harengus_ were noted by both QBC and GMRI. GMRI has historically caught schools of herring in June, typically totaling several hundred to several thousand individuals. This year, GMRI caught no herring until July, and only totaled 191 individuals across all samples. In its three-year record, QBC has also typically caught several hundred to several thousand herring in June. This year, only 15 total herring were caught at QBC. Nobody expected to see herring catch drop so suddenly. Corroborating QBC and GMRI records lends support to these observations, which we might otherwise attribute to an inconsistency in our sampling.
+
+Silversides are spring spawners, and we usually see newly-spawned individuals finally reach a big enough size to be retained by our seines in mid-July (around week 30). The population of these newly-spawned individuals is huge, so it drives a big spike in the catch per unit effort. This year, we didn't see those new silversides until mid-August (around week 34). This later observation time was paired with an overall decreased catch.
+
+Mummichogs are also spring spawners. Though their spawn timing looks to have been similar in 2025 as compared to previous years (around early August, week 32), overall mummichog catch was down.
+
+```{r, fig.width=6, fig.height=8}
+speclab <- c(#"Alewife",
+             "Herring",
+             "Silversides",
+             "Mummichog")
+names(speclab) <- c(#'alewife',
+                    'atlantic herring',
+                    'atlantic silverside',
+                    'mummichog')
+
+totc.spec <- totc.spec %>% 
+  filter(species_name %in% c(#'alewife',
+                             'atlantic herring',
+                             'atlantic silverside',
+                             'mummichog')) %>% 
+  mutate(species_name = factor(species_name,
+                               levels=c('atlantic herring',
+                                        #'alewife',
+                                        'atlantic silverside',
+                                        'mummichog')))
+
+ggplot(data=totc.spec[totc.spec$week %in%
+                        seq(23, 36, 1) &
+                      totc.spec$collector == 'GMRI' &
+                      totc.spec$year >=2020,]) + 
+  geom_point(aes(x=week, y=cpue, col=as.factor(year)),
+             alpha=0.6, cex=0.9) +
+  geom_line(aes(x=week, y=cpue, col=as.factor(year)),
+            lwd=1, alpha=0.6) +
+  facet_wrap(vars(species_name), scales='free_y',
+             labeller = labeller(species_name = speclab),
+             ncol=1) +
+  scale_color_viridis_d(end = 0.95) +
+  labs(x='Week of year', y='Catch per unit effort',
+       col='Year') +
+  ggtitle('GMRI collections: selected species volume per week, 2020-2025')
+
+```
+
+# Climate context
+
+So what's going on here? We should look at the broader context of oceanic and atmospheric temperature patterns over the last year.
+
+Looking at sea surface temperatures at the Portland Harbor Tide Gauge, we had a colder winter (December 2024-February 2025) and slightly colder spring (March - May 2025) than any year since 2019. Precipitation patterns were weird; we received several bouts of heavy rain in December and January and didn't get much snow until February. This could have reduced the snowpack an altered the timing and volume of the "freshet," or the annual influx of snowmelt down the rivers. April and May brought more heavy rains, and Portland had exceeded a foot of rainfall by the end of May. This is 3-4 inches more than usual. We would expect altered precipitation to impact anadromous winter and early spring spawners, like tomcod. 
+
+There is a growing body of evidence that large-scale ocean circulation patterns may have shifted slightly and now better resemble conditions prior to the marine heatwave of 2012 than at any point since. Evidence includes an influx of cold, fresh, and deep Labrador Slope Water detected at Jordan basin since October 2023 (Record et al., 2024). The Gulf Stream Current, which is a surface current that brings warm, salty waters from the tropics north before swinging east across the Atlantic, has also moved. The inflection point where it swings east has shifted to the south, reducing the volume of warm surface water that could potentially enter the Gulf of Maine.
+
+Without deeper analysis, we can't be sure what caused the decline in overall fish catch. We can speculate that temperature played a big role, but we should expand our view to areas beyond just nearshore Casco Bay. I'll be working on a small project which calculates seasonal average temperature gradients across larger spatial areas (think south-north like Cape Cod to Machias, or west-east like Gloucester to Yarmouth, Nova Scotia) to see if ocean temperature patterns may have affected the spatial distributions of the nearshore fish we typically catch in the seine survey.

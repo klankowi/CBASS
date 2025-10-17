@@ -1,0 +1,716 @@
+---
+title: "Oyster Growth"
+author: "Katie Lankowicz"
+date: "2025-07-25"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+# Default to showing all code in HTML document
+knitr::opts_chunk$set(echo = TRUE)
+
+# Remove old data
+rm(list=ls())
+
+# Load packages
+library(here)
+library(tidyverse)
+library(readxl)
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+
+# Set GGplot auto theme
+# This is a bunch of information telling R how we want our plots made through ggplot to look. We'll actually go over a lot of this information later this summer. Don't worry if it doesn't make sense.
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', 
+                                            linewidth=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=12),
+                axis.text.y=element_text(size=12),
+                axis.title.x=element_text(size=12),
+                axis.title.y=element_text(size=12, angle=90, 
+                                          vjust=2),
+                plot.title=element_text(size=14, hjust = 0, 
+                                        vjust = 1.2),
+                plot.caption=element_text(hjust=0, 
+                                          face='italic', size=12)))
+```
+
+## Background
+We are interested in testing for significant differences in oyster growth and condition between biofouled and clean bags.
+
+We'll use Index 3 for OCI, which is calculated as 100*dry meat weight (in grams) divided by dry shell weight (in grams).
+
+## Oyster condition index over time
+In plotting the OCI of both treatments (biofouled vs clean bags), we see an increasing trend over the sampling period (late June through late July). OCI for the biofouled oysters is consistently higher in each week than for the clean oysters, which is not what we expected.
+
+```{r}
+# Load data
+oci <- read.csv(here("QBC_Intern_Projects/2025/Oyster_Growth/OCI_Data.csv"))
+# Remove spaces after your Clean label
+oci$Condition[oci$Condition == 'Clean '] <- 'Clean'
+
+# Clean data
+oci <- oci %>%
+  # Reformat date
+  mutate(date = as.Date(Date, format='%m/%d/%Y')) %>% 
+  # Add variable for week
+  mutate(week = isoweek(date)) %>% 
+  # Rename columns
+  rename(condition = Condition,
+         len = Length..mm.,
+         wid = Width..mm.,
+         i3 = Index.3) %>% 
+  # Change condition to a factor
+  mutate(condition = factor(condition, 
+                            levels=c('Clean', 
+                                     'Biofouled'))) %>% 
+  # Select pertinent variables
+  dplyr::select(date, week, condition,
+                len, wid, i3)
+
+# Add better ID variable
+oci$ID <- seq(1, nrow(oci), 1)
+
+# Find mean weekly values (across all 3 oysters sampled per week)
+m.oci <- oci %>% 
+  # Group by week and year
+  group_by(condition, week) %>% 
+  # Calcualte means
+  summarise(i3 = mean(i3))
+
+# Plot summer weekly average condition index
+ggplot(data=oci) +
+  # Point data, color
+  geom_point(aes(x=week, y=i3, col=condition, group=condition)) +
+  # Smoothed values to show overall trends
+  geom_smooth(aes(x=week, y=i3, col=condition, fill=condition,
+                  group=condition),
+              # Make standard error ribbon more transparent
+              alpha=0.15,
+              # Adjust method and formula (smooth using GAM)
+              #formula = y ~ s(x, k = 3, bs = "tp"),
+              method='lm'
+              ) +
+  # Change axis and color labels
+  labs(x='Week of year',
+       y='OCI',
+       col='Treatment', fill='Treatment')
+
+```
+
+## OCI by treatment
+Next, we'll run a test to determine if overall (not looking at weekly data, just total summer data) OCI is significantly different between the two treatments. Since we are comparing the means of two independent groups, we should use something like a t-test. We can start by using a boxplot or histogram to check the distribution of our data within each group.
+
+We know that OCI changes over time, but we can assume that the proximity of our experimental oysters would mean that they experience incredibly similar environmental conditions (food, light, temperature, salinity) which we expect would affect OCI. Therefore, we will not include any covariates in this test. We can do that later to dig deeper into the results. Here, we just want to see if there is an overall difference in OCI. 
+
+We have few samples (15 per group) and the histogram indicates our data may not have a normal distribution. The boxplot also shows that the clean group has an outlier. Further analysis indicates that this is not an extreme outlier, so we can keep it. However, the full assessment of our data indicates we should use a non-parametric test, as we will probably fail the assumption of normality.
+
+The null hypothesis of our statistical test (Mann-Whitney-U) is that there is no difference in OCI betweent the clean and biofouled treatments. We assess this test at a confidence level of 95%, meaning the threshold for a significant p-value is 0.05.
+
+For yourself, determine what we can conclude from the outcome of this test.
+```{r}
+# Number of samples per condition
+table(oci$condition)
+
+# Boxplot
+ggplot(data=oci) +
+  geom_boxplot(aes(x=condition, y=i3, fill=condition)) +
+  labs(x="Treatment", y="Condition Index", fill="Treatment")
+
+# Histogram
+ggplot(data=oci) +
+  geom_histogram(aes(x=i3, fill=condition)) +
+  # Add line visualizing cumulative distribution of values
+  # If this is a bell curve we're great. If not, we have evidence of non-normality
+  geom_density(aes(x=i3)) +
+  facet_wrap(vars(condition))
+
+# Check for extreme outliers
+oci %>% 
+  # Check for outliers
+  rstatix::identify_outliers(i3) %>% 
+  # Keep only extreme outliers
+  filter(is.extreme == TRUE) %>% 
+  # Convert back to dataframe; if extreme outliers don't exist, the dataframe will have 0 rows of observations.
+  as.data.frame()
+# No extreme outliers found, keep all data
+
+# Statistical test
+wilcox.test(formula = i3 ~ condition, 
+            data=oci,
+            alternative='two.sided',
+            mu=0,
+            conf.level=0.95,
+            conf.int=T,
+            order=c('Clean', 'Biofouled'))
+```
+## Oyster length
+We have also tracked the sizes of labeled oysters over the summer. Let's start by visualizing changes in length and width.
+
+Overall, we see the oysters getting longer over the course of the summer. There is some weirdness to explain, though. We know an oyster died in the clean bag, that's fine. But we also see some weeks where oysters get conspicuously shorter. Think about why that might have happened; it will be an important part of the discussion.
+
+Also look at how the variance in oyster size is similar between biofouled and clean oysters in our first week (we did attempt to pick oysters of a simlar size), but the achieved size by the end of the summer is super variable in the biofouled bag. We should expect growth in the biofouled bag to be very variable. COnversely, the clean bag oysters achieved a similar size range by the end of the summer, so their growth should be similar across individuals.
+
+```{r}
+# Load data
+oyster <- read.csv(here("QBC_Intern_Projects/2025/Oyster_Growth/Oyster_Data.csv"))
+
+# Adjust column names
+colnames(oyster) <- str_to_lower(colnames(oyster))
+
+# Clean data
+oyster <- oyster %>% 
+  # Keep only pertinent varables
+  dplyr::select(date, condition, bag, number, length, width) %>% 
+  # Format date
+  mutate(date = as.POSIXct(date, format = "%m/%d/%Y")) %>%
+  # Add column for week
+  mutate(week = isoweek(date)) %>% 
+  # Format length and width
+  mutate(length = as.numeric(length),
+         width = as.numeric(width)) %>% 
+  # Change oyster ID number to a factor
+  mutate(number = factor(paste0(condition, '_', number)))
+
+# Plot changes in length per each oyster
+ggplot(data=oyster)+
+  geom_line(aes(x=date, y=length, color=as.factor(number)))+
+  # Change color scale
+  scale_color_viridis_d() +
+  # Group by treatment
+  facet_grid(vars(condition))+
+  # Remove legend
+  theme(legend.position = "n") +
+  labs(y='Length (mm)', x='Date')
+```
+
+## Modeling weekly growth
+We will now attempt to model growth as a linear function of time. We would normally not assume growth has a linear form, but we sample over such a short period that we are unlikely to see the true shape of oyster growth over its lifetime (which is probably more of a logistic function).
+
+The result is super interesting. In each treatment, 3-4 oysters have either negative growth (or mortality) or week is not a significant perdictor of growth (weird, since there should be obvious autocorrelation where the size of an oyster in a week affects its size in the next week). We remove them from our interpretation (make them have gray lines to visualize this). Also note how the clean oysters have very similar trajectories of growth. The biofouled oysters have more variability in slope.
+
+```{r}
+# Model the growth of each labeled oyster as a linear function of week
+oyster.growth <- oyster %>% 
+  group_by(condition, number) %>% 
+  # Keep slope of line (growth)
+  # And keep significance of model (significance)
+  summarise(growth = coefficients(lm(length ~ week))[2],
+            significance = 
+              coefficients(summary(lm(length ~ week)))[8]) %>% 
+  # Reformat to data frame
+  as.data.frame()
+
+# Hightlight instances where growth is negative
+# Negative growth indicates some external action unrelated to treatment
+oyster.growth$dir <- 'Positive'
+oyster.growth$dir[oyster.growth$growth <0] <- 'Negative'
+
+# Highlight times when week is a significant predictor
+oyster.growth$sig <- 'No'
+oyster.growth$sig[oyster.growth$significance <=0.05] <- 'Yes'
+
+# Add this information back to oyster dataframe
+oyster <- merge(oyster, oyster.growth,
+                by=c("condition", "number"))
+  
+# Visualize growth 
+# When growth is negative or week is not a significant predictor,
+# make the line gray
+ggplot() +
+  
+  geom_smooth(data=oyster[oyster$sig == 'No' | 
+                   oyster$dir == 'Negative',],
+              aes(x=week, y=length, 
+                  group=number),
+              method='lm',
+              col='gray60',
+              se=F,
+              alpha=0.2) +
+  
+  geom_smooth(data=oyster[oyster$sig == 'Yes' & 
+                   oyster$dir == 'Positive',],
+              aes(x=week, y=length, 
+                  group=number, col=number),
+              method='lm',
+              se=F,
+              alpha=0.2) +
+  
+  scale_color_viridis_d() +
+  facet_wrap(vars(condition)) +
+  labs(x='Week', y='Length (mm)')+
+  theme(legend.position = 'n')
+
+```
+
+## Testing for differences in growth
+
+Same as with OCI, we will test if there is a significant difference in summer growth rate between the treatments. We will filter the data so we're only looking at oysters with positive growth and where week is a significant predictor of length.
+
+We will use a non-parametric Mann-Whitney-U test here, too. We have few samples (less than per group right now) and the values do not appear to come from a normal distribution. We have one outlier in the clean group, though it is not an extreme outlier and can be kept in.
+
+For yourself, interpret the outcome of this test.
+
+```{r}
+# Number of samples per condition
+table(oyster.growth$condition[
+  oyster.growth$dir == 'Positive' &
+  oyster.growth$sig == 'Yes'
+])
+
+# Boxplot
+ggplot(data=oyster.growth[
+  oyster.growth$dir == 'Positive' &
+  oyster.growth$sig == 'Yes',
+]) +
+  geom_boxplot(aes(x=condition, y=growth, fill=condition)) +
+    labs(x="Treatment", y="Growth rate (mm/week)",
+       fill=NULL) +
+  theme(legend.position = 'n')
+ 
+# Histogram
+ggplot(data=oyster.growth[
+  oyster.growth$dir == 'Positive' &
+  oyster.growth$sig == 'Yes',
+]) +
+  geom_histogram(aes(x=growth, fill=condition)) +
+  # Add line visualizing cumulative distribution of values
+  # If this is a bell curve we're great. If not, we have evidence of non-normality
+  geom_density(aes(x=growth)) +
+  facet_wrap(vars(condition)) +
+  labs(x="Treatment", y="Growth rate (mm/week)",
+       fill=NULL) +
+  theme(legend.position = 'n')
+
+# Check for extreme outliers
+oyster.growth[
+  oyster.growth$dir == 'Positive' &
+  oyster.growth$sig == 'Yes',
+] %>% 
+  # Check for outliers
+  rstatix::identify_outliers(growth) %>% 
+  # Keep only extreme outliers
+  filter(is.extreme == TRUE) %>% 
+  # Convert back to dataframe; if extreme outliers don't exist, the dataframe will have 0 rows of observations.
+  as.data.frame()
+# No extreme outliers found, keep all data
+
+wilcox.test(formula = growth ~ condition, 
+            data=oyster.growth[oyster.growth$dir=='Positive' &
+                               oyster.growth$sig == 'Yes',],
+            alternative='two.sided',
+            mu=0,
+            conf.level=0.95,
+            conf.int=T,
+            order=c('Clean', 'Biofouled'))
+```
+
+## Difference in variability of growth between treatments
+
+It looks like the biofouled oysters have a much high variability in individual growth rates, which causes the range of final oyster lengths to be much larger in this group as compared to the clean oysters. Let's test this using the Levene test. The null hypothesis of this test is that there is no difference in variance across groups. The alternative is that there is a difference in variance across groups.
+
+First, we will confirm that the variance in oyster lengths in week 1 between the biofouled and clean treatments is not significantly different. This confirms that we successfully selected oysters of a similar size. Our p-value is 0.38, which indicates we do not have enough evidence to reject the null hypothesis of no difference in variance. Good!
+
+For both treatments (clean and biofouled), we will then compare the variance in oyster lengths in the first week of the experiment vs. the last week of the experiment. For the clean group, there is no difference in length variation between week 1 and the last week, indicating consistent growth across all oysters. For the biofouled treatment, the p-value is 0.03, which indicates there is enough evidence to reject the null. The variation in lengths of biofouled oysters in week 1 is significantly different from the lengths of the same oysters in the last week. The oysters in these bags are probably subjected to different competition intensity from biofouling organisms, because the density and diversity of biofouling organisms is not consistent across the bag.
+
+Finally, we will test for a difference in variance in our calculated growth rates between the clean and biofouled oysters. This test has limited statistical power to detect differences because there are only 7 oysters per treatment level that had growth rates. The test indicates that there is not enough evidence to reject the null hypothesis of no difference.
+
+```{r}
+# Highlight first and last weeks
+oyster$endpoint[oyster$date == min(oyster$date)] <- 'First'
+oyster$endpoint[oyster$date == max(oyster$date)] <- 'Last'
+
+# Test for difference in length variation between treatments in week 1
+rstatix::levene_test(data=oyster[oyster$endpoint == 'First',],
+                     formula = length ~ as.factor(condition))
+
+# For biofouled treatment, test for difference in length variation in week 1 vs last week
+rstatix::levene_test(data=oyster[oyster$condition == 'Biofouled' &
+                                 !is.na(oyster$endpoint),],
+                     formula = length ~ as.factor(endpoint))
+
+# For clean treatment, test for difference in length variation in week 1 vs last week
+rstatix::levene_test(data=oyster[oyster$condition == 'Clean' &
+                                 !is.na(oyster$endpoint),],
+                     formula = length ~ as.factor(endpoint))
+
+# Test for difference in growth rate variation between treatments
+rstatix::levene_test(data=oyster.growth[oyster.growth$dir == "Positive" & oyster.growth$sig == "Yes",],
+                     formula = growth ~ as.factor(condition))
+
+```
+
+## Explanatory variables
+Now, the fun part. Let's see if we can figure out if there are any environmental covariates that significantly predict OCI or growth over the summer. We start by loading, cleaning, and visualizing potential environmental covariates.
+
+### HOBO temperature logs
+Temperature within the clean and biofouled bags is very similar, but there are some minute differences that hint at small-scale spatial variability between what's going on in the two cages.
+
+```{r}
+# HOBO data
+foul.hobo <- read_excel(here('QBC_Intern_Projects/2025/Oyster_Growth/dirty_hobo.xlsx'))
+clean.hobo <- read_excel(here('QBC_Intern_Projects/2025/Oyster_Growth/clean_hobo.xlsx'))
+
+# Clean Biofoul bag data
+foul.hobo <- foul.hobo %>% 
+  # Rename date, temperature, and light columns to not contain spaces
+  rename(Date = `Date-Time (EDT)`,
+         Temperature = `Temperature , °C`,
+         Light = `Light , lux`) %>% 
+  # Remove instances where data were not recorded
+  filter(!is.na(Temperature) &
+           !is.na(Light)) %>% 
+  # Format date variable so R understands it as a date
+  mutate(Date = as.POSIXct(Date,
+                           format='%Y-%m-%d %H:%M:%S',
+                           tz='America/New_York')) %>%
+  # It keeps defaulting to UTC, so add 4 hours to get Eastern Time
+  mutate(Date = Date + hours(4)) %>% 
+  # Strip to begin data when logger is in the water
+  filter(Date >= as.POSIXct('2025-06-19 15:00:00')) %>% 
+  # Add name of Condition
+  mutate(Condition = 'Biofouled') %>% 
+  # Select only the columns that are useful to us
+  dplyr::select(Condition, Date, Temperature) %>% 
+  # Format as data frame
+  as.data.frame()
+
+# Clean Clean bag data
+clean.hobo <- clean.hobo %>% 
+  # Rename date, temperature, and light columns to not contain spaces
+  rename(Date = `Date-Time (EDT)`,
+         Temperature = `Temperature , °C`,
+         Light = `Light , lux`) %>% 
+  # Remove instances where data were not recorded
+  filter(!is.na(Temperature) &
+           !is.na(Light)) %>% 
+  # Format date variable so R understands it as a date
+  mutate(Date = as.POSIXct(Date,
+                           format='%Y-%m-%d %H:%M:%S',
+                           tz='America/New_York')) %>%
+  # It keeps defaulting to UTC, so add 4 hours to get Eastern Time
+  mutate(Date = Date + hours(4)) %>% 
+  filter(Date >= as.POSIXct('2025-06-19 15:00:00')) %>% 
+  # Add name of Condition
+  mutate(Condition = 'Clean') %>% 
+  # Select only the columns that are useful to us
+  dplyr::select(Condition, Date, Temperature) %>% 
+  # Format as data frame
+  as.data.frame()
+
+# Combine
+hobo <- rbind(clean.hobo, foul.hobo)
+hobo <- hobo %>% 
+  rename(timestamp = Date) %>% 
+  rename(condition = Condition)
+
+# Daily average values
+hobo.daily <- hobo %>% 
+  mutate(date = as.Date(timestamp)) %>% 
+  group_by(date, condition) %>% 
+  summarise(meanT = mean(Temperature, na.rm=T))
+
+# Plot
+ggplot(hobo.daily) +
+  geom_line(aes(x=date, y=meanT, col=condition)) +
+  labs(x='Date', y='Daily Avg. Temp (C)',
+       col='Treatment')
+
+```
+
+### Bowdoin Buoy data
+The Bowdoin Buoy gives a good description of seasonal-scale changes in environmental conditions. We see things getting warmer and saltier as the summer progresses. We also see a decline in colored dissolved organic material (CDOM), which is linked to riverine input. We would expect high riverine input and therefore high CDOM with spring thaws and rain events. Fluorescence is a measure of photosynthetic material in the water, and may reflect both riverine input and the thermal stratification of the surface layer leading to high phytoplankton abundance.
+
+```{r}
+# Bowdoin Buoy
+buoy <- read.csv(here('QBC_Intern_Projects/2025/Oyster_Growth/Buoy_Data.csv'))
+
+# Clean data
+buoy <- buoy %>% 
+  rename(timestamp = date..EST.,
+         cdom = CDOM..QSDE.,
+         current.spd = current.speed..mm.s.,
+         fluor = fluorescence..ug.L.,
+         sal = salinity..PSU.,
+         buoy.temp = temperature..C.) %>% 
+  mutate(timestamp = as.POSIXct(timestamp,
+                           format = "%m/%d/%Y %H:%M")) %>% 
+  dplyr::select(timestamp, cdom, current.spd,
+                fluor, sal, buoy.temp) %>% 
+  mutate_at(c('cdom',
+              'current.spd', 'fluor', 'sal', 'buoy.temp'),
+            as.numeric)
+
+# Daily averages
+buoy.daily <- buoy %>% 
+  mutate(date = as.Date(timestamp)) %>% 
+  group_by(date) %>% 
+  summarise(cdom = mean(cdom, na.rm=T),
+            current.spd = mean(current.spd, na.rm=T),
+            fluor= mean(fluor, na.rm=T),
+            sal = mean(sal, na.rm=T),
+            buoy.temp = mean(buoy.temp, na.rm=T))
+
+# Pivot so we can more easily plot all these variables at once
+buoy.for.plotting <- buoy.daily %>% 
+  pivot_longer(cols=c(cdom, current.spd,
+                     fluor, sal, buoy.temp),
+              names_to='variable',
+              values_to = 'values')
+
+varnames <- c('Temperature (C)', 'CDOM (QSDE)',
+              'Current speed (mm/s)', 'Fluorescence (ug/L)',
+              'Salinity (PSU)')
+names(varnames) <- c('buoy.temp', 'cdom', 'current.spd',
+                     'fluor', 'sal')
+
+# Plot, see how things have changed over this summer
+ggplot(data=buoy.for.plotting) +
+  geom_line(aes(x=date, y=values)) +
+  facet_wrap(vars(variable), scales='free_y',
+             labeller = labeller(variable = varnames)) +
+  labs(x='Date', y='Parameter value')
+
+```
+
+### Dogs Head Weather Station
+Rain events have been mentioned a few times. The personal weather station across from the Dogs Head lease will be a good data source for rain input in our area. We know rain impacts the oysters in a negative way by introducing a surface lens of fresh water. The reduction in temperature and salinity associated with rain should negatively impact oyster body condition and growth.
+
+Rain events happen sporadically throughout the summer, with a few big storms dumping one-tenth to one-quarter of an inch every week to two weeks.
+
+```{r}
+# Dogs Head Weather Station (AmbientWeather)
+aw <- read.csv(here('QBC_Intern_Projects/2025/Oyster_Growth/AWS_Data.csv'))
+
+aw <- aw %>% 
+  rename(timestamp = Simple.Date,
+         Daily.Rain = Daily.Rain..in.) %>% 
+  dplyr::select(timestamp,Daily.Rain) %>% 
+  mutate(timestamp = as.POSIXct(timestamp,
+                           format = '%m/%d/%Y %H:%M',
+                           tz="America/New_York")) %>% 
+  arrange(timestamp)
+
+# Daily averages
+aw.daily <- aw %>% 
+  mutate(date = as.Date(timestamp)) %>% 
+  group_by(date) %>% 
+  summarise(Daily.Rain = mean(Daily.Rain)) %>% 
+  # Convert inches to cm
+  mutate(Daily.Rain = Daily.Rain * 2.54)
+
+# Pivot so we can plot more easily
+aw.for.plotting <- aw.daily %>% 
+  pivot_longer(cols=c(Daily.Rain),
+              names_to='variable',
+              values_to = 'values')
+
+# Plot to see how things have changed over the summer
+ggplot(data=aw.for.plotting) +
+  geom_line(aes(x=date, y=values)) +
+  labs(x='Date', y='Daily rainfall (cm)')
+
+```
+
+### Merge all data with length
+We should attempt to visualize the relationships between all these environmental variables (from the HOBOs, Bowdoin Buoy, and weather station) and weekly oyster length.
+
+Most of these variables don't have obvious or linear relationships to weekly oyster length. Keep in mind that both weekly environmental conditions and weekly oyster length have significant autocorrelation-- they're repeated measures that are partially dependent upon their previous state. And some of the environmental conditions should be considered correlated (temperature is related to salinity, because cooler waters are typically high tides that bring more saline water into our area). However, it looks like the temperature (hobo.temp and buoy.temp), salinity, and fluorescence variables have positive correlations to oyster length.
+
+```{r}
+# Assume we collected oysters at 7 each day
+oyster$timestamp <- paste0(oyster$date, " 07:00:00")
+oyster$timestamp <- as.POSIXct(oyster$timestamp, tz="America/New_York")
+oyster$event <- as.numeric(as.factor(oyster$date))
+
+# Merge hobo and oyster lenght data
+m.oyst <- merge(oyster, hobo, by=c('condition', 'timestamp'),
+                all=T)
+
+# Merge Bowdoin Buoy and oyster data
+m.oyst <- merge(m.oyst, buoy, by=c('timestamp'), all=T)
+
+# Merge AmbientWeather and oyster data
+m.oyst <- merge(m.oyst, aw, by=c('timestamp'), all=T)
+
+# Cut stuff from after sampling
+m.oyst <- m.oyst[m.oyst$timestamp <=
+                   as.POSIXct('2025-08-07 07:00:00'),]
+
+# Rolling upward, fill "event" column with previous known value
+m.oyst$event <- zoo::na.locf(m.oyst$event, fromLast = T)
+
+# Average conditions in bags between sampling
+m.oyst <- m.oyst %>% 
+  filter(event > 1) %>% 
+  group_by(event, condition) %>% 
+  summarise(hobo.temp = mean(Temperature, na.rm=T),
+            
+            cdom = mean(cdom, na.rm=T),
+            current.spd = mean(current.spd, na.rm=T),
+            fluor = mean(fluor, na.rm=T),
+            sal= mean(sal, na.rm=T),
+            buoy.temp = mean(buoy.temp, na.rm=T),
+            
+            Daily.Rain = sum(Daily.Rain, na.rm=T)
+            ) %>% 
+  filter(!is.na(condition)) %>% 
+  as.data.frame()
+
+# Re-merge temp and oyster data
+oyster <- left_join(oyster,
+                    m.oyst,
+                    by=c('event', 'condition'))
+
+# Pivot for easier plotting
+oyster.for.plotting <- oyster %>% 
+  filter(dir == 'Positive' & sig=='Yes') %>% 
+  dplyr::select(event, condition, length, width,
+                hobo.temp, cdom, current.spd,
+                fluor, sal, buoy.temp, Daily.Rain) %>% 
+  pivot_longer(cols=c('hobo.temp', 'cdom', 'current.spd',
+                      'fluor', 'sal', 'buoy.temp',
+                      'Daily.Rain'),
+               names_to = 'environ',
+               values_to = 'values')
+
+varnames <- c('Buoy Temperature (C)', 'CDOM (QSDE)',
+              'Current speed (mm/s)', 
+              'Daily Rain (cm)', 
+              'Fluorescence (ug/L)',
+              'HOBO Temperature (C)',
+              'Salinity (PSU)')
+names(varnames) <- c('buoy.temp', 'cdom', 'current.spd',
+                     'Daily.Rain', 
+                     'fluor', 'hobo.temp', 'sal')
+                  
+
+# Plot weekly sizes vs all parameters
+ggplot(oyster.for.plotting) +
+    geom_point(aes(y=length, x=values, col=condition)) +
+    facet_wrap(vars(environ), scales='free_x',
+               labeller=labeller(environ = varnames)) +
+  labs(y='Oyster length (mm)', x='Environmental Parameter',
+       col='Treatment')
+```
+
+### Merge all data with OCI
+We'll repeat the process looking for relationships between OCI and the environmental variables. Since we take OCI from separate individuals each week, we don't have to worry as much about autocorrelation in this signal. It still exists for the environmental variables, though.
+
+As above, we have some potential relationships to explore. Salinity, temperature (hobo.temp and buoy.temp), and fluorescence may have positive relationships to OCI. CDOM (carbonate dissolved organic material) and daily rainfall may have negative relationships.
+```{r}
+# Assume we collected oysters at noon each day
+oci$timestamp <- paste0(oci$date, " 07:00:00")
+oci$timestamp <- as.POSIXct(oci$timestamp)
+oci$event <- as.numeric(as.factor(oci$date))
+
+# Merge hobo and oyster lenght data
+m.oyst <- merge(oci, hobo, by=c('condition', 'timestamp'),
+                all=T)
+
+# Merge Bowdoin Buoy and oyster data
+m.oyst <- merge(m.oyst, buoy, by=c('timestamp'), all=T)
+
+# Merge AmbientWeather and oyster data
+m.oyst <- merge(m.oyst, aw, by=c('timestamp'), all=T)
+
+# Cut stuff from after sampling
+m.oyst <- m.oyst[m.oyst$timestamp <=
+                   as.POSIXct('2025-07-30 07:00:00'),]
+
+# Rolling upward, fill "event" column with previous known value
+m.oyst$event <- zoo::na.locf(m.oyst$event, fromLast = T)
+
+# Average conditions in bags between sampling
+m.oyst <- m.oyst %>% 
+  filter(event > 1) %>% 
+  group_by(event, condition) %>% 
+  summarise(hobo.temp = mean(Temperature, na.rm=T),
+            
+            cdom = mean(cdom, na.rm=T),
+            current.spd = mean(current.spd, na.rm=T),
+            fluor = mean(fluor, na.rm=T),
+            sal= mean(sal, na.rm=T),
+            buoy.temp = mean(buoy.temp, na.rm=T),
+            
+            Daily.Rain = sum(Daily.Rain, na.rm=T)
+            ) %>% 
+  filter(!is.na(condition)) %>% 
+  as.data.frame()
+
+# Re-merge temp and oyster data
+oci <- left_join(oci,
+                    m.oyst,
+                    by=c('event', 'condition'))
+
+# Plot for funsies
+oyster.for.plotting <- oci %>% 
+  dplyr::select(event, condition,
+                hobo.temp, cdom, current.spd,
+                fluor, sal, buoy.temp, Daily.Rain, i3) %>% 
+  pivot_longer(cols=c('hobo.temp', 'cdom', 'current.spd',
+                      'fluor', 'sal', 'buoy.temp',
+                      'Daily.Rain'),
+               names_to = 'environ',
+               values_to = 'values')
+
+# Plot weekly sizes
+ggplot(oyster.for.plotting) +
+    geom_point(aes(y=i3, x=values, col=condition)) +
+    facet_wrap(vars(environ), scales='free_x',
+               labeller=labeller(environ = varnames)) +
+  labs(y='Condition Index', x='Environmental Parameter',
+       col='Treatment')
+```
+
+## Modeling OCI with environmental conditions
+We will now do a slightly more complicated modeling process to see if there are variables that predict OCI. We won't do this for length because of the noted autocorrelation issues.
+
+The approach we use here is a generalized additive model. Similar to the multiple linear regressions we did earlier this summer, this modeling approach tests for the ability of each explanatory variable to predict the response variable. Response variable is Index 3. We will use hobo temperature, cdom, fluorescence, current speed, and daily rain as our environmental explanatory variables. We won't use Bowdoin buoy temperature or salinity, because those are likely highly correlated to the hobo logger data and we don't need to duplicate signals. We will split the hobo loggers by biofouled/ clean treatment. The loggers were right next to each other and should have similar signals, but there may be some super fine-spatial-scale variation that would impact OCI. We will also add in a term for week, with the expectation that the time elapsed over the study may have its own impact on OCI. Finally, we will have a factor term for treatment (condition), with the expectation that biofouled vs clean bags may impact OCI.
+
+GAMS are structured so each explanatory variable is a smoother term. It does not assume a linear relationship between the explanatory and response variables, unlike linear regression. We specify smoother terms by using the s() function. Each smoother term is calculated as a thin plate spline (bs='tp'). Don't worry too much about what this means. We also have to specify the number of knots (k=4), which tells the model how much "squiggle" we allow it to have. By squiggle, I mean how many points at which we allow for the model to have an inflection point that helps shape curviness of each smoother function. Here, we specify 4 knots because we only have 5 weeks of OCI data. We'll talk more about how to pick the number of knots later.
+
+```{r}
+# Make a generalize additive model
+g1 <- mgcv::gam(data=oci,
+                formula = i3 ~ 
+                  s(week, k=4, bs='tp') +
+                  s(hobo.temp, k=4, by=condition, bs='tp') +
+                  s(cdom, k=4, bs='tp') +
+                  s(current.spd, k=4, bs='tp') +
+                  s(fluor, k=4, bs='tp') +
+                  s(Daily.Rain, k=4, bs='tp') +
+                  condition,
+                
+                method = 'REML',
+                select=T)
+
+summary(g1)
+
+b <- mgcViz::getViz(g1)
+
+print(plot(b, allTerms = T), pages=1)
+
+```
+
+None of these terms are significant (high p values in the summary() function). You can also see this visually in all the subplots. Each subplot describes how a specific variable will affect OCI if all other variables are held constant. The dotted lines are the 95% confidence envelope around the estimated relationship. Notice how most terms are flat lines, indicating no relationship between the explanatory and response variables.
+
+Week is marginally significant, and the plot for this term shows slight increases in OCI over the weeks of our study. The other curvy slope is fluorescence, which indicates that OCI is high at low (>9) and high (<11) fluorescence values. This result is likely affected by low sample sizes at these extremes.
+
+The results of the GAM may change when the final OCI values are recorded on Monday.
+
+Look at the final subplot: the collection of OCI values for biofouled oysters encompasses the estimated OCI value for clean oysters held in the same conditions. How would you interpret this? Do you think biofoul/ clean treatment has an impact on OCI?
+
+## Discussion
+
+Your discussion is going to take some effort to write. We have lots of things to discuss. You can think about three buckets of potential impact to the data.
+
+1. Handling-- what is our ability to accurately measure such small increments of growth? Are our calipers good enough? Is our calibration of the calipers good enough? Are the oysters being chipped either by us or by other crap in the bags? Are they chipping each other?
+
+2. Time-- Is this a long enough period to determine a response? Is this summer period the best time to see a response, or should we be focusing on the periods before/ after oysters are in their thermal optimum for growing? 
+
+3. Homogeneity of treatment-- We know that the biofouled bags do not have the same diversity and concentration of biofouling organisms across the space of the bags. Some areas might have more intense biofouling, or organisms that have stronger competition for prey resources/ stronger ability to affect water flow. This means we cannot assume oysters in the biofouled treatment will have the same response to being in that bag.

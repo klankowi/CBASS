@@ -21,7 +21,7 @@ theme_set(theme(panel.grid.major = element_line(color='lightgray'),
                 plot.caption=element_text(hjust=0, face='italic', size=12)))
 
 # Set years to pull (Portland station reliable data record 2003-today)
-years <- seq(2003, 2024)
+years <- seq(2003, 2025)
 
 # Set months
 months <- seq(1, 12)
@@ -68,10 +68,10 @@ for(i in years){
 sdates <- sdates[sdates != '20110601']
 edates <- edates[edates != '20110630']
 
-## Jaunary 2025 has not finished yet
+## September 2025 has not finished yet
 #sdates <- sdates[sdates != '20241201']
 #edates <- edates[edates != '20241231']
-edates[edates == '20250131'] <- '20250112'
+edates[edates == '20250930'] <- '20250910'
 
 # Remove NA end dates
 edates <- edates[!is.na(edates)]
@@ -125,7 +125,6 @@ wat_temp$year <- year(wat_temp$timestamp)
 
 # Remove instances of missing timestamp
 wat_temp <- wat_temp[!is.na(wat_temp$timestamp),]
-
 
 # Remove bad  - invalid water temps (pulled by eye)
 wat_temp$sst_c[wat_temp$timestamp >= as.POSIXct('2003-03-26 13:48:00') &
@@ -312,8 +311,8 @@ tp <- tp[!is.na(tp$timestamp),]
 tp$updif <- tp$smooth.upper - tp$smooth.daily
 tp$lowdif <- tp$smooth.lower - tp$smooth.daily
 
-tp <- tp %>% 
-  filter(year != 2025)
+#tp <- tp %>% 
+#  filter(year != 2025)
 
 # Plot
 ggplot() +
@@ -325,11 +324,11 @@ ggplot() +
   geom_point(data=unique(dplyr::select(tp, 
                                        doy, daily.c, anomaly, year,
                                        updif, lowdif)),
-             aes(x=doy, y=anomaly, col=as.factor(year)),
+             aes(x=doy, y=daily.c, col=as.factor(year)),
              alpha=0.5, stroke=NA) +
   scale_color_viridis_d(option='viridis', 'Year') +
   geom_ribbon(data=tp,
-              aes(x=doy, ymin=lowdif, ymax=updif),
+              aes(x=doy, ymin=smooth.lower, ymax=smooth.upper),
               fill='blue', alpha=0.3) +
   xlab('Day of year') + ylab('SST Anomaly (C)')+
   guides(colour = guide_legend(override.aes = list(alpha = 1))) +
@@ -358,7 +357,7 @@ m.a.t$anom <- NA
 m.a.t$anom[m.a.t$mean.anom>0] <- 'Above CRP'
 m.a.t$anom[m.a.t$mean.anom<=0] <- 'Below CRP'
 
-m.a.t <- m.a.t[m.a.t$yearshift <=2024 & m.a.t$yearshift >=2014,]
+m.a.t <- m.a.t[m.a.t$yearshift <=2025 & m.a.t$yearshift >=2014,]
 m.a.t <- m.a.t[with(m.a.t, order(mean.anom, decreasing = T)),]
 rownames(m.a.t) <- NULL
 m.a.t
@@ -439,7 +438,7 @@ ggplot(data=s.a.t) +
 # Assign temperature category by mean anomaly
 tp$catper <- NA
 tp$catper[tp$year %in% c(2014, 2015, 2017, 2018, 2019)] <- 'cold'
-tp$catper[tp$year %in% c(2016, 2020, 2021, 2022, 2023, 2024)] <- 'hot'
+tp$catper[tp$year %in% c(2016, 2020, 2021, 2022, 2023, 2024, 2025)] <- 'hot'
 tp$catper <- factor(tp$catper, levels = c('hot', 'cold'))
 # Five hottest years would exclude 2016
 
@@ -464,4 +463,4 @@ ggplot() +
 
 # Save output
 write.csv(tp, row.names = F,
-          here('Clean_Data/Meteorological/Portland_watertemp.csv'))
+          'C:/Users/Katie/Documents/GitHub/QBC_Monitoring_Reports/Portland_watertemp_Sep10.csv')

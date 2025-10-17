@@ -1,0 +1,123 @@
+Genus,species,Common,Salinity,Range,Confidence,SUM_Samples,NUM_samples,F10M,F11M,F12M,F5M,F6M,F7M,F8M,G1M,G2M,G3M,G4M,G9M,H11M,H12M,H2M,H3M,H6M,H8M,I4M,I5M,I7M,I9M
+Acipenser,brevirostrum,shortnose sturgeon,marine,native,100,2804,4,0,0,0,0,0,0,0,0,282,46,1437,0,0,0,1035,0,0,0,0,0,0,0
+Acipenser,brevirostrum,shortnose sturgeon,marine,native,100,2394,4,0,0,0,0,0,0,0,0,226,55,1232,0,0,0,877,0,0,0,0,0,0,0
+Alosa,aestivalis,blueback  herring,marine,native,100,5622,5,34,0,0,605,0,0,0,0,0,0,644,0,0,0,0,0,1815,0,0,0,2519,0
+Alosa,aestivalis,blueback  herring,marine,native,100,6127,5,51,0,0,696,0,0,0,0,0,0,802,0,0,0,0,0,1860,0,0,0,2713,0
+Alosa,alosa,allis shad,marine,European,99.459,180,1,0,0,0,0,0,0,0,0,0,179,0,0,0,0,0,0,0,0,0,0,0,0
+Alosa,alosa,allis shad,marine,European,100,60060,13,16040,1644,0,5323,4915,0,381,2396,2556,6445,12696,0,0,0,2770,1226,0,0,1416,0,2239,0
+Alosa,alosa,allis shad,marine,European,100,65802,13,17553,1742,0,5962,5339,0,456,2649,2864,6681,14063,0,0,0,3162,1324,0,0,1632,0,2362,0
+Alosa,alosa,allis shad,marine,European,99.451,50,1,0,49,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Alosa,alosa,allis shad,marine,European,99.459,88,1,0,0,0,87,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Alosa,alosa,allis shad,marine,European,99.451,222,1,0,0,0,0,0,0,0,0,0,221,0,0,0,0,0,0,0,0,0,0,0,0
+Alosa,alosa,allis shad,marine,European,99.451,460,1,0,0,0,0,0,0,0,0,0,459,0,0,0,0,0,0,0,0,0,0,0,0
+Alosa,pseudoharengus,alewife,marine,native,100,40300,11,0,0,0,1698,0,0,0,1855,3264,6690,1339,7467,0,0,1221,2086,3661,0,5457,0,0,5551
+Alosa,pseudoharengus,alewife,marine,native,100,43438,11,0,0,0,1990,0,0,0,1976,3477,6615,1578,8652,0,0,1512,2218,3924,0,5704,0,0,5781
+Alosa,pseudoharengus,alewife,marine,native,100,20,1,0,0,0,0,0,0,0,0,0,0,0,19,0,0,0,0,0,0,0,0,0,0
+Alosa,pseudoharengus,alewife,marine,native,99.459,37,1,0,0,0,0,0,0,0,0,0,36,0,0,0,0,0,0,0,0,0,0,0,0
+Alosa,pseudoharengus,alewife,marine,native,99.459,71,1,0,0,0,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0
+Alosa,pseudoharengus,alewife,marine,native,99.451,865,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,864,0,0,0,0,0,0,0
+Alosa,sapidissima,american shad,marine,native,99.429,24,1,0,0,0,0,0,0,0,0,0,0,23,0,0,0,0,0,0,0,0,0,0,0
+Ameiurus,nebulosus,brown bullhead,fresh,native,100,121,3,0,0,0,0,0,0,0,75,40,3,0,0,0,0,0,0,0,0,0,0,0,0
+Ameiurus,nebulosus,brown bullhead,fresh,native,100,115,2,0,0,0,0,0,0,0,76,37,0,0,0,0,0,0,0,0,0,0,0,0,0
+Ammodytes,tobianus,lesser sand-eel,marine,European,99.415,8,1,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Ammodytes,tobianus,lesser sand-eel,marine,European,99.438,7870,2,0,0,3831,0,0,0,0,0,0,0,0,0,0,4037,0,0,0,0,0,0,0,0
+Ancistrus,temminckii,armored suckermouth catfish,fresh,South America,100,619,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,618,0,0,0,0,0,0
+Anguilla,rostrata,american eel,marine,native,100,17738,10,0,0,1744,0,0,0,0,4420,2750,23,1445,1784,0,1503,1326,1314,0,0,0,1419,0,0
+Anguilla,rostrata,american eel,marine,native,100,7507,6,0,0,0,0,0,0,0,0,2577,977,0,754,0,465,0,1755,0,0,973,0,0,0
+Anguilla,rostrata,american eel,marine,native,99.435,4,1,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Anguilla,rostrata,american eel,marine,native,99.435,57,1,0,0,0,0,0,0,0,0,0,56,0,0,0,0,0,0,0,0,0,0,0,0
+Anguilla,rostrata,american eel,marine,native,99.425,78,1,0,0,0,0,0,0,0,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Anguilla,rostrata,american eel,marine,native,99.425,232,1,0,0,0,0,0,0,0,0,231,0,0,0,0,0,0,0,0,0,0,0,0,0
+Apeltes,quadracus,fourspine stickleback,marine,native,100,4770,4,0,0,0,0,0,0,0,2172,673,0,0,0,0,0,1186,735,0,0,0,0,0,0
+Apeltes,quadracus,fourspine stickleback,marine,native,99.444,296,1,0,0,0,0,0,0,0,0,295,0,0,0,0,0,0,0,0,0,0,0,0,0
+Brevoortia,patronus,atlantic menhaden,marine,native,100,13190,11,266,1892,0,903,4396,0,359,0,294,0,0,0,0,0,520,1766,0,0,353,0,1349,1081
+Brevoortia,patronus,atlantic menhaden,marine,native,100,14591,11,235,2174,0,1060,4955,0,424,0,343,0,0,0,0,0,619,1842,0,0,410,0,1372,1146
+Brevoortia,patronus,atlantic menhaden,marine,native,100,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0
+Brevoortia,patronus,atlantic menhaden,marine,native,99.459,4223,1,0,0,0,0,0,4222,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Brevoortia,patronus,atlantic menhaden,marine,native,99.451,4298,1,0,0,0,0,0,4297,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Catostomus,commersonii,white sucker,estuarine,native,100,19344,10,0,0,0,816,0,0,493,3612,2180,1420,1507,0,0,0,2186,2578,0,2542,2000,0,0,0
+Catostomus,commersonii,white sucker,estuarine,native,99.435,2820,5,0,0,0,0,0,0,0,366,139,573,0,0,0,0,0,942,0,0,795,0,0,0
+Catostomus,commersonii,white sucker,estuarine,native,99.435,208,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,207,0,0,0,0,0,0
+Catostomus,commersonii,white sucker,estuarine,native,99.435,270,1,0,0,0,0,0,0,0,269,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Clupea,harengus,atlantic herring,marine,native,100,5742,4,0,0,0,1294,0,0,794,0,0,0,0,0,0,0,0,0,0,0,970,0,0,2680
+Clupea,harengus,atlantic herring,marine,native,100,6180,4,0,0,0,1470,0,0,851,0,0,0,0,0,0,0,0,0,0,0,1047,0,0,2808
+Clupea,harengus,atlantic herring,marine,native,100,2259,1,0,0,0,0,0,0,0,0,0,0,0,2258,0,0,0,0,0,0,0,0,0,0
+Couesius,plumbeus,lake chub,fresh,native,100,4271,3,0,0,0,2207,0,0,0,0,0,863,1198,0,0,0,0,0,0,0,0,0,0,0
+Esox,niger,grass pickerel,fresh,inland,100,1827,2,0,0,1357,0,0,0,0,468,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Esox,niger,grass pickerel,fresh,inland,100,1940,2,0,0,1470,0,0,0,0,468,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Fundulus,diaphanus,banded killifish,marine,native,100,255,1,0,0,0,0,0,0,0,0,254,0,0,0,0,0,0,0,0,0,0,0,0,0
+Fundulus,heteroclitus,mummichog,marine,native,100,25943,13,0,0,0,460,0,0,0,198,30,4116,3674,98,667,0,10543,200,0,0,2216,2987,468,273
+Fundulus,heteroclitus,mummichog,marine,native,100,29692,12,0,0,0,552,0,0,0,230,0,4439,4325,133,684,0,12581,180,0,0,2448,3316,536,256
+Fundulus,heteroclitus,mummichog,marine,native,99.435,37,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,36,0,0,0
+Fundulus,heteroclitus,mummichog,marine,native,99.435,90,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,89,0,0,0,0,0,0,0
+Fundulus,heteroclitus,mummichog,marine,native,100,209,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,208,0,0,0,0,0,0,0
+Fundulus,heteroclitus,mummichog,marine,native,99.435,212,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,211,0,0,0
+Gambusia,affinis,western mosquitofish,estuarine,inland,100,399,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,398,0,0,0,0,0,0,0
+Gasterosteus,aculeatus,threespine stickleback,marine,native,99.425,3584,3,0,0,0,0,0,0,0,0,0,743,1116,1722,0,0,0,0,0,0,0,0,0,0
+Glyptocephalus,cynoglossus,witch flounder,marine,native,99.438,51,1,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Lepomis,gibbosus,pumpkinseed,estuarine,native,100,10743,9,0,1424,629,0,0,0,0,1048,1674,101,914,0,0,587,0,3963,0,0,394,0,0,0
+Lepomis,gibbosus,pumpkinseed,estuarine,native,100,12048,9,0,1654,751,0,0,0,0,1194,1808,91,1199,0,0,628,0,4328,0,0,386,0,0,0
+Lepomis,gibbosus,pumpkinseed,estuarine,native,99.405,394,1,0,0,0,0,0,0,0,393,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Lepomis,gibbosus,pumpkinseed,estuarine,native,100,47,1,0,0,0,0,0,0,0,0,46,0,0,0,0,0,0,0,0,0,0,0,0,0
+Lepomis,gibbosus,pumpkinseed,estuarine,native,99.405,247,1,0,0,0,0,0,0,0,0,246,0,0,0,0,0,0,0,0,0,0,0,0,0
+Lepomis,gibbosus,pumpkinseed,estuarine,native,99.405,349,1,0,0,0,0,0,0,0,0,348,0,0,0,0,0,0,0,0,0,0,0,0,0
+Lophius,americanus,american angler,marine,native,100,238,1,0,0,0,0,0,0,237,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Lophius,americanus,american angler,marine,native,100,229,1,0,0,0,0,0,0,228,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Luxilus,cornutus,striped shiner,fresh,inland,100,2048,3,0,0,0,0,0,0,0,513,704,0,0,0,0,0,0,828,0,0,0,0,0,0
+Luxilus,cornutus,striped shiner,fresh,inland,99.448,1378,1,0,0,0,0,0,0,0,0,0,0,0,1377,0,0,0,0,0,0,0,0,0,0
+Menidia,menidia,atlantic silverside,marine,native,100,23835,9,0,0,0,138,0,0,0,0,217,2563,788,0,0,0,3282,555,0,0,3248,8051,4984,0
+Menidia,menidia,atlantic silverside,marine,native,100,26734,9,0,0,0,155,0,0,0,0,273,2703,916,0,0,0,3696,605,0,0,3537,9457,5383,0
+Menidia,menidia,atlantic silverside,marine,native,99.438,1363,1,0,0,0,0,0,0,0,0,0,0,1362,0,0,0,0,0,0,0,0,0,0,0
+Menidia,menidia,atlantic silverside,marine,native,100,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0
+Menidia,menidia,atlantic silverside,marine,native,99.31,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0
+Menidia,menidia,atlantic silverside,marine,native,99.438,174,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,173
+Menidia,menidia,atlantic silverside,marine,native,99.438,665,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,664,0,0,0
+Menidia,menidia,atlantic silverside,marine,native,99.438,2700,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2699,0,0,0,0,0
+Microgadus,tomcod,atlantic tomcod,marine,native,100,519,3,110,0,0,0,0,0,0,0,0,51,0,0,0,0,0,0,0,0,355,0,0,0
+Microgadus,tomcod,atlantic tomcod,marine,native,100,576,3,94,0,0,0,0,0,0,0,0,39,0,0,0,0,0,0,0,0,440,0,0,0
+Micropterus,salmoides,largemouth bass,fresh,native,100,11950,2,0,0,0,0,0,0,0,0,0,0,0,0,0,11222,0,726,0,0,0,0,0,0
+Micropterus,salmoides,largemouth bass,fresh,native,99.394,8,1,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0
+Micropterus,salmoides,largemouth bass,fresh,native,99.405,21,1,0,0,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,0
+Micropterus,treculii,smallmouth bass,fresh,native,100,9594,7,41,0,0,0,0,0,0,1811,1391,51,1888,0,0,0,0,323,0,4082,0,0,0,0
+Micropterus,treculii,smallmouth bass,fresh,native,100,10310,7,54,0,0,0,0,0,0,2051,1637,45,2207,0,0,0,0,382,0,3927,0,0,0,0
+Morone,saxatilis,striped bass,marine,native,100,53121,11,4774,0,0,0,0,0,0,6592,6391,6379,4044,3104,0,0,0,2587,0,0,8480,2534,1984,6241
+Morone,saxatilis,striped bass,marine,native,100,59369,11,5189,0,0,0,0,0,0,7400,7421,6452,4457,3484,0,0,0,2891,0,0,9495,3160,2317,7092
+Morone,saxatilis,striped bass,marine,native,100,3,1,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0
+Morone,saxatilis,striped bass,marine,native,100,6,1,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0
+Morone,saxatilis,striped bass,marine,native,100,6,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5
+Morone,saxatilis,striped bass,marine,native,98.837,15,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14
+Morone,saxatilis,striped bass,marine,native,99.435,42,1,0,0,0,0,0,0,0,0,0,41,0,0,0,0,0,0,0,0,0,0,0,0
+Morone,saxatilis,striped bass,marine,native,99.435,55,1,0,0,0,0,0,0,0,54,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Morone,saxatilis,striped bass,marine,native,99.435,337,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,336,0,0,0
+Myoxocephalus,polyacanthocephalus,great sculpin,marine,North Pacific,99.448,797,3,49,0,0,0,0,0,0,0,0,0,0,0,0,189,0,0,0,0,556,0,0,0
+Myoxocephalus,polyacanthocephalus,great sculpin,marine,North Pacific,99.438,918,3,67,0,0,0,0,0,0,0,0,0,0,0,0,234,0,0,0,0,614,0,0,0
+Myoxocephalus,polyacanthocephalus,great sculpin,maine,North Pacific,98.895,3178,2,0,0,0,0,0,0,0,0,0,0,0,0,0,758,0,0,0,0,0,2418,0,0
+Myoxocephalus,polyacanthocephalus,great sculpin,maine,North Pacific,98.876,3689,2,0,0,0,0,0,0,0,0,0,0,0,0,0,868,0,0,0,0,0,2819,0,0
+Myoxocephalus,scorpius,shorthorn sculpin,marine,native,100,1770,1,0,0,0,0,0,0,0,0,0,0,0,1769,0,0,0,0,0,0,0,0,0,0
+Notemigonus,crysoleucas,golden shiner,estuarine,native,100,7198,3,4847,0,0,0,0,0,0,1169,0,0,0,0,0,0,0,1179,0,0,0,0,0,0
+Notemigonus,crysoleucas,golden shiner,estuarine,native,99.444,384,1,0,0,0,0,0,0,0,0,383,0,0,0,0,0,0,0,0,0,0,0,0,0
+Osmerus,mordax,rainbow smelt,marine,native,100,773,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,772,0,0
+Osmerus,mordax,rainbow smelt,marine,native,100,853,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,852,0,0
+Perca,flavescens,yellow perch,fresh,native,100,7203,6,0,553,0,0,0,0,0,480,106,956,0,0,0,0,0,0,0,2926,0,0,0,2176
+Perca,flavescens,yellow perch,fresh,native,100,7415,6,0,663,0,0,0,0,0,512,126,1027,0,0,0,0,0,0,0,2818,0,0,0,2263
+Pholis,gunnellus,rock gunnel,marine,native,99.444,9684,5,6,960,2185,0,0,0,0,0,0,0,0,0,1772,0,0,0,0,4756,0,0,0,0
+Pholis,gunnellus,rock gunnel,marine,native,99.435,10144,4,0,1233,2489,0,0,0,0,0,0,0,0,0,1883,0,0,0,0,4535,0,0,0,0
+Pimephales,promelas,fathead minnow,fresh,inland,100,165,1,0,0,0,0,0,0,0,164,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Pimephales,promelas,fathead minnow,fresh,inland,99.448,192,1,0,0,0,0,0,0,0,191,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Pseudopleuronectes,americanus,winter flounder,marine,native,100,2306,2,0,0,0,0,0,0,0,0,0,0,0,0,0,420,0,0,0,0,0,0,0,1884
+Pungitius,pugnitius,ninespine stickleback,marine,native,100,3791,4,0,0,0,0,0,0,0,395,841,1504,0,0,0,0,1047,0,0,0,0,0,0,0
+Pungitius,pugnitius,ninespine stickleback,marine,native,99.438,2215,2,0,0,0,0,0,0,0,510,1703,0,0,0,0,0,0,0,0,0,0,0,0,0
+Pungitius,pugnitius,ninespine stickleback,marine,native,98.876,978,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,977,0,0,0
+Rhinichthys,atratulus,blacknose dace,fresh,native,100,2052,5,52,0,0,0,0,0,0,727,832,171,0,0,0,0,0,0,0,0,265,0,0,0
+Rhinichthys,atratulus,blacknose dace,fresh,native,100,582,2,0,0,0,0,0,0,0,282,298,0,0,0,0,0,0,0,0,0,0,0,0,0
+Salmo,trutta fario,river trout,fresh,European,100,1552,2,0,0,0,0,0,0,0,0,562,988,0,0,0,0,0,0,0,0,0,0,0,0
+Salmo,trutta fario,river trout,fresh,European,100,1448,2,0,0,0,0,0,0,0,0,569,877,0,0,0,0,0,0,0,0,0,0,0,0
+Salvelinus,leucomaenis,whitespotted char,marine,North Pacific,100,2590,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2589,0
+Salvelinus,leucomaenis,whitespotted char,marine,North Pacific,100,2557,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2556,0
+Semotilus,atromaculatus,creek chub,fresh,native,100,4998,4,88,0,0,0,0,0,0,573,779,3554,0,0,0,0,0,0,0,0,0,0,0,0
+Semotilus,atromaculatus,creek chub,fresh,native,98.844,33,1,0,0,0,0,0,0,0,0,0,32,0,0,0,0,0,0,0,0,0,0,0,0
+Semotilus,atromaculatus,creek chub,fresh,native,97.701,151,1,0,0,0,0,0,0,0,150,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Semotilus,atromaculatus,creek chub,fresh,native,99.422,270,1,0,0,0,0,0,0,0,269,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Semotilus,corporalis,fallfish,fresh,native,100,536,3,106,0,0,0,0,0,0,397,0,30,0,0,0,0,0,0,0,0,0,0,0,0
+Tautogolabrus,adspersus,cunner,marine,native,100,740,2,0,0,0,0,0,0,476,0,0,0,0,0,0,262,0,0,0,0,0,0,0,0
+Tautogolabrus,adspersus,cunner,marine,native,100,887,2,0,0,0,0,0,0,574,0,0,0,0,0,0,311,0,0,0,0,0,0,0,0

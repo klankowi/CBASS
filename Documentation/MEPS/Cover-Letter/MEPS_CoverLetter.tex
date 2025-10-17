@@ -1,0 +1,174 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  11pt,
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+  \setmainfont[]{cochineal}
+  \setmonofont[]{Fira Code}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}
+    }
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=0.75in]{geometry}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\author{Katie Lankowicz}
+
+% ----------------------------------------------------------------------------------
+
+\usepackage{kantlipsum}
+
+\usepackage{abstract}
+\renewcommand{\abstractname}{}    % clear the title
+\renewcommand{\absnamepos}{empty} % originally center
+
+\renewenvironment{abstract}
+ {{%
+    \setlength{\leftmargin}{0mm}
+    \setlength{\rightmargin}{\leftmargin}%
+  }%
+  \relax}
+ {\endlist}
+
+\makeatletter
+\def\@maketitle{
+  \newpage
+  \let \footnote \thanks
+      {\fontsize{18}{20}\selectfont\raggedright  \setlength{\parindent}{0pt} \@title \par}
+    }
+\makeatother
+
+\date{}
+
+\usepackage{titlesec}
+ 
+\titleformat*{\section}{\large\bfseries}
+\titleformat*{\subsection}{\normalsize\itshape} 
+\titleformat*{\subsubsection}{\normalsize\itshape}
+\titleformat*{\paragraph}{\normalsize\itshape}
+\titleformat*{\subparagraph}{\normalsize\itshape}
+
+\usepackage[section]{placeins}
+
+
+
+\makeatletter
+\@ifpackageloaded{hyperref}{}{%
+\ifxetex
+  \PassOptionsToPackage{hyphens}{url}\usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \PassOptionsToPackage{hyphens}{url}\usepackage[unicode=true]{hyperref}
+\fi
+}
+
+\@ifpackageloaded{color}{
+    \PassOptionsToPackage{usenames,dvipsnames}{color}
+}{
+    \usepackage[usenames,dvipsnames]{color}
+}
+\makeatother
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={ ()},
+             pdfkeywords = {},  
+            pdftitle={},
+            colorlinks=true,
+            citecolor=blue,
+            urlcolor=blue,
+            linkcolor=magenta,
+            pdfborder={0 0 0}}
+\urlstyle{same}  
+
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+
+\linespread{1.05}
+
+\newtheorem{hypothesis}{Hypothesis}
+
+\usepackage{fontawesome}
+
+\newcommand{\blankline}{\quad\pagebreak[2]}
+\usepackage{graphicx}
+
+
+
+\begin{document}
+
+\hfill
+\begin{minipage}[t]{1\textwidth}
+\raggedleft
+{\bfseries Katie Lankowicz }\\[.1ex]
+\faicon{map-marker}	\hspace{1 mm}	\emph{\small Gulf of Maine Research Institute} \\[.1ex]
+\faEnvelopeO	\hspace{1 mm} \small{\tt \href{mailto: klankowczi@gmri.org}{\nolinkurl{klankowicz@gmri.org}}} \\
+\hspace{1 mm} \\
+30 September 2025 \\ 
+\end{minipage}
+
+\vspace*{0.5em}
+
+Dear editors of \textit{Marine Ecology Progress Series},
+
+\vspace*{0.5em}
+
+I am submitting our original research article titled \textit{Spatiotemporal dynamics of nearshore fish communities in Casco Bay, Maine} for consideration for publication in \textit{MEPS}. We chose \textit{MEPS} because of its reputation for publishing high-quality, innovative research. We believe that our work offers significant contributions to coastal ecology, and that it fits within the journal's scope through its environmental factors and community dynamics thematic areas. We are confident that our work will spark meaningful discussion and provide valuable insights for ongoing research and management efforts.
+
+We used 11 years of summer beach seine data and concurrent sea surface temperature records to illustrate temperature-related changes to nearshore fish community structure in the Gulf of Maine (hereafter, GoM). Atlantic herring (\textit{Clupea harengus}) and Atlantic silversides (\textit{Menidia menidia}) were used as focal species to describe the effects of temperature on individual growth rates and relative abundances. Both silverside and herring are highly abundant in the nearshore regions of the GoM in the summer. However, their differing life history strategies and the relative position of the GoM to their overall spatial distributions (northern half of range for silverside, southern half of range for herring), could lead to opposing responses to increasing temperatures. We found that years with average annual sea surface temperatures above the average of a 2003-2020 climate reference period were associated with significantly higher silverside growth rates and community compositions dominated by silversides. Temperature alone did not explain interannual variation in herring growth rates or predict herring-dominated nearshore community composition, and there is evidence that density-dependence may be more important to herring population dynamics. Monitoring nearshore ecosystems could provide critical insight into the dynamics of species that use these areas to facilitate reproduction, growth, and migration, and could therefore be used to identify potential changes to GoM community and trophic ecology. This monitoring will be critical in the GoM and other areas experiencing rapid, intense warming.
+
+Enclosed with this letter are the manuscript, tables, and figures. We confirm that this manuscript is original and has not been submitted for publication elsewhere. A preprint has been posted to bioRxiv (DOI forthcoming). All individuals listed as authors have agreed to be listed and have approved the submitted version of the manuscript. GS provided supervision, GS and KL conceptualized the study, ZW AW SB and KL curated data, KL completed formal analysis and visualizations, KL and CS wrote the original draft, and all authors contributed to review and editing.
+
+We suggest the following reviewers: Jim Gartland (VIMS), Dr. Rob Latour (VIMS), Dr. Ed Hale (University of Delware), and Dr. Trent Sutton (University of Alaska Fairbanks).
+
+Thank you for considering our work for publication in \textit{MEPS}. We look forward to receiving your feedback and are happy to address any additional revisions or questions you may have.
+
+\vspace*{0.5em}
+
+Kind regards,
+
+\includegraphics[width=0.2\linewidth]{katie-lankowicz}
+
+Katie Lankowicz
+
+\end{document}

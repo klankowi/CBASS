@@ -1,0 +1,245 @@
+---
+title: "Metabarcoding quick looks \\vspace{-0.75cm}"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  bookdown::pdf_document2:
+    number_sections: false
+    toc: false
+    latex_engine: lualatex
+    includes: 
+always_allow_html: true
+header-includes:
+    - \usepackage{titling}
+    - \setlength{\droptitle}{-2.5cm} 
+    - \usepackage{setspace}\onehalfspacing
+    - \usepackage{float}
+    - \usepackage{caption}
+    - \captionsetup[figure]{labelformat=empty}
+    - \usepackage[medium]{titlesec}
+    - \titlespacing{\section}{0pt}{10pt plus 2pt minus 1pt}{0pt plus 1pt minus 1pt}
+    - \titlespacing{\subsection}{0pt}{12pt plus 2pt minus 1pt}{0pt plus 1pt minus 1pt}
+---
+\vspace{-1.5cm}
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+library(tidyverse)
+library(sf)
+library(here)
+library(kableExtra)
+
+# Negate function
+'%notin%' <- function(x,y)!('%in%'(x,y))
+
+# Set GGplot auto theme
+theme_set(theme(panel.grid.major = element_line(color='lightgray'),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                panel.border = element_rect(color='black', size=1, fill=NA),
+                legend.position = "bottom",
+                axis.text.x=element_text(size=11),
+                axis.text.y=element_text(size=11),
+                axis.title.x=element_text(size=12),
+                axis.title.y=element_text(size=12, angle=90, vjust=2),
+                plot.title=element_text(size=14, hjust = 0, vjust = 1.2),
+                plot.caption=element_text(hjust=0, face='italic', size=12)))
+```
+```{r dataload, echo=F}
+# Load data
+edna <- read.csv(here('eDNA/Clean_Data/metabarcoding_2024.csv'))
+colnames(edna) <- tolower(colnames(edna))
+
+# Clean
+edna <- edna %>% 
+  pivot_longer(cols = 9:30, 
+               names_to = 'site',
+               values_to = 'asv') %>% 
+  group_by(genus, species, common, salinity, range, site) %>% 
+  summarise(asv = sum(asv)) %>% 
+  as.data.frame()
+
+edna <- edna %>% 
+  group_by(genus, species, common, salinity, range) %>% 
+  mutate(sum_samples = sum(asv),
+         num_samples = length(asv[asv>0])) %>% 
+  as.data.frame()
+
+# Load site data
+sites <- read.csv(here('eDNA/Clean_Data/mb_sitesubset_2024.csv'))
+
+# Clean
+sites <- sites %>% 
+  mutate(site = tolower(Site),
+         date = as.Date(Date, format = '%m/%d/%Y')) %>% 
+  rename(sitename = Site_name) %>% 
+  dplyr::select(site, date, sitename, habitat)
+
+# Merge
+edna <- merge(edna, sites, by='site')
+
+# Load catch data
+catch <- read.csv(here('eDNA/Clean_Data/mb_catchsubset_2024.csv'))
+
+# Clean
+catch <- catch %>% 
+  mutate(site = tolower(site),
+         common = tolower(fish)) %>% 
+  dplyr::select(site, common, count
+                )
+
+# merge
+catch <- merge(catch, sites, by='site')
+
+
+# Observed via seine and metabarcoding
+confirmed <- merge(edna, catch, by=c('site', 'common', 'date', 'sitename', 'habitat'))
+confirmed <- confirmed[confirmed$asv > 0,]
+confirmed <- confirmed %>% 
+  dplyr::select(genus, species, common, date, site, sitename,
+                asv, count, range) %>% 
+  arrange(common, date, sitename) %>% as.data.frame()
+
+# Observed via metabarcoding but not caught
+notcaught <- merge(edna, catch, by=c('site', 'common', 'date', 'sitename', 'habitat'),
+                   all=T)
+notcaught <- notcaught[notcaught$asv > 0 & is.na(notcaught$count),]
+notcaught <- notcaught %>% 
+  dplyr::select(genus, species, common, date, site, sitename,
+                asv, count, range) %>% 
+  arrange(common, date, sitename) %>% as.data.frame()
+# Never caught
+nevercaught <- notcaught$common[notcaught$common %notin% catch$common]
+nevercaught <- unique(nevercaught)
+
+# Observed via seine but not metabarcoding
+notedna <- merge(edna, catch, by=c('site', 'common', 'date', 'sitename', 'habitat'),
+                 all=T)
+notedna <- notedna[is.na(notedna$asv),]
+notedna <- notedna %>% 
+  dplyr::select(genus, species, common, date, site, sitename,
+                asv, count, range) %>% 
+  arrange(common, date, sitename) %>% as.data.frame()
+```
+# Metabarcoding detections
+Through metabarcoding, we can make progress towards characterizing the community of nearshore fishes of Casco Bay without physically handling or even viewing them. A subset of the Summer 2023 GMRI CBASS eDNA filters were analyzed by the University of New Hampshire, a partner with metabarcoding equipment. Here's a quick look into what was detected.
+```{r}
+fish <- edna %>% 
+  filter(asv > 0) %>% 
+  filter(range == 'native') %>% 
+  dplyr::select(genus, species, common) %>% 
+  arrange(genus, species) %>% 
+  unique() %>% as.data.frame()
+
+colnames(fish) <- c('Genus', 'Species', 'Common name')
+
+fish %>%
+  kable(caption = "Native species metabarcoding detections",
+        row.names = FALSE,
+        booktabs=TRUE) %>%
+  row_spec(0, background="black", color="white") %>% 
+  kable_styling(font_size = 9, 
+                latex_options = c('striped', 'HOLD_position'))
+
+```
+Though it offers an incredible remote sensing opportunity to detect cryptic species in marine environments, metabarcoding is not perfect. Sequences may be ascribed to closely-related, yet incorrect species. These data have several examples of this occurring. For many of these species, these are likely misattributions of native species genetic sequences (alewife, sand lance, sculpin, chain or redfin pickerel, various local minnows) to congeners native to other regions (allis shad, lesser sand-eel, great sculpin, grass pickerel, striped shiner, fathead minnow). In the future, we may "fix" these data by manually changing these suspected misattributions to the appropriate native species. 
+
+Other detected non-natives are a bit more of a mystery. Some may be true detections of range expansions or aquarium releases (ill-fated to die in the estuary in the winter). The unexplained remainder could be an error in the metabarcoding process.
+```{r}
+fish <- edna %>% 
+  filter(asv > 0) %>% 
+  filter(range != 'native') %>% 
+  dplyr::select(genus, species, common, range) %>% 
+  arrange(genus, species) %>% 
+  unique() %>% as.data.frame()
+fish$range[fish$range == 'European'] <- 'Europe'
+fish$range[fish$range == 'inland'] <- 'Inland North America'
+colnames(fish) <- c('Genus', 'Species', 'Common name', 'Native Range')
+
+fish %>%
+  kable(caption = "Non-native species metabarcoding detections",
+        row.names = FALSE,
+        booktabs=TRUE) %>%
+  row_spec(0, background="black", color="white") %>% 
+  kable_styling(font_size = 9, 
+                latex_options = c('striped', 'HOLD_position'))
+```
+\newpage
+# Seine-metabarcoding detection agreement
+We can pair this subset of eDNA data to our seine catch data to identify species and locations which have good agreement between the detection methods. 
+
+## Caught and identified via metabarcoding
+Out of 968 species detections over 22 samples, relatively few species were successfully detected via both metabarcoding and the seine. These were alewife, atlantic silverside, atlantic tomcod, and mummichog. It should be noted that these species are among the 10 most commonly-caught species in the seine survey. With the exception of tomcod, they are all also pelagic species which occupy the water column. DNA shed by individuals of these species has a good chance of ending up in the surface layer that we sample.
+```{r}
+confirmed <- confirmed %>% 
+  dplyr::select(genus, species, common, date, sitename, count) %>% 
+  rename(`Common name` = common) %>% 
+  arrange(genus, species, date, sitename) %>% 
+  unique() %>% 
+  as.data.frame()
+
+colnames(confirmed)[5] <- 'site'
+colnames(confirmed) <- str_to_sentence(colnames(confirmed))
+
+confirmed %>%
+  kable(caption = "Detected via both metabarcoding and seine",
+        row.names = FALSE,
+        booktabs=TRUE) %>%
+  row_spec(0, background="black", color="white") %>% 
+  kable_styling(font_size = 9, 
+                latex_options = c('striped', 'HOLD_position'))
+```
+\newpage
+## Caught, but not detected via metabarcoding
+There are very few instances where species caught in seines are not also detected in metabarcoding results. Most of these -- sand lance, sculpins, pipefish, eel -- are demersal (bottom-dwelling) fishes. There is no guarantee that shed DNA from demersal or benthopelagic species would be mixed through the water column to be captured at the surface. This is likely a factor in their limited detections. 
+
+In the case of sand lance _Ammodytes americanus_, we detected a sequence from its non-native congener the lesser sand-eel _Ammodytes tobianus_ at the same sites on the same days. This is a huge clue that we can reassign detections of _A. tobianus_ to _A. americanus_.
+
+There are some similar congener matches for scuplins. We did not always identify to the species level, though our two most commonly-caught sculpin species of the last several years have been grubbies and shorthorn sculpin. There is one instance in which we caught a grubby scuplin _Myoxocephalus aenaeus_ at the same place and time as we detected its congener the great sculpin _Myoxocephalus polyacanthocephalus_. 
+
+The pelagic (water column) fishes not detected via eDNA but caught in the seine included "killifish"-- a catchall term which here may have referred to mummichog _Fundulus heteroclitus_, which was detected via metabarcoding at the same time and place. 
+```{r}
+notedna <- notedna %>% 
+  dplyr::select(common, date, sitename, count) %>% 
+  rename(`Common name` = common)
+colnames(notedna)[3] <- 'Site'
+
+colnames(notedna) <- str_to_sentence(colnames(notedna))
+
+notedna %>%
+  kable(caption = "Detected via seine, but not metabarcoding",
+        row.names = FALSE,
+        booktabs=TRUE) %>%
+  row_spec(0, background="black", color="white") %>% 
+  kable_styling(font_size = 9, 
+                latex_options = c('striped', 'HOLD_position'))
+```
+\newpage
+## Detected via metabarcoding, but not caught
+We know that DNA persists in aquatic environments for variable durations depending on currents, sunlight, temperature, and other factors. It is not surprising that there are many species that we detected via metabarcoding, but did not physically sample. DNA may remain in the areas around the seine sites, or be carried there, without the fish being there.
+
+Species that are detected via metabarcoding, but not caught in our seines likely include many larger-bodied fishes that would inhabit deeper areas just outside the reach of the net. These include shortnose sturgeon, witch flounder, American angler (monkfish), and striped bass. This group could also contain many demersal fishes which aggregate within and around complex habitat (boulders, etc) not well sampled by the net. These would include cunner, rock gunnel, and sculpins.
+
+Still others species in this group include fishes that form large, dense schools. These include many species we commonly catch, include alewife, Atlantic herring, Atlantic menhaden, and Atlantic silverside. These fishes could produce large amounts of shed DNA in the areas near our seine site without actually being in the towpath. 
+```{r}
+notcaught <- notcaught %>% 
+  dplyr::select(genus, species, common) %>% 
+  group_by(genus, species, common) %>% 
+  rename(`Common name` = common) %>% 
+  mutate(count = n()) %>% 
+  arrange(genus, species) %>% 
+  unique() %>% 
+  as.data.frame()
+colnames(notcaught)[4] <- ' eDNA detections'
+
+colnames(notcaught) <- str_to_sentence(colnames(notcaught))
+
+notcaught %>%
+  kable(caption = "Detected via metabarcoding, but not caught",
+        row.names = FALSE,
+        booktabs=TRUE) %>%
+  row_spec(0, background="black", color="white") %>% 
+  kable_styling(font_size = 9, 
+                latex_options = c('striped', 'HOLD_position'))
+```

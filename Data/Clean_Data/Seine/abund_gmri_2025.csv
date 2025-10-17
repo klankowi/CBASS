@@ -1,0 +1,238 @@
+"loc_id","date","site_name","site_id","bay_location","species_name","catch"
+"2025_001_02",2025-06-11,"Skitterygusset",2,NA,"atlantic silverside",1
+"2025_001_09",2025-06-11,"Great Diamond Island",9,NA,"atlantic silverside",60
+"2025_001_10",2025-06-11,"SMCC",10,NA,"green crab",1
+"2025_001_10",2025-06-11,"SMCC",10,NA,"mummichog",1
+"2025_002_04",2025-06-18,"Mussel Cove",4,NA,"green crab",4
+"2025_002_05",2025-06-18,"The Brothers - North",5,NA,"atlantic silverside",18
+"2025_002_05",2025-06-18,"The Brothers - North",5,NA,"atlantic tomcod",5
+"2025_002_05",2025-06-18,"The Brothers - North",5,NA,"grubby sculpin",32
+"2025_002_05",2025-06-18,"The Brothers - North",5,NA,"mummichog",1
+"2025_002_05",2025-06-18,"The Brothers - North",5,NA,"winter flounder",1
+"2025_002_06",2025-06-18,"Mackworth Island - North",6,NA,"atlantic tomcod",1
+"2025_002_06",2025-06-18,"Mackworth Island - North",6,NA,"green crab",1
+"2025_002_06",2025-06-18,"Mackworth Island - North",6,NA,"sculpin",1
+"2025_002_08",2025-06-18,"Back Cove",8,NA,"sculpin",4
+"2025_002_11",2025-06-18,"Cushing Island",11,NA,"green crab",34
+"2025_002_11",2025-06-18,"Cushing Island",11,NA,"grubby sculpin",10
+"2025_002_11",2025-06-18,"Cushing Island",11,NA,"pollock",5
+"2025_002_11",2025-06-18,"Cushing Island",11,NA,"red hake",1
+"2025_002_11",2025-06-18,"Cushing Island",11,NA,"rock gunnel",50
+"2025_002_11",2025-06-18,"Cushing Island",11,NA,"winter flounder",1
+"2025_003_10",2025-06-25,"SMCC",10,NA,"green crab",1
+"2025_003_11",2025-06-25,"Cushing Island",11,NA,"green crab",2
+"2025_004_02",2025-06-26,"Skitterygusset",2,NA,"mummichog",2
+"2025_004_05",2025-06-26,"The Brothers - North",5,NA,"green crab",6
+"2025_004_05",2025-06-26,"The Brothers - North",5,NA,"winter flounder",1
+"2025_004_09",2025-06-26,"Great Diamond Island",9,NA,"atlantic silverside",8
+"2025_004_09",2025-06-26,"Great Diamond Island",9,NA,"green crab",4
+"2025_005_03",2025-06-30,"Audubon",3,NA,"green crab",4
+"2025_005_03",2025-06-30,"Audubon",3,NA,"mummichog",1
+"2025_005_03",2025-06-30,"Audubon",3,NA,"sturgeon",1
+"2025_005_04",2025-06-30,"Mussel Cove",4,NA,"green crab",25
+"2025_006_07",2025-07-08,"Mackworth Island - Beach",7,NA,"alewife",70
+"2025_006_07",2025-07-08,"Mackworth Island - Beach",7,NA,"atlantic herring",9
+"2025_006_07",2025-07-08,"Mackworth Island - Beach",7,NA,"atlantic silverside",4
+"2025_006_07",2025-07-08,"Mackworth Island - Beach",7,NA,"winter flounder",1
+"2025_006_08",2025-07-08,"Back Cove",8,NA,"alewife",1
+"2025_006_08",2025-07-08,"Back Cove",8,NA,"sand lance",2
+"2025_006_11",2025-07-08,"Cushing Island",11,NA,"green crab",2
+"2025_007_01",2025-07-09,"Presumpscot Moorings",1,NA,"atlantic silverside",1
+"2025_007_01",2025-07-09,"Presumpscot Moorings",1,NA,"chub",2
+"2025_007_01",2025-07-09,"Presumpscot Moorings",1,NA,"green crab",1
+"2025_007_01",2025-07-09,"Presumpscot Moorings",1,NA,"mummichog",1
+"2025_007_02",2025-07-09,"Skitterygusset",2,NA,"alewife",161
+"2025_007_02",2025-07-09,"Skitterygusset",2,NA,"green crab",1
+"2025_007_02",2025-07-09,"Skitterygusset",2,NA,"sturgeon",1
+"2025_007_03",2025-07-09,"Audubon",3,NA,"alewife",45
+"2025_007_03",2025-07-09,"Audubon",3,NA,"atlantic silverside",1
+"2025_007_04",2025-07-09,"Mussel Cove",4,NA,"green crab",38
+"2025_007_04",2025-07-09,"Mussel Cove",4,NA,"winter flounder",5
+"2025_007_09",2025-07-09,"Great Diamond Island",9,NA,"atlantic silverside",17
+"2025_007_09",2025-07-09,"Great Diamond Island",9,NA,"green crab",1
+"2025_008_05",2025-07-11,"The Brothers - North",5,NA,"atlantic silverside",4
+"2025_008_05",2025-07-11,"The Brothers - North",5,NA,"green crab",9
+"2025_008_05",2025-07-11,"The Brothers - North",5,NA,"grubby sculpin",1
+"2025_008_05",2025-07-11,"The Brothers - North",5,NA,"winter flounder",11
+"2025_008_06",2025-07-11,"Mackworth Island - North",6,NA,"atlantic silverside",1
+"2025_008_10",2025-07-11,"SMCC",10,NA,"atlantic silverside",3
+"2025_008_10",2025-07-11,"SMCC",10,NA,"green crab",7
+"2025_008_10",2025-07-11,"SMCC",10,NA,"sand lance",13
+"2025_008_10",2025-07-11,"SMCC",10,NA,"winter flounder",1
+"2025_009_06",2025-07-24,"Mackworth Island - North",6,NA,"atlantic silverside",7
+"2025_009_06",2025-07-24,"Mackworth Island - North",6,NA,"green crab",3
+"2025_009_06",2025-07-24,"Mackworth Island - North",6,NA,"winter flounder",3
+"2025_009_08",2025-07-24,"Back Cove",8,NA,"winter flounder",1
+"2025_009_11",2025-07-24,"Cushing Island",11,NA,"green crab",1
+"2025_009_12",2025-07-24,"Alewife Cove",12,NA,"green crab",1
+"2025_010_01",2025-07-25,"Presumpscot Moorings",1,NA,"alewife",4
+"2025_010_01",2025-07-25,"Presumpscot Moorings",1,NA,"alewife",4
+"2025_010_01",2025-07-25,"Presumpscot Moorings",1,NA,"atlantic silverside",5
+"2025_010_01",2025-07-25,"Presumpscot Moorings",1,NA,"atlantic silverside",5
+"2025_010_01",2025-07-25,"Presumpscot Moorings",1,NA,"bluefish",2
+"2025_010_01",2025-07-25,"Presumpscot Moorings",1,NA,"bluefish",2
+"2025_010_02",2025-07-25,"Skitterygusset",2,NA,"alewife",384
+"2025_010_02",2025-07-25,"Skitterygusset",2,NA,"alewife",409
+"2025_010_02",2025-07-25,"Skitterygusset",2,NA,"atlantic silverside",4
+"2025_010_02",2025-07-25,"Skitterygusset",2,NA,"atlantic silverside",4
+"2025_010_02",2025-07-25,"Skitterygusset",2,NA,"bluefish",2
+"2025_010_02",2025-07-25,"Skitterygusset",2,NA,"bluefish",2
+"2025_010_02",2025-07-25,"Skitterygusset",2,NA,"green crab",3
+"2025_010_02",2025-07-25,"Skitterygusset",2,NA,"green crab",3
+"2025_010_03",2025-07-25,"Audubon",3,NA,"alewife",43
+"2025_010_03",2025-07-25,"Audubon",3,NA,"alewife",45
+"2025_010_03",2025-07-25,"Audubon",3,NA,"atlantic silverside",1
+"2025_010_03",2025-07-25,"Audubon",3,NA,"atlantic silverside",1
+"2025_010_03",2025-07-25,"Audubon",3,NA,"bluefish",3
+"2025_010_03",2025-07-25,"Audubon",3,NA,"bluefish",3
+"2025_010_03",2025-07-25,"Audubon",3,NA,"green crab",11
+"2025_010_03",2025-07-25,"Audubon",3,NA,"green crab",11
+"2025_010_03",2025-07-25,"Audubon",3,NA,"winter flounder",6
+"2025_010_03",2025-07-25,"Audubon",3,NA,"winter flounder",6
+"2025_010_04",2025-07-25,"Mussel Cove",4,NA,"alewife",6
+"2025_010_04",2025-07-25,"Mussel Cove",4,NA,"alewife",6
+"2025_010_04",2025-07-25,"Mussel Cove",4,NA,"green crab",22
+"2025_010_04",2025-07-25,"Mussel Cove",4,NA,"green crab",22
+"2025_010_04",2025-07-25,"Mussel Cove",4,NA,"winter flounder",12
+"2025_010_04",2025-07-25,"Mussel Cove",4,NA,"winter flounder",12
+"2025_010_09",2025-07-25,"Great Diamond Island",9,NA,"atlantic silverside",1
+"2025_010_09",2025-07-25,"Great Diamond Island",9,NA,"atlantic silverside",1
+"2025_010_09",2025-07-25,"Great Diamond Island",9,NA,"mummichog",1
+"2025_010_09",2025-07-25,"Great Diamond Island",9,NA,"mummichog",1
+"2025_010_10",2025-07-25,"SMCC",10,NA,"atlantic silverside",1
+"2025_010_10",2025-07-25,"SMCC",10,NA,"atlantic silverside",1
+"2025_010_10",2025-07-25,"SMCC",10,NA,"green crab",8
+"2025_010_10",2025-07-25,"SMCC",10,NA,"green crab",8
+"2025_010_10",2025-07-25,"SMCC",10,NA,"winter flounder",8
+"2025_010_10",2025-07-25,"SMCC",10,NA,"winter flounder",8
+"2025_011_05",2025-08-04,"The Brothers - North",5,NA,"green crab",9
+"2025_011_06",2025-08-04,"Mackworth Island - North",6,NA,"green crab",6
+"2025_011_06",2025-08-04,"Mackworth Island - North",6,NA,"mummichog",3
+"2025_011_06",2025-08-04,"Mackworth Island - North",6,NA,"northern pipefish",1
+"2025_011_07",2025-08-04,"Mackworth Island - Beach",7,NA,"atlantic silverside",1
+"2025_011_07",2025-08-04,"Mackworth Island - Beach",7,NA,"green crab",5
+"2025_011_07",2025-08-04,"Mackworth Island - Beach",7,NA,"mummichog",300
+"2025_011_07",2025-08-04,"Mackworth Island - Beach",7,NA,"winter flounder",1
+"2025_011_08",2025-08-04,"Back Cove",8,NA,"green crab",7
+"2025_011_08",2025-08-04,"Back Cove",8,NA,"grubby sculpin",1
+"2025_011_11",2025-08-04,"Cushing Island",11,NA,"sand lance",107
+"2025_012_01",2025-08-05,"Presumpscot Moorings",1,NA,"atlantic silverside",2
+"2025_012_01",2025-08-05,"Presumpscot Moorings",1,NA,"mummichog",8
+"2025_012_02",2025-08-05,"Skitterygusset",2,NA,"alewife",1
+"2025_012_02",2025-08-05,"Skitterygusset",2,NA,"atlantic silverside",110
+"2025_012_02",2025-08-05,"Skitterygusset",2,NA,"green crab",1
+"2025_012_02",2025-08-05,"Skitterygusset",2,NA,"winter flounder",9
+"2025_012_03",2025-08-05,"Audubon",3,NA,"atlantic silverside",75
+"2025_012_03",2025-08-05,"Audubon",3,NA,"bluefish",2
+"2025_012_03",2025-08-05,"Audubon",3,NA,"green crab",3
+"2025_012_03",2025-08-05,"Audubon",3,NA,"winter flounder",2
+"2025_012_04",2025-08-05,"Mussel Cove",4,NA,"alewife",21
+"2025_012_04",2025-08-05,"Mussel Cove",4,NA,"atlantic herring",138
+"2025_012_04",2025-08-05,"Mussel Cove",4,NA,"atlantic silverside",8
+"2025_012_04",2025-08-05,"Mussel Cove",4,NA,"green crab",58
+"2025_012_04",2025-08-05,"Mussel Cove",4,NA,"winter flounder",14
+"2025_012_09",2025-08-05,"Great Diamond Island",9,NA,"alewife",1
+"2025_012_09",2025-08-05,"Great Diamond Island",9,NA,"atlantic herring",1
+"2025_012_09",2025-08-05,"Great Diamond Island",9,NA,"atlantic silverside",31
+"2025_012_09",2025-08-05,"Great Diamond Island",9,NA,"green crab",2
+"2025_012_10",2025-08-05,"SMCC",10,NA,"alewife",3
+"2025_012_10",2025-08-05,"SMCC",10,NA,"atlantic silverside",3
+"2025_012_10",2025-08-05,"SMCC",10,NA,"green crab",11
+"2025_012_10",2025-08-05,"SMCC",10,NA,"grubby sculpin",1
+"2025_012_10",2025-08-05,"SMCC",10,NA,"rainbow smelt",1
+"2025_012_10",2025-08-05,"SMCC",10,NA,"winter flounder",6
+"2025_013_05",2025-08-14,"The Brothers - North",5,NA,"atlantic silverside",1
+"2025_013_05",2025-08-14,"The Brothers - North",5,NA,"green crab",10
+"2025_013_05",2025-08-14,"The Brothers - North",5,NA,"mummichog",5
+"2025_013_05",2025-08-14,"The Brothers - North",5,NA,"winter flounder",31
+"2025_013_06",2025-08-14,"Mackworth Island - North",6,NA,"atlantic silverside",15
+"2025_013_06",2025-08-14,"Mackworth Island - North",6,NA,"grubby sculpin",1
+"2025_013_06",2025-08-14,"Mackworth Island - North",6,NA,"winter flounder",4
+"2025_013_08",2025-08-14,"Back Cove",8,NA,"green crab",4
+"2025_013_10",2025-08-14,"SMCC",10,NA,"green crab",26
+"2025_013_10",2025-08-14,"SMCC",10,NA,"grubby sculpin",2
+"2025_013_10",2025-08-14,"SMCC",10,NA,"winter flounder",2
+"2025_013_11",2025-08-14,"Cushing Island",11,NA,"green crab",6
+"2025_013_11",2025-08-14,"Cushing Island",11,NA,"grubby sculpin",6
+"2025_013_11",2025-08-14,"Cushing Island",11,NA,"northern pipefish",1
+"2025_013_11",2025-08-14,"Cushing Island",11,NA,"rock gunnel",1
+"2025_013_11",2025-08-14,"Cushing Island",11,NA,"winter flounder",1
+"2025_013_12",2025-08-14,"Alewife Cove",12,NA,"sand lance",1
+"2025_014_01",2025-08-21,"Presumpscot Moorings",1,NA,"green crab",2
+"2025_014_01",2025-08-21,"Presumpscot Moorings",1,NA,"winter flounder",1
+"2025_014_02",2025-08-21,"Skitterygusset",2,NA,"atlantic silverside",119
+"2025_014_02",2025-08-21,"Skitterygusset",2,NA,"bluefish",2
+"2025_014_02",2025-08-21,"Skitterygusset",2,NA,"green crab",13
+"2025_014_03",2025-08-21,"Audubon",3,NA,"atlantic silverside",823
+"2025_014_03",2025-08-21,"Audubon",3,NA,"green crab",1
+"2025_014_04",2025-08-21,"Mussel Cove",4,NA,"alewife",3
+"2025_014_04",2025-08-21,"Mussel Cove",4,NA,"atlantic silverside",51
+"2025_014_04",2025-08-21,"Mussel Cove",4,NA,"green crab",7
+"2025_014_04",2025-08-21,"Mussel Cove",4,NA,"winter flounder",1
+"2025_014_07",2025-08-21,"Mackworth Island - Beach",7,NA,"atlantic silverside",218
+"2025_014_07",2025-08-21,"Mackworth Island - Beach",7,NA,"mummichog",2
+"2025_014_09",2025-08-21,"Great Diamond Island",9,NA,"atlantic silverside",176
+"2025_014_09",2025-08-21,"Great Diamond Island",9,NA,"green crab",3
+"2025_015_05",2025-08-29,"The Brothers - North",5,NA,"green crab",16
+"2025_015_05",2025-08-29,"The Brothers - North",5,NA,"green crab",16
+"2025_015_05",2025-08-29,"The Brothers - North",5,NA,"winter flounder",9
+"2025_015_05",2025-08-29,"The Brothers - North",5,NA,"winter flounder",9
+"2025_015_06",2025-08-29,"Mackworth Island - North",6,NA,"alewife",1
+"2025_015_06",2025-08-29,"Mackworth Island - North",6,NA,"alewife",1
+"2025_015_06",2025-08-29,"Mackworth Island - North",6,NA,"atlantic silverside",22
+"2025_015_06",2025-08-29,"Mackworth Island - North",6,NA,"atlantic silverside",22
+"2025_015_06",2025-08-29,"Mackworth Island - North",6,NA,"green crab",2
+"2025_015_06",2025-08-29,"Mackworth Island - North",6,NA,"green crab",2
+"2025_015_06",2025-08-29,"Mackworth Island - North",6,NA,"mummichog",1
+"2025_015_06",2025-08-29,"Mackworth Island - North",6,NA,"mummichog",1
+"2025_015_08",2025-08-29,"Back Cove",8,NA,"atlantic silverside",1
+"2025_015_08",2025-08-29,"Back Cove",8,NA,"atlantic silverside",1
+"2025_015_08",2025-08-29,"Back Cove",8,NA,"green crab",4
+"2025_015_08",2025-08-29,"Back Cove",8,NA,"green crab",4
+"2025_015_08",2025-08-29,"Back Cove",8,NA,"mummichog",1
+"2025_015_08",2025-08-29,"Back Cove",8,NA,"mummichog",1
+"2025_015_08",2025-08-29,"Back Cove",8,NA,"winter flounder",1
+"2025_015_08",2025-08-29,"Back Cove",8,NA,"winter flounder",1
+"2025_015_10",2025-08-29,"SMCC",10,NA,"atlantic herring",43
+"2025_015_10",2025-08-29,"SMCC",10,NA,"atlantic herring",43
+"2025_015_10",2025-08-29,"SMCC",10,NA,"atlantic silverside",8
+"2025_015_10",2025-08-29,"SMCC",10,NA,"atlantic silverside",8
+"2025_015_10",2025-08-29,"SMCC",10,NA,"green crab",7
+"2025_015_10",2025-08-29,"SMCC",10,NA,"green crab",7
+"2025_015_10",2025-08-29,"SMCC",10,NA,"northern pipefish",1
+"2025_015_10",2025-08-29,"SMCC",10,NA,"northern pipefish",1
+"2025_015_10",2025-08-29,"SMCC",10,NA,"sculpin",1
+"2025_015_10",2025-08-29,"SMCC",10,NA,"sculpin",1
+"2025_015_10",2025-08-29,"SMCC",10,NA,"winter flounder",6
+"2025_015_10",2025-08-29,"SMCC",10,NA,"winter flounder",6
+"2025_015_11",2025-08-29,"Cushing Island",11,NA,"cunner",1
+"2025_015_11",2025-08-29,"Cushing Island",11,NA,"grubby sculpin",1
+"2025_015_11",2025-08-29,"Cushing Island",11,NA,"grubby sculpin",1
+"2025_015_11",2025-08-29,"Cushing Island",11,NA,"rock gunnel",1
+"2025_015_11",2025-08-29,"Cushing Island",11,NA,"rock gunnel",1
+"2025_015_12",2025-08-29,"Alewife Cove",12,NA,"alewife",8
+"2025_015_12",2025-08-29,"Alewife Cove",12,NA,"alewife",8
+"2025_015_12",2025-08-29,"Alewife Cove",12,NA,"atlantic silverside",11
+"2025_015_12",2025-08-29,"Alewife Cove",12,NA,"atlantic silverside",11
+"2025_015_12",2025-08-29,"Alewife Cove",12,NA,"green crab",1
+"2025_015_12",2025-08-29,"Alewife Cove",12,NA,"green crab",1
+"2025_015_12",2025-08-29,"Alewife Cove",12,NA,"hake",1
+"2025_015_12",2025-08-29,"Alewife Cove",12,NA,"hake",1
+"2025_015_12",2025-08-29,"Alewife Cove",12,NA,"sand lance",1
+"2025_015_12",2025-08-29,"Alewife Cove",12,NA,"sand lance",1
+"2025_016_02",2025-09-04,"Skitterygusset",2,NA,"atlantic silverside",44
+"2025_016_02",2025-09-04,"Skitterygusset",2,NA,"green crab",12
+"2025_016_02",2025-09-04,"Skitterygusset",2,NA,"winter flounder",1
+"2025_016_03",2025-09-04,"Audubon",3,NA,"atlantic silverside",23
+"2025_016_04",2025-09-04,"Mussel Cove",4,NA,"alewife",2
+"2025_016_04",2025-09-04,"Mussel Cove",4,NA,"atlantic silverside",16
+"2025_016_04",2025-09-04,"Mussel Cove",4,NA,"green crab",17
+"2025_016_04",2025-09-04,"Mussel Cove",4,NA,"northern pipefish",1
+"2025_016_04",2025-09-04,"Mussel Cove",4,NA,"sand lance",1
+"2025_016_04",2025-09-04,"Mussel Cove",4,NA,"winter flounder",5
+"2025_016_07",2025-09-04,"Mackworth Island - Beach",7,NA,"atlantic silverside",298
+"2025_016_07",2025-09-04,"Mackworth Island - Beach",7,NA,"green crab",3
+"2025_016_07",2025-09-04,"Mackworth Island - Beach",7,NA,"mummichog",34
+"2025_016_07",2025-09-04,"Mackworth Island - Beach",7,NA,"winter flounder",8
+"2025_016_09",2025-09-04,"Great Diamond Island",9,NA,"atlantic silverside",21
+"2025_016_09",2025-09-04,"Great Diamond Island",9,NA,"mummichog",1
