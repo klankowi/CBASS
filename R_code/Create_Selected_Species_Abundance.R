@@ -23,7 +23,7 @@ theme_set(theme(panel.grid.major = element_line(color='lightgray'),
                 plot.caption=element_text(hjust=0, face='italic', size=12)))
 
 #### Trip data ####
-trips <- read.csv(here('Clean_Data/Seine/trips_through_2024.csv'))
+trips <- read.csv(here('Data/Clean_Data/Seine/trips_through_2025.csv'))
 
 # Clean
 trips <- trips %>% 
@@ -36,7 +36,7 @@ trips <- trips %>%
   mutate(day = day(date)) %>% 
   mutate(doy = yday(date)) %>% 
   # Remove 2019 and shoulder weeks
-  filter(year != 2019) %>% 
+  filter(year %notin% c(2019, 2025)) %>% 
   filter(week >=24) %>% 
   filter(week<=39)
 
@@ -50,6 +50,7 @@ trips <- trips %>%
     'very low tide, seine taken in about 1 ft of water',
     'site assumed, not indicated on sheet',
     'bad set',
+    'bad set no fish',
     'tide moving too fast, seine set was flipped',
     'net snagged, probably released most of catch',
     'tide moving too fast, no fish, had to walk in seine net',
@@ -157,6 +158,7 @@ trips$weather[trips$date == as.Date('2023-08-11')] <- 'partly cloudy'
 trips$weather[trips$weather %in% c('mostly sunny')] <- 'partly cloudy'
 table(trips$weather)
 trips[is.na(trips$weather),]
+trips[trips$weather=="",]
 
 # Trim
 trips <- trips %>% 
@@ -166,8 +168,10 @@ trips <- trips %>%
                                               'rain')))
 
 # Has to have valid time set
-trips$set_time_local <- as.POSIXct(trips$set_time_local,
-                                   format = "%m/%d/%Y %H:%M")
+trips$set_time_local <- as.POSIXct(paste0(trips$date, ' ',
+                                          trips$set_time_local),
+                                   format = "%Y-%m-%d %H:%M",
+                                   tz='America/New_York')
 trips <- trips %>% 
   filter(!is.na(set_time_local))
 
@@ -176,7 +180,7 @@ trips <- trips %>%
   filter(!is.na(temp_degc))
 
 #### Minute-based tides ####
-tides <- read.csv(here('Raw_Data/Portland_tides_byminute.csv'))
+tides <- read.csv(here('Data/Raw_Data/Portland_tides_byminute.csv'))
 tides <- tides %>% 
   mutate(timestamp = as.POSIXct(TimeLocal,
                                 format = "%Y-%m-%d %H:%M:%S")) %>% 
@@ -201,35 +205,31 @@ trips <- left_join(trips,
 # Trim
 trips <- trips %>% 
   dplyr::select(-site_id, -bay_location, 
-                -set_time,
+                #-set_time,
                 -hermit_crabs,
                 -shrimp)
 
 #### Abundance ####
-abund <- read.csv(here('Clean_Data/Seine/abund_through_2024.csv'))
+abund <- read.csv(here('Data/Clean_Data/Seine/abund_through_2025.csv'))
 
 # Clean
 abund <- abund %>% 
   filter(loc_id %in% trips$loc_id) %>% 
-  filter(species_name %in% c('atlantic herring',
-                             #'atlantic tomcod',
-                             'atlantic silverside'#,
-                             #'winter flounder',
-                             #'mummichog'
+  filter(species_name %in% c('alewife'
                              )) %>% 
   dplyr::select(loc_id, site_name, species_name, catch) %>% 
   pivot_wider(names_from = species_name,
               values_from = catch) %>% 
   as.data.frame()
 abund[is.na(abund)] <- 0
-colnames(abund) <- c('loc_id', 'site_name', 'silver', 'herring')
+colnames(abund) <- c('loc_id', 'site_name', 'alewife')
 
 #### Join abundance and trips ####
 dat <- merge(trips, abund, 
              by=c('loc_id', 'site_name'),
              all=T)
-dat$silver[is.na(dat$silver)] <- 0
-dat$herring[is.na(dat$herring)] <- 0
+dat$alewife[is.na(dat$alewife)] <- 0
+#dat$herring[is.na(dat$herring)] <- 0
 
 # Clean
 dat <- dat %>% 
@@ -237,11 +237,11 @@ dat <- dat %>%
                 year, month, week, date, site_name, 
                 substrate, weather, stage,
                 TideHT.m, temp_degc, salinity_ppt, do_mg.l,
-                silver, herring,
+                alewife,
                 notes)
 
 dat <- dat %>% 
-  pivot_longer(cols = c(silver, herring),
+  pivot_longer(cols = c(alewife),
                names_to = "species_name", 
                values_to = "catch") %>% 
   as.data.frame()
@@ -290,5 +290,5 @@ table(dat$month, dat$year)
 rm(badweather, sitesub, tides)
 
 write.csv(dat, 
-          here('Clean_Data/selected_species_abundance2.csv'),
+          here('Data/Clean_Data/selected_species_abundance2.csv'),
           row.names = F)

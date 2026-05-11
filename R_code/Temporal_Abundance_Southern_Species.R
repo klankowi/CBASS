@@ -21,12 +21,12 @@ theme_set(theme(panel.grid.major = element_line(color='lightgray'),
                 plot.caption=element_text(hjust=0, face='italic', size=12)))
 
 # Load data
-trips <- read.csv(here('Clean_Data/Seine/trips_through_2024.csv'))
+trips <- read.csv(here('Data/Clean_Data/Seine/trips_through_2025.csv'))
 trips <- trips %>% 
   mutate(date = as.Date(date, format = '%m/%d/%Y')) %>% 
   mutate(week = isoweek(date),
          year = year(date))
-abund <- read.csv(here('Clean_Data/Seine/abund_through_2024.csv'))
+abund <- read.csv(here('Data/Clean_Data/Seine/abund_through_2025.csv'))
 abund$species_name[abund$species_name %in% c('threespine stickleback',
                                              'fourspine stickleback', 
                                              'ninespine stickleback', 
@@ -36,6 +36,7 @@ abund$species_name[abund$species_name %in% c('threespine stickleback',
 abund$species_name[abund$species_name %in% c('grubby sculpin',
                                              'longhorn sculpin',
                                              'sculpin spp',
+                                             'sculpin',
                                              'shorthorn sculpin',
                                              'slimy sculpin')] <- 
   'sculpin spp'
@@ -50,6 +51,7 @@ abund$species_name[abund$species_name %in% c('atlantic moonfish',
                                              'crevalle jack',
                                              'permit',
                                              'summer flounder',
+                                             'atlantic saury',
                                              'white mullet')] <- 'southern species'
 
 

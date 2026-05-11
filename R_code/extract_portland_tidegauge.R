@@ -21,7 +21,7 @@ theme_set(theme(panel.grid.major = element_line(color='lightgray'),
                 plot.caption=element_text(hjust=0, face='italic', size=12)))
 
 # Set years to pull (Portland station reliable data record 2003-today)
-years <- seq(2003, 2025)
+years <- seq(2003, 2026)
 
 # Set months
 months <- seq(1, 12)
@@ -68,10 +68,8 @@ for(i in years){
 sdates <- sdates[sdates != '20110601']
 edates <- edates[edates != '20110630']
 
-## September 2025 has not finished yet
-#sdates <- sdates[sdates != '20241201']
-#edates <- edates[edates != '20241231']
-edates[edates == '20250930'] <- '20250910'
+## Jan 2026 has not finished yet
+edates[edates == '20260131'] <- '20260128'
 
 # Remove NA end dates
 edates <- edates[!is.na(edates)]
@@ -112,16 +110,12 @@ raw.data <- wat_temp
 wat_temp <- raw.data %>% 
   dplyr::select(t, v) %>% 
   rename(timestamp = t,
-         sst_c = v)
+         sst_c = v) %>% 
+  mutate(sst_c = as.numeric(sst_c))
 
 # Create time stamp
 wat_temp$timestamp <- as.POSIXct(wat_temp$timestamp,
                                  format='%Y-%m-%d %H:%M')
-
-# Create date columns
-wat_temp$month <- month(wat_temp$timestamp)
-wat_temp$month <- str_pad(wat_temp$month, 2, 'left', '0')
-wat_temp$year <- year(wat_temp$timestamp)
 
 # Remove instances of missing timestamp
 wat_temp <- wat_temp[!is.na(wat_temp$timestamp),]
@@ -200,73 +194,50 @@ wat_temp$sst_c[wat_temp$timestamp >= as.POSIXct('2019-01-21 00:00:00') &
                  wat_temp$timestamp <= as.POSIXct('2019-01-28 01:24:00') &
                  wat_temp$sst_c <=-1.5] <- NA
 
-# Create hourly collector
-wat_temp$ts <- paste0(lubridate::year(wat_temp$timestamp), "-", 
-                      lubridate::month(wat_temp$timestamp), '-',
-                      lubridate::day(wat_temp$timestamp), '_',
-                      lubridate::hour(wat_temp$timestamp))
+# Date info
+wat_temp <- wat_temp %>% 
+  mutate(year = year(timestamp),
+         month = month(timestamp),
+         doy = yday(timestamp),
+         hour = hour(timestamp))
 
-# Force to numeric
-wat_temp$sst_c <- as.numeric(wat_temp$sst_c)
-
-# Check for outliers
-hist(wat_temp$sst_c)
-table(round(wat_temp$sst_c))
-summary(wat_temp$sst_c)
 
 # Save intermediate
 clean.data <- wat_temp
 
 # Calculate mean hourly temp
 wat_temp <- wat_temp %>% 
-  group_by(ts) %>% 
-  summarise(hourly.temp = mean(sst_c, na.rm=TRUE))
+  group_by(year, doy, hour) %>% 
+  mutate(hourly.temp = mean(sst_c, na.rm=TRUE)) %>% 
+  dplyr::select(year, month, doy, hour, hourly.temp) %>% 
+  arrange(year, month, doy, hour) %>% 
+  unique() %>% as.data.frame()
 
-# Split timestamp back out
+# Calculate mean daily temp
 wat_temp <- wat_temp %>% 
-  separate(ts, into=c('year', 'month', 'day'), '-')
-wat_temp <- wat_temp %>% 
-  separate(day, into=c('day', 'hour'), '_')
+  group_by(year, doy) %>% 
+  mutate(mean.daily = mean(hourly.temp, na.rm=T)) %>% 
+  dplyr::select(year, month, doy, mean.daily) %>% 
+  unique() %>% as.data.frame()
 
-# Append leading zeros, combine
-wat_temp$timestamp <- paste0(
-  wat_temp$year, '-',
-  str_pad(wat_temp$month, 2, 'left', '0'), '-',
-  str_pad(wat_temp$day, 2, 'left', '0'), ' ',
-  str_pad(wat_temp$hour, 2, 'left', '0'), ':00'
-)
-
-# Force back to timestamp
-wat_temp$timestamp <- as.POSIXct(wat_temp$timestamp,
-                                 format="%Y-%m-%d %H:%M")
-
-# Remove intermediates
-wat_temp <- wat_temp %>% 
-  dplyr::select(timestamp, hourly.temp)
-wat_temp <- wat_temp[with(wat_temp, order(timestamp)),]
+wat_temp <- wat_temp[with(wat_temp, order(year, month, doy)),]
 rownames(wat_temp) <- NULL
-
-# More date columns
-wat_temp$doy <- lubridate::yday(wat_temp$timestamp)
-wat_temp$year <- year(wat_temp$timestamp)
-wat_temp$collector <- paste0(wat_temp$year, "_",
-                             str_pad(wat_temp$doy, 3, 'left', '0'))
 
 # Find "normal" daily temperature
 # Period of reference 2003-2020
 # Warming report uses 1991-2020, currently
 norms <- wat_temp %>% 
   filter(year <=2020) %>% 
-  group_by(collector) %>% 
-  summarise(mean.daily = mean(hourly.temp, na.rm=TRUE),
-            doy=mean(doy),
-            year=mean(year))
+  dplyr::select(year, doy, mean.daily)
 
 # Smooth mean daily temperature using GAM
-tgam <- mgcv::gam(mean.daily ~ s(doy, bs='cs') + s(year, bs='cs'), 
+tgam <- mgcv::gam(mean.daily ~ 
+                    s(doy, bs='cs') + 
+                    s(year, bs='cs', k=18), 
                   data=norms,
                   method='REML')
 summary(tgam)
+gam.hp::gam.hp(tgam)
 mgcv::gam.check(tgam)
 mgcv::plot.gam(tgam, select=1, scheme=1, rug=T, residuals = T)
 
@@ -283,73 +254,46 @@ daily.smooth$smooth.daily <- np$fit
 daily.smooth$smooth.upper <- np$fit + np$se.fit
 daily.smooth$smooth.lower <- np$fit - np$se.fit
 
-# More date columns
-wat_temp$dailyts <- ymd(wat_temp$timestamp)
-wat_temp$dailyts <- zoo::na.locf(wat_temp$dailyts)
-
-# Mean daily temperature
-daily.temps <- wat_temp %>% 
-  group_by(dailyts) %>% 
-  summarise(daily.c = mean(hourly.temp, na.rm=TRUE))
-
-# Join mean daily temp and norms
-wat_temp <- left_join(wat_temp, daily.temps, by=c('dailyts'))
-
-wat_temp <- left_join(wat_temp, dplyr::select(daily.smooth, doy, smooth.daily,
-                                              smooth.upper, smooth.lower),
+# Join predicted and observed temps
+wat_temp <- left_join(wat_temp, 
+                      dplyr::select(daily.smooth, -year),
                       by=c('doy'))
 
 # Calculate temperature anomaly
-wat_temp$anomaly <- wat_temp$daily.c - wat_temp$smooth.daily
-wat_temp$year <- lubridate::year(wat_temp$timestamp)
-
-# Extract time period we care about
-tp <- wat_temp[wat_temp$timestamp > as.POSIXct('2013-12-01 00:00:00'),]
-tp$year <- lubridate::year(tp$timestamp)
-tp <- tp[!is.na(tp$timestamp),]
-
-tp$updif <- tp$smooth.upper - tp$smooth.daily
-tp$lowdif <- tp$smooth.lower - tp$smooth.daily
-
-#tp <- tp %>% 
-#  filter(year != 2025)
+wat_temp$anomaly <- wat_temp$mean.daily - wat_temp$smooth.daily
+wat_temp$updif <- wat_temp$smooth.upper - wat_temp$smooth.daily
+wat_temp$lowdif <- wat_temp$smooth.lower - wat_temp$smooth.daily
 
 # Plot
-ggplot() +
-  geom_line(data=unique(dplyr::select(tp, 
-                                       doy, year, smooth.daily)),
-             aes(x=doy, y=smooth.daily),
-             alpha=0.5) +
+gamplot <- ggplot(data=wat_temp[wat_temp$year >=2014 &
+                                  wat_temp$year <=2025,]) +
+  geom_line(aes(x=doy, y=smooth.daily),
+             alpha=0.5, lwd=1) +
   
-  geom_point(data=unique(dplyr::select(tp, 
-                                       doy, daily.c, anomaly, year,
-                                       updif, lowdif)),
-             aes(x=doy, y=daily.c, col=as.factor(year)),
-             alpha=0.5, stroke=NA) +
-  scale_color_viridis_d(option='viridis', 'Year') +
-  geom_ribbon(data=tp,
-              aes(x=doy, ymin=smooth.lower, ymax=smooth.upper),
+  geom_line(aes(x=doy, y=mean.daily, col=as.factor(year)),
+             alpha=0.5, lwd=1) +
+  scale_color_viridis_d(option='viridis', 'Year', end=1) +
+  geom_ribbon(aes(x=doy, ymin=smooth.lower, ymax=smooth.upper),
               fill='blue', alpha=0.3) +
-  xlab('Day of year') + ylab('SST Anomaly (C)')+
-  guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+  xlab('Day of year') + ylab('SST (\u00B0C)')+
+  guides(colour = guide_legend(override.aes = list(alpha = 1),
+                               nrow=2)) +
   geom_vline(xintercept=151, col='red', lty=2) +
   geom_vline(xintercept=273, col='red', lty=2)
+gamplot
+#ggsave(plot=gamplot,
+#       here('Documentation/EIR_2025/temperature_gam.png'),
+#       width = 11, height = 7, units='in')
 
 # Calculate mean average anomaly
-tp$month <- month(tp$timestamp)
-tp$day <- day(tp$timestamp)
+wat_temp$season[wat_temp$month %in% seq(1, 3)] <- 'Winter'
+wat_temp$season[wat_temp$month %in% seq(4, 6)] <- 'Spring'
+wat_temp$season[wat_temp$month %in% seq(7, 9)] <- 'Summer'
+wat_temp$season[wat_temp$month %in% seq(10, 12)] <- 'Fall'
 
-tp$yearshift <- NA
-tp$yearshift[tp$month %in% seq(1, 11)] <- tp$year[tp$month %in% seq(1, 11)]
-tp$yearshift[tp$month ==12] <- tp$year[tp$month ==12]+1
-
-tp$season[tp$month %in% seq(3, 5)] <- 'Spring'
-tp$season[tp$month %in% seq(6, 8)] <- 'Summer'
-tp$season[tp$month %in% seq(9, 11)] <- 'Fall'
-tp$season[tp$month %in% c(12, 1, 2)] <- 'Winter'
-
-m.a.t <- tp %>% 
-  group_by(yearshift) %>% 
+m.a.t <- wat_temp %>% 
+  filter(year <=2025) %>% 
+  group_by(year) %>% 
   summarise(mean.anom = mean(anomaly, na.rm=TRUE)) %>% 
   as.data.frame()
 
@@ -357,63 +301,44 @@ m.a.t$anom <- NA
 m.a.t$anom[m.a.t$mean.anom>0] <- 'Above CRP'
 m.a.t$anom[m.a.t$mean.anom<=0] <- 'Below CRP'
 
-m.a.t <- m.a.t[m.a.t$yearshift <=2025 & m.a.t$yearshift >=2014,]
 m.a.t <- m.a.t[with(m.a.t, order(mean.anom, decreasing = T)),]
 rownames(m.a.t) <- NULL
 m.a.t
 
-m.a.t$ts <- as.Date(paste0(m.a.t$yearshift, '-06-02'))
+m.a.t$ts <- as.Date(paste0(m.a.t$year, '-07-02'))
 
-ptp <- tp %>% 
-  dplyr::select(dailyts, anomaly, smooth.daily) %>% 
-  unique() %>% 
-  as.data.frame()
+ptp <- wat_temp %>% 
+  mutate(date = as.Date(doy-1, origin = paste0(year, '-01-01')))
 
-ggplot() +
-  geom_line(data=tp,
-            aes(x=dailyts, y=smooth.daily),
-            alpha=0.2) +
-  geom_point(data = tp, 
-             aes(x = dailyts, y=daily.c), 
+avg.t.anom <- ggplot() +
+  geom_point(data = ptp, 
+             aes(x = date, y=anomaly), 
              pch = 20,
              col='gray40', fill='gray40',
-             alpha=0.2
+             alpha=0.1
              ) +
   geom_point(data=m.a.t, 
              aes(x=ts, y=mean.anom, fill=anom),
-             cex=2,
+             cex=3,
              pch=21) +
-  #coord_cartesian(ylim=c(-2, 2)) +
-  labs(x='Year', y='Mean anomaly (C)', col='Deviation', 
+  scale_x_date(breaks=seq.Date(as.Date('2003-01-01'), 
+                               as.Date('2026-01-01'), by='1 year'),
+               date_labels = '%Y')+
+  geom_hline(yintercept = 0, lty=2, col='black') +
+  labs(x='Year', y='Mean anomaly (\u00B0C)', col='Deviation', 
        fill='Average Annual\nDeviation') +
-  scale_x_date(breaks = c(as.Date('2013-12-01'), 
-                          as.Date('2014-12-01'),
-                          as.Date('2015-12-01'), 
-                          as.Date('2016-12-01'),
-                          as.Date('2017-12-01'), 
-                          as.Date('2018-12-01'),
-                          as.Date('2019-12-01'), 
-                          as.Date('2020-12-01'),
-                          as.Date('2021-12-01'), 
-                          as.Date('2022-12-01'),
-                          as.Date('2023-12-01'), 
-                          as.Date('2024-12-01')
-                          ), 
-               date_labels = c('2014', '2015', '2016', '2017','2018','2019',
-                               '2020', '2021', '2022', '2023', '2024', '2025')) +
   theme(strip.background = element_rect(fill='lightgray'),
-        legend.box.margin = margin(-10, -10, -10, -10))
-
+        legend.box.margin = margin(-10, -10, -10, -10)) +
+  ggtitle('Portland Harbor Tide Gauge Temp Anomalies')
+avg.t.anom
 ggsave(plot = avg.t.anom,
-       filename = here('Documentation/MEPS/Figures/Annual temperature anomalies.png'),
-       width=169, height = 84.5, units='mm')
+       filename = here('Documentation/EIR_2025/PHTG_Anomalies_25_all.png'),
+       width=11, height = 7, units='in')
 
 # Calc mean average summer anomaly
-
-
-s.a.t <- tp %>% 
-  #filter(month %in% seq(6, 8)) %>% 
-  group_by(yearshift, season) %>% 
+s.a.t <- wat_temp %>% 
+  filter(year<=2025) %>% 
+  group_by(year, season) %>% 
   summarise(mean.anom = mean(anomaly, na.rm=TRUE)) %>% 
   as.data.frame()
 
@@ -421,19 +346,37 @@ s.a.t$anom <- NA
 s.a.t$anom[s.a.t$mean.anom>0] <- 'Above CRP'
 s.a.t$anom[s.a.t$mean.anom<=0] <- 'Below CRP'
 
-s.a.t <- s.a.t[s.a.t$yearshift >=2014,]
-s.a.t <- s.a.t[with(s.a.t, order(mean.anom, decreasing = T)),]
+s.a.t <- s.a.t[with(s.a.t, order(season, mean.anom, decreasing = T)),]
 rownames(s.a.t) <- NULL
 s.a.t
 
 s.a.t$season <- factor(s.a.t$season, levels = c('Winter', 'Spring', 'Summer', 'Fall'))
 
-ggplot(data=s.a.t) +
-  geom_point(aes(x=yearshift, y=mean.anom, col=anom)) +
+ggplot(data=s.a.t[s.a.t$year != 2026,]) +
+  geom_point(aes(x=year, y=mean.anom, col=anom)) +
   facet_wrap(vars(season)) +
-  coord_cartesian(ylim=c(-2, 2)) +
   labs(x='Year', y='Mean anomaly (C)', col='Deviation') +
   scale_x_continuous(breaks = scales::breaks_pretty())
+
+s.a.t <- s.a.t %>% 
+  arrange(year, season) %>% 
+  mutate(SID = as.numeric(season) * 0.2) %>% 
+  mutate(SID = year + SID)
+
+ggplot(data=s.a.t[s.a.t$year != 2026 & s.a.t$season %in% c('Winter', 'Fall'),]) +
+  geom_point(aes(x=SID, y=mean.anom, col=anom, pch=season)) +
+  labs(x='Year', y='Mean anomaly (C)', col='Deviation') +
+  scale_x_continuous(breaks = seq(2003, 2026, 1))
+
+ggplot() +
+  geom_boxplot(data=s.a.t[s.a.t$year != 2026,],
+               aes(x=season, y=mean.anom)) +
+  geom_text(data=s.a.t[s.a.t$year != 2026,],
+            aes(x=season, y=mean.anom, label=year, col=color),
+            position=position_jitter(width = 0.4),
+            size = 5) +
+  labs(x='Season', y='Mean Anomaly (\u00B0C') +
+  theme(legend.position = 'n')
 
 # Assign temperature category by mean anomaly
 tp$catper <- NA
@@ -463,4 +406,6 @@ ggplot() +
 
 # Save output
 write.csv(tp, row.names = F,
-          'C:/Users/Katie/Documents/GitHub/QBC_Monitoring_Reports/Portland_watertemp_Sep10.csv')
+          here('Data/Clean_Data/Meteorological/PortlandHarborTG_watertemp_2025.csv'))
+
+          

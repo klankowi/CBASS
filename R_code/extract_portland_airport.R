@@ -10,7 +10,7 @@ library(tidyverse)
 port.report <- metar_get_historical(
   airport="PWM",
   start_date = "1991-01-01",
-  end_date = "2024-11-13",
+  end_date = "2025-12-31",
   from="iastate"
 )
 
@@ -31,7 +31,8 @@ port.weather <- port.weather %>%
          airtemp = Temperature,
          dp = Dew_point,
          pres = Pressure,
-         vis = Visibility)
+         vis = Visibility) %>% 
+  mutate(station = 'Portland')
 
 # Force to timestamp and local time
 port.weather$date <- as.POSIXct(port.weather$date,
@@ -61,17 +62,86 @@ port.weather <- port.weather %>%
   dplyr::select(-date, -gust) %>% 
   rename(date=localtime)
 
+# Pull historical METAR data from NHZ (Brunswick NAS)
+brun.report <- metar_get_historical(
+  airport="NHZ",
+  start_date = "1991-01-01",
+  end_date = "2025-12-16",
+  from="iastate"
+)
+
+# Decode text file
+brun.weather <- metar_decode(brun.report,
+                             metric=TRUE,
+                             altimeter=TRUE,
+                             check=TRUE)
+
+# Select pertinent variables, rename
+brun.weather <- brun.weather %>% 
+  dplyr::select(METAR_Date, Wind_speed, Gust, Wind_direction,
+                Temperature, Dew_point, Pressure, Visibility) %>% 
+  rename(date = METAR_Date,
+         ws = Wind_speed,
+         gust = Gust,
+         wd = Wind_direction,
+         airtemp = Temperature,
+         dp = Dew_point,
+         pres = Pressure,
+         vis = Visibility) %>% 
+  mutate(station = 'Brunswick')
+
+# Force to timestamp and local time
+brun.weather$date <- as.POSIXct(brun.weather$date,
+                                format=c('%Y-%m-%d %H:%M:%S'))
+tz(brun.weather$date) <- "UTC"
+brun.weather$localtime <- with_tz(brun.weather$date, "America/New_York")
+brun.weather$localdate <- as.Date(brun.weather$localtime)
+
+# Force to numeric
+brun.weather <- brun.weather %>% 
+  mutate_at(c('wd', 'vis'), as.numeric)
+
+# Add date columns for easier picking later
+brun.weather$month <- month(brun.weather$date)
+brun.weather$month <- str_pad(brun.weather$month, 2, 'left', '0')
+brun.weather$year <- year(brun.weather$date)
+brun.weather$collector <- paste0(brun.weather$year, "_",
+                                 brun.weather$month)
+
+# Remove rows with invalid date information
+brun.weather <- brun.weather[!is.na(brun.weather$date),]
+brun.weather <- brun.weather[brun.weather$localtime >=
+                               as.POSIXct('1991-01-01 00:00:00'),]
+
+# Switch to using local time over GMT
+brun.weather <- brun.weather %>% 
+  dplyr::select(-date, -gust) %>% 
+  rename(date=localtime)
+
 # Save raw
-raw.data <- port.weather
+raw.data <- rbind(port.weather, brun.weather)
+port.weather <- raw.data
 
 # Highlight possible bad values
-port.weather$next.airtemp <- c(port.weather$airtemp[2:length(port.weather$airtemp)],
-                               NA)
-port.weather$dif <- abs(port.weather$next.airtemp -
-                          port.weather$airtemp)
+port.weather <- split(port.weather, f=port.weather$station)
+
+for(k in 1:length(port.weather)){
+  port.weather[[k]]$dif <- NA
+  message(port.weather[[k]]$station[1])
+  for(i in 2:nrow(port.weather[[k]])){
+    if(i %in% seq(1000, 1134000, 1000)){print(i)}
+    port.weather[[k]]$dif[i] <- port.weather[[k]]$airtemp[(i)] - port.weather[[k]]$airtemp[(i-1)]
+  }
+}
+port.weather <- do.call(rbind, port.weather)
+#port.weather$next.airtemp <- c(port.weather$airtemp[2:length(port.weather$airtemp)],
+#                               NA)
+#port.weather$dif <- abs(port.weather$next.airtemp -
+#                          port.weather$airtemp)
 
 # Pull 3 days of data centered on bad points
-badvals <- port.weather$date[port.weather$dif >=9]
+badvals <- port.weather$date[abs(port.weather$dif) >=9&
+                               port.weather$station == 'Portland']
 badvals <- badvals[!is.na(badvals)]
 
 badlist <- vector(mode='list', length=length(badvals))
@@ -92,9 +162,9 @@ for(i in 1:length(badlist)
   
   print(
     ggplot(data=badlist[[i]])+
-      geom_point(aes(x=date, y=airtemp)) +
-      geom_vline(xintercept=badlist[[i]]$date[badlist[[i]]$dif >=6],
-                 col='red') +
+      geom_point(aes(x=date, y=airtemp, col=station)) +
+      #geom_vline(xintercept=badlist[[i]]$date[abs(badlist[[i]]$dif) >=6],
+      #           col='black') +
       ggtitle(paste0(badvals[i], ', ',
                      badlist[[i]]$dif[badlist[[i]]$date == 
                                         badvals[i]],
@@ -122,6 +192,9 @@ port.weather$airtemp[as.Date(port.weather$date) == '2006-07-02' &
 
 port.weather$airtemp[as.Date(port.weather$date) == '2024-01-20' &
                        port.weather$airtemp < -1] <- NA
+
+port.weather$airtemp[as.Date(port.weather$date) == '2025-11-15' &
+                       port.weather$airtemp < 10] <- NA
 
 port.weather$airtemp[port.weather$date >= as.POSIXct('1999-06-07 04:51:00')&
                      port.weather$date <= as.POSIXct('1999-06-08 16:00:00')] <- 

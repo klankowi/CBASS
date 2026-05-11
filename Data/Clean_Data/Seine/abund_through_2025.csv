@@ -600,8 +600,8 @@ loc_id,date,site_name,site_id,bay_location,species_name,catch
 2016_034_01,7/26/2016,Presumpscot Moorings,1,Inner,alewife,2
 2016_034_01,7/26/2016,Presumpscot Moorings,1,Inner,bluefish,3
 2016_034_01,7/26/2016,Presumpscot Moorings,1,Inner,mummichog,37
-2016_034_01,7/26/2016,Presumpscot Moorings,1,Inner,shiner spp,1
-2016_034_01,7/26/2016,Presumpscot Moorings,1,Inner,shiner spp,2
+2016_034_01,7/26/2016,Presumpscot Moorings,1,Inner,golden shiner,1
+2016_034_01,7/26/2016,Presumpscot Moorings,1,Inner,emerald shiner,2
 2016_034_01,7/26/2016,Presumpscot Moorings,1,Inner,white sucker,3
 2016_035_08,8/2/2016,Back Cove,8,Mid,mummichog,2
 2016_035_09,8/2/2016,Great Diamond Island,9,Outer,winter flounder,2
@@ -2336,7 +2336,7 @@ loc_id,date,site_name,site_id,bay_location,species_name,catch
 2025_002_26,6/6/2025,Long Point Cove,26,north,winter flounder,2
 2025_002_21,6/6/2025,Orrs Cove,21,north,green crab,1
 2025_002_22,6/6/2025,Snow Island,22,north,atlantic silverside,6
-2025_002_22,6/6/2025,Snow Island ,22,north,mummichog,5
+2025_002_22,6/6/2025,Snow Island,22,north,mummichog,5
 2025_001_09,6/11/2025,Great Diamond Island,9,Outer,atlantic silverside,60
 2025_001_02,6/11/2025,Skitterygusset,2,Inner,atlantic silverside,1
 2025_001_10,6/11/2025,SMCC,10,Outer,green crab,1
@@ -2344,9 +2344,9 @@ loc_id,date,site_name,site_id,bay_location,species_name,catch
 2025_003_25,6/12/2025,Garrison Cove,25,north,grubby sculpin,3
 2025_003_26,6/12/2025,Long Point Cove,26,north,green crab,7
 2025_003_26,6/12/2025,Long Point Cove,26,north,winter flounder,1
-2025_003_23,6/12/2025,Lowel Cove,23,north,atlantic herring,9
-2025_003_23,6/12/2025,Lowel Cove,23,north,atlantic tomcod,2
-2025_003_23,6/12/2025,Lowel Cove,23,north,green crab,2
+2025_003_23,6/12/2025,Lowell Cove,23,north,atlantic herring,9
+2025_003_23,6/12/2025,Lowell Cove,23,north,atlantic tomcod,2
+2025_003_23,6/12/2025,Lowell Cove,23,north,green crab,2
 2025_003_21,6/12/2025,Orrs Cove,21,north,atlantic silverside,36
 2025_003_21,6/12/2025,Orrs Cove,21,north,mummichog,1
 2025_003_22,6/12/2025,Snow Island,22,north,atlantic silverside,4
@@ -2411,9 +2411,9 @@ loc_id,date,site_name,site_id,bay_location,species_name,catch
 2025_006_26,7/3/2025,Long Point Cove,26,north,atlantic herring,1
 2025_006_26,7/3/2025,Long Point Cove,26,north,green crab,10
 2025_006_21,7/3/2025,Orrs Cove,21,north,atlantic silverside,5
-2025_006_22,7/3/2025,Snow Island ,22,north,atlantic silverside,5
-2025_006_22,7/3/2025,Snow Island ,22,north,green crab,1
-2025_006_22,7/3/2025,Snow Island ,22,north,mummichog,4
+2025_006_22,7/3/2025,Snow Island,22,north,atlantic silverside,5
+2025_006_22,7/3/2025,Snow Island,22,north,green crab,1
+2025_006_22,7/3/2025,Snow Island,22,north,mummichog,4
 2025_007_25,7/7/2025,Garrison Cove,25,north,green crab,3
 2025_007_26,7/7/2025,Long Point Cove,26,north,alewife,10
 2025_007_26,7/7/2025,Long Point Cove,26,north,atlantic silverside,2
@@ -2470,45 +2470,25 @@ loc_id,date,site_name,site_id,bay_location,species_name,catch
 2025_009_06,7/24/2025,Mackworth Island - North,6,Mid,atlantic silverside,7
 2025_009_06,7/24/2025,Mackworth Island - North,6,Mid,green crab,3
 2025_009_06,7/24/2025,Mackworth Island - North,6,Mid,winter flounder,3
-2025_010_03,7/25/2025,Audubon,3,Inner,alewife,43
 2025_010_03,7/25/2025,Audubon,3,Inner,alewife,45
 2025_010_03,7/25/2025,Audubon,3,Inner,atlantic silverside,1
-2025_010_03,7/25/2025,Audubon,3,Inner,atlantic silverside,1
-2025_010_03,7/25/2025,Audubon,3,Inner,bluefish,3
 2025_010_03,7/25/2025,Audubon,3,Inner,bluefish,3
 2025_010_03,7/25/2025,Audubon,3,Inner,green crab,11
-2025_010_03,7/25/2025,Audubon,3,Inner,green crab,11
-2025_010_03,7/25/2025,Audubon,3,Inner,winter flounder,6
 2025_010_03,7/25/2025,Audubon,3,Inner,winter flounder,6
 2025_010_09,7/25/2025,Great Diamond Island,9,Outer,atlantic silverside,1
-2025_010_09,7/25/2025,Great Diamond Island,9,Outer,atlantic silverside,1
-2025_010_09,7/25/2025,Great Diamond Island,9,Outer,mummichog,1
 2025_010_09,7/25/2025,Great Diamond Island,9,Outer,mummichog,1
 2025_010_04,7/25/2025,Mussel Cove,4,Mid,alewife,6
-2025_010_04,7/25/2025,Mussel Cove,4,Mid,alewife,6
-2025_010_04,7/25/2025,Mussel Cove,4,Mid,green crab,22
 2025_010_04,7/25/2025,Mussel Cove,4,Mid,green crab,22
 2025_010_04,7/25/2025,Mussel Cove,4,Mid,winter flounder,12
-2025_010_04,7/25/2025,Mussel Cove,4,Mid,winter flounder,12
-2025_010_01,7/25/2025,Presumpscot Moorings,1,Inner,alewife,4
 2025_010_01,7/25/2025,Presumpscot Moorings,1,Inner,alewife,4
 2025_010_01,7/25/2025,Presumpscot Moorings,1,Inner,atlantic silverside,5
-2025_010_01,7/25/2025,Presumpscot Moorings,1,Inner,atlantic silverside,5
 2025_010_01,7/25/2025,Presumpscot Moorings,1,Inner,bluefish,2
-2025_010_01,7/25/2025,Presumpscot Moorings,1,Inner,bluefish,2
-2025_010_02,7/25/2025,Skitterygusset,2,Inner,alewife,384
 2025_010_02,7/25/2025,Skitterygusset,2,Inner,alewife,409
 2025_010_02,7/25/2025,Skitterygusset,2,Inner,atlantic silverside,4
-2025_010_02,7/25/2025,Skitterygusset,2,Inner,atlantic silverside,4
-2025_010_02,7/25/2025,Skitterygusset,2,Inner,bluefish,2
 2025_010_02,7/25/2025,Skitterygusset,2,Inner,bluefish,2
 2025_010_02,7/25/2025,Skitterygusset,2,Inner,green crab,3
-2025_010_02,7/25/2025,Skitterygusset,2,Inner,green crab,3
-2025_010_10,7/25/2025,SMCC,10,Outer,atlantic silverside,1
 2025_010_10,7/25/2025,SMCC,10,Outer,atlantic silverside,1
 2025_010_10,7/25/2025,SMCC,10,Outer,green crab,8
-2025_010_10,7/25/2025,SMCC,10,Outer,green crab,8
-2025_010_10,7/25/2025,SMCC,10,Outer,winter flounder,8
 2025_010_10,7/25/2025,SMCC,10,Outer,winter flounder,8
 2025_009_26,7/28/2025,Long Point Cove,26,north,alewife,215
 2025_009_26,7/28/2025,Long Point Cove,26,north,atlantic herring,2
@@ -2641,51 +2621,28 @@ loc_id,date,site_name,site_id,bay_location,species_name,catch
 2025_014_02,8/21/2025,Skitterygusset,2,Inner,bluefish,2
 2025_014_02,8/21/2025,Skitterygusset,2,Inner,green crab,13
 2025_015_12,8/29/2025,Alewife Cove,12,Outer,alewife,8
-2025_015_12,8/29/2025,Alewife Cove,12,Outer,alewife,8
-2025_015_12,8/29/2025,Alewife Cove,12,Outer,atlantic silverside,11
 2025_015_12,8/29/2025,Alewife Cove,12,Outer,atlantic silverside,11
 2025_015_12,8/29/2025,Alewife Cove,12,Outer,green crab,1
-2025_015_12,8/29/2025,Alewife Cove,12,Outer,green crab,1
-2025_015_12,8/29/2025,Alewife Cove,12,Outer,hake,1
 2025_015_12,8/29/2025,Alewife Cove,12,Outer,hake,1
 2025_015_12,8/29/2025,Alewife Cove,12,Outer,sand lance,1
-2025_015_12,8/29/2025,Alewife Cove,12,Outer,sand lance,1
-2025_015_08,8/29/2025,Back Cove,8,Mid,atlantic silverside,1
 2025_015_08,8/29/2025,Back Cove,8,Mid,atlantic silverside,1
 2025_015_08,8/29/2025,Back Cove,8,Mid,green crab,4
-2025_015_08,8/29/2025,Back Cove,8,Mid,green crab,4
 2025_015_08,8/29/2025,Back Cove,8,Mid,mummichog,1
-2025_015_08,8/29/2025,Back Cove,8,Mid,mummichog,1
-2025_015_08,8/29/2025,Back Cove,8,Mid,winter flounder,1
 2025_015_08,8/29/2025,Back Cove,8,Mid,winter flounder,1
 2025_015_11,8/29/2025,Cushing Island,11,Outer,cunner,1
 2025_015_11,8/29/2025,Cushing Island,11,Outer,grubby sculpin,1
-2025_015_11,8/29/2025,Cushing Island,11,Outer,grubby sculpin,1
-2025_015_11,8/29/2025,Cushing Island,11,Outer,rock gunnel,1
 2025_015_11,8/29/2025,Cushing Island,11,Outer,rock gunnel,1
 2025_015_06,8/29/2025,Mackworth Island - North,6,Mid,alewife,1
-2025_015_06,8/29/2025,Mackworth Island - North,6,Mid,alewife,1
-2025_015_06,8/29/2025,Mackworth Island - North,6,Mid,atlantic silverside,22
 2025_015_06,8/29/2025,Mackworth Island - North,6,Mid,atlantic silverside,22
 2025_015_06,8/29/2025,Mackworth Island - North,6,Mid,green crab,2
-2025_015_06,8/29/2025,Mackworth Island - North,6,Mid,green crab,2
-2025_015_06,8/29/2025,Mackworth Island - North,6,Mid,mummichog,1
 2025_015_06,8/29/2025,Mackworth Island - North,6,Mid,mummichog,1
 2025_015_10,8/29/2025,SMCC,10,Outer,atlantic herring,43
-2025_015_10,8/29/2025,SMCC,10,Outer,atlantic herring,43
-2025_015_10,8/29/2025,SMCC,10,Outer,atlantic silverside,8
 2025_015_10,8/29/2025,SMCC,10,Outer,atlantic silverside,8
 2025_015_10,8/29/2025,SMCC,10,Outer,green crab,7
-2025_015_10,8/29/2025,SMCC,10,Outer,green crab,7
-2025_015_10,8/29/2025,SMCC,10,Outer,northern pipefish,1
 2025_015_10,8/29/2025,SMCC,10,Outer,northern pipefish,1
 2025_015_10,8/29/2025,SMCC,10,Outer,sculpin,1
-2025_015_10,8/29/2025,SMCC,10,Outer,sculpin,1
-2025_015_10,8/29/2025,SMCC,10,Outer,winter flounder,6
 2025_015_10,8/29/2025,SMCC,10,Outer,winter flounder,6
 2025_015_05,8/29/2025,The Brothers - North,5,Mid,green crab,16
-2025_015_05,8/29/2025,The Brothers - North,5,Mid,green crab,16
-2025_015_05,8/29/2025,The Brothers - North,5,Mid,winter flounder,9
 2025_015_05,8/29/2025,The Brothers - North,5,Mid,winter flounder,9
 2025_013_26,9/3/2025,Long Point Cove,26,north,atlantic silverside,2
 2025_013_26,9/3/2025,Long Point Cove,26,north,green crab,5

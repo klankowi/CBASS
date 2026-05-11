@@ -33,7 +33,7 @@ theme_set(theme(panel.grid.major = element_line(color='lightgray'),
                 strip.text.x=element_text(size=12)))
 
 #### Load data ####
-bio <- read.csv(here('Clean_Data/Seine/lengths_through_2024.csv'))
+bio <- read.csv(here('Data/Clean_Data/Seine/lengths_through_2025.csv'))
 
 #### Clean ####
 lengths <- bio %>% 
@@ -43,6 +43,7 @@ lengths <- bio %>%
          week = isoweek(date)) %>% 
   mutate(length_mm = as.numeric(length_mm)) %>% 
   filter(!is.na(length_mm) & site_id < 20 & year != 2019 & 
+           year != 2025 &
            week>=24 & week<=39) %>% 
   dplyr::select(species_name, length_mm, date, week, year)
 
@@ -474,7 +475,7 @@ lengths$species_name <- droplevels(lengths$species_name)
 rm(list=setdiff(ls(), c('lengths', 'biolims')))
 
 # Load expert-modified data
-cbs <- read.csv(here("Clean_Data/Cohort_Tracking_MTI_2024.csv"))
+cbs <- read.csv(here("Data/Clean_Data/Cohort/Cohort_Tracking_MTI_2024.csv"))
 
 # Outer blank dataframe
 out.cohort <- data.frame(
@@ -589,6 +590,10 @@ model.1 <- data.frame(
   ul=NA,
   Group=NA
 )
+
+# Blank list for model results
+mod.results <- vector(mode='list', length = 20)
+counter <- 1
 
 # Loop through species
 for(i in 1:nrow(biolims)){
@@ -724,7 +729,6 @@ for(i in 1:nrow(biolims)){
                  data=len.year,
                  family='gaussian')
       
-      if(lmtest::bptest(mod)$p.value < 0.05){
         print(paste0(len.year$species_name[1], ' in ',
                      len.year$year[1], ' has failed BP test, using WLS'))
         wt <- 1 / lm(abs(mod$residuals) ~ mod$fitted.values)$fitted.values^2
@@ -732,11 +736,15 @@ for(i in 1:nrow(biolims)){
         mod <- lm(length_mm ~ week,
                   data = len.year,
                   weights = wt)
+        summary(mod)
         
         rm(wt)
-      }
       
-
+      mod.results[[counter]] <- summary(mod)
+      names(mod.results)[counter] <- paste0(spec.use, ' ',
+                                            year.use, ' ',
+                                            'Group ', b)
+      counter <- counter+1
       
       # New dataframe to save growth info
       keep.cohort <- data.frame(
@@ -774,13 +782,13 @@ for(i in 1:nrow(biolims)){
 }
 
 # Remove blank initializations
-growth.est <- growth.est %>% 
+growth.est <- growth.est %>%
   filter(!is.na(species_name))
 
-cohort.1 <- cohort.1 %>% 
+cohort.1 <- cohort.1 %>%
   filter(!is.na(species_name))
 
-model.1 <- model.1 %>% 
+model.1 <- model.1 %>%
   filter(!is.na(species_name))
 
 # Assign heat relative to CRP
@@ -802,35 +810,35 @@ cohort.1 <- cohort.1[paste0(cohort.1$species_name, cohort.1$year,
 # Loop through species, plot yearly cohort ID
 for(i in 1:nrow(biolims)){
   # Extract lengths for this species within the limits
-  lengths.in <- lengths[lengths$species_name == 
+  lengths.in <- lengths[lengths$species_name ==
                                paste0(biolims$species_name[i]),]
   lengths.in$week <- isoweek(lengths.in$date)
   lengths.in$year <- year(lengths.in$date)
   lengths.in$length_mm <- as.numeric(lengths.in$length_mm)
   lengths.in <- lengths.in[!is.na(lengths.in$length_mm),]
-  
+
   # Plot
   print(
     ggplot() +
-      
+
       geom_jitter(data=lengths.in,
                   aes(x = week, y = length_mm),
                   alpha=0.25, width=0.2, stroke=NA, cex=2) +
-      
+
       geom_ribbon(data=model.1[
         model.1$species_name == paste0(biolims$species_name[i]),],
         aes(x=week, ymin=ll,
             ymax=ul, fill=as.factor(Group)),
         alpha=0.3) +
-      
+
       labs(color='Cohort', x='Week of year', y='Length (mm)') +
-      
+
       ggtitle(paste0(str_to_title(paste0(str_to_sentence(biolims$species_name[i]))),
                      ' modeled growth')) +
-      
+
       facet_wrap(vars(year))
   )
-  
+
 }
 
 # Plot estimated growth rates, compare hot/cold
@@ -853,7 +861,7 @@ growth.est$xpos <- c(2.25,
                      1.25,
                      0.75,
                      0.75,
-                     
+
                      2.25, #2014
                      2.25,
                      1.25,
@@ -882,13 +890,13 @@ growthcomp <- ggplot(data=growth.est) +
   ) +
   geom_text(
     aes(x=xpos,
-        y=growth, 
+        y=growth,
         label=year,
         col=period)
   ) +
   facet_wrap(vars(species_name),
              scales = "free_x") +
-  labs(y='Growth rate (mm/week)', 
+  labs(y='Growth rate (mm/week)',
        x='Cohort',
        fill=' ',
        col=' ') +
@@ -909,7 +917,7 @@ cohort.1 <- cohort.1[cohort.1$year != 2024,]
 # Plot length distribution and modeled growth
 for(i in 1:nrow(biolims)){
   print(
-    ggplot(data=cohort.1[cohort.1$species_name == 
+    ggplot(data=cohort.1[cohort.1$species_name ==
                            biolims$species_name[i],]) +
       geom_jitter(aes(x = week, y = length_mm, col=as.factor(year)),
                   alpha=0.25, width=0.2, stroke=NA, cex=2) +
@@ -966,7 +974,7 @@ rm(cbs, cbs.final, cbs.inner, cbs.use, cohort.11, cohort.12,
    len.use, len.year, lengths, Linf.all, lowlm, mod, mod.final,
    mod.len, mod.use, mod.year, model.11, model.12, mostinside.cohort,
    oldlen, out.cohort, upplm, wk.list, yearlist, b, i, j, spec.use,
-   year.use, lengths.in, keep.cohort, k, biolims, 
+   year.use, lengths.in, keep.cohort, k, biolims,
    "%notin%")
 
 save.image(file=here('Clean_Data/Cohort_Data_2024.RData'))

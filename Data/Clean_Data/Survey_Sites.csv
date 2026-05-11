@@ -1,0 +1,43 @@
+survey_program,site_name,collector,latitude,longitude
+beach seine,Presumpscot Moorings,GMRI,43.71546,-70.25923
+beach seine,Skitterygusset,GMRI,43.71458,-70.24791
+beach seine,Audubon,GMRI,43.705967,-70.245789
+beach seine,Mussel Cove,GMRI,43.71143,-70.21814
+beach seine,The Brothers - North,GMRI,43.701058,-70.218932
+beach seine,Mackworth Island - North,GMRI,43.69248,-70.23123
+beach seine,Mackworth Island - Beach,GMRI,43.68958,-70.23572
+beach seine,Back Cove,GMRI,43.67912,-70.26547
+beach seine,Great Diamond Island,GMRI,43.67601,-70.20443
+beach seine,SMCC,GMRI,43.650227,-70.225804
+beach seine,Cushing Island,GMRI,43.64294,-70.20761
+beach seine,Alewife Cove,GMRI,43.588991,-70.210278
+beach seine,The Brothers - South,GMRI,43.70047,-70.21832
+beach seine,Orrs Cove,QBC,43.835569,-69.914042
+beach seine,Snow Island,QBC,43.814377,-69.909235
+beach seine,Lowell Cove,QBC,43.759753,-69.975558
+beach seine,Cedar Beach,QBC,43.743947,-69.986809
+beach seine,Garrison Cove,QBC,43.7477,-69.991609
+beach seine,Long Point Cove,QBC,43.775248,-69.938614
+beach seine,Stovers Point,QBC,43.756504,-69.997761
+river sampling,Mill Brook,GMRI,43.71920885,-70.35332379
+river sampling,Presumpscot Falls,GMRI,43.72028176,-70.27252019
+jigging,R1,GMRI,43.616667,-70.1208
+jigging,R2,GMRI,43.608317,-70.0708
+jigging,R3,GMRI,43.583317,-70.1292
+jigging,R4,GMRI,43.5875,-70.125
+jigging,R5,GMRI,43.604167,-70.1958
+jigging,R6,GMRI,43.604167,-70.1917
+jigging,R7,GMRI,43.5875,-70.1208
+jigging,R8,GMRI,43.633317,-70.1125
+jigging,R9,GMRI,43.6375,-70.175
+jigging,R10,GMRI,43.625,-70.1
+jigging,S1,GMRI,43.5576,-70.189767
+jigging,S2,GMRI,43.53985,-70.18035
+jigging,S3,GMRI,43.555233,-70.15495
+jigging,S4,GMRI,43.575417,-70.123533
+jigging,S5,GMRI,43.583583,-70.103783
+jigging,S6,GMRI,43.582167,-70.192233
+jigging,S7,GMRI,43.596233,-70.189483
+jigging,S8,GMRI,43.624,-70.175117
+jigging,S9,GMRI,43.628533,-70.107383
+jigging,S10,GMRI,43.601317,-70.07285

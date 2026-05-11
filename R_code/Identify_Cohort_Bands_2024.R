@@ -35,53 +35,56 @@ theme_set(theme(panel.grid.major = element_line(color='lightgray'),
 
 #### Load data ####
 # Set the name of the workbook
-abund <- read.csv(here('Clean_Data/Seine/abund_through_2024.csv'))
-trips <- read.csv(here('Clean_Data/Seine/trips_through_2024.csv'))
-bio <- read.csv(here('Clean_Data/Seine/lengths_through_2024.csv'))
+#abund <- read.csv(here('Data/Clean_Data/Seine/abund_through_2025.csv'))
+#trips <- read.csv(here('Data/Clean_Data/Seine/trips_through_2025.csv'))
+bio <- read.csv(here('Data/Clean_Data/Seine/lengths_through_2025.csv'))
 
-# Clean
-abund <- abund %>% 
-  mutate(date = as.Date(date, format="%m/%d/%Y")) %>% 
-  mutate(month = month(date),
-         year = year(date),
-         week = isoweek(date))
-abund$collector[abund$site_id >20] <- 'QBC'
-abund$collector[abund$site_id <20] <- 'GMRI'
-
-trips <- trips %>% 
-  mutate(date = as.Date(date, format="%m/%d/%Y")) %>% 
-  mutate(month = month(date),
-         year = year(date),
-         week = isoweek(date)) %>% 
-  mutate(set_time = as.POSIXct(set_time, format='%m/%d/%Y %H:%M'))
-
-trips$collector <- NA
-trips$collector[trips$site_id >20] <- 'QBC'
-trips$collector[trips$site_id <20] <- 'GMRI'
-trips$set_time = trips$set_time - lubridate::hours(4)
+# # Clean
+# abund <- abund %>% 
+#   mutate(date = as.Date(date, format="%m/%d/%Y")) %>% 
+#   mutate(month = month(date),
+#          year = year(date),
+#          week = isoweek(date))
+# abund$collector[abund$site_id >20] <- 'QBC'
+# abund$collector[abund$site_id <20] <- 'GMRI'
+# 
+# trips <- trips %>% 
+#   mutate(date = as.Date(date, format="%m/%d/%Y")) %>% 
+#   mutate(month = month(date),
+#          year = year(date),
+#          week = isoweek(date)) %>% 
+#   mutate(set_time = as.POSIXct(paste0(date, ' ', set_time_local), format='%Y-%m-%d %H:%M'))
+# 
+# trips$collector <- NA
+# trips$collector[trips$site_id >20] <- 'QBC'
+# trips$collector[trips$site_id <20] <- 'GMRI'
+# trips$set_time = trips$set_time - lubridate::hours(4)
 
 bio <- bio %>% 
-  mutate(date = as.Date(date, format = '%Y-%m-%d')) %>% 
+  mutate(date = as.Date(date, format = '%m/%d/%Y')) %>% 
   mutate(month = month(date),
          year = year(date),
          week = isoweek(date)) %>% 
   mutate(length_mm = as.numeric(length_mm)) %>% 
+  filter(year %notin% c(2019, 2024, 2025)) %>% 
+  filter(species_name %in% c('atlantic silverside', 'atlantic herring')) %>% 
+  mutate(site_name = trimws(site_name)) %>% 
+  filter(!is.na(site_name) & site_name %notin% c('Cedar Beach', 'Garrison Cove',
+                                                 'Long Point Cove', 'Lowell Cove',
+                                                 'Orrs Cove', 'Snow Island', 
+                                                 'Stovers Point')) %>% 
+  filter(!is.na(length_mm) & length_mm >5) %>% 
   dplyr::select(-sex, -notes, -bay_location, -site_id,
                 -loc_id)
 
 lengths <- dplyr::select(bio,
                          species_name, length_mm, date)
 
-# Remove one large mummichog
-lengths <- lengths[lengths$length_mm > 5,]
-
 lengths$wk <- lubridate::isoweek(lengths$date)
 lengths$year <- year(lengths$date)
 
 # Remove early weeks
-lengths <- lengths[lengths$year == 2024,]
-
-lengths <- lengths[!is.na(lengths$length_mm),]
+lengths <- lengths[lengths$wk %in% seq(24, 39, 1),]
 
 lengths$species_name <- as.factor(lengths$species_name)
 lengths$wk <- as.numeric(lengths$wk)
@@ -92,22 +95,12 @@ biolims <- lengths %>%
   summarise(min.length = min(length_mm),
             max.length = max(length_mm))
 
-#### Focus on top 8 ####
-lengths <- lengths[lengths$species_name %in% 
-                     c('alewife', 'atlantic silverside',
-                       'atlantic herring', 
-                       'winter flounder', 'mummichog', 
-                       'sandlance'),]
-biolims <- biolims[biolims$species_name %in% lengths$species_name,]
-biolims <- biolims[with(biolims, order(species_name)),]
-rownames(biolims) <- NULL
+#### Focus on top 2 ####
 
 Linf.all <- data.frame(
-  species_name = biolims$species_name,
-  L.inf.cm = c(40, 45, 18, 
-               15, 23.5, 64.0),
-  agemax = c(9, 25, 2,
-             4, 12, 14)
+  species_name = c('atlantic herring', 'atlantic silverside'),
+  L.inf.cm = c(35, 14),
+  agemax = c(15, 2)
 )
 Linf.all$Linf <- Linf.all$L.inf.cm * 10
 Linf.all$L.inf.cm <- NULL
@@ -115,11 +108,6 @@ Linf.all$L.inf.cm <- NULL
 biolims <- merge(biolims, Linf.all, by=c('species_name'))
 
 lengths <- lengths[with(lengths, order(species_name, wk, length_mm)),]
-
-#### Split by period ####
-lengths$period[lengths$year %in% c(2014, 2015, 2017, 2018, 2019)] <- 'cold'
-lengths$period[lengths$year %in% c(2016, 2020, 2021, 2022, 2023, 2024)] <- 'hot'
-lengths$species_name <- droplevels(lengths$species_name)
 
 #### Test on silversides ####
 Out.Cohort <-     
@@ -134,15 +122,20 @@ Out.Cohort <-
   ul=NA
 )
 biolims$species_name <- as.character(biolims$species_name)
-biolims <- biolims[biolims$species_name %notin% 
-                     c('tomcod'),]
 rownames(biolims) <- NULL
+
+sort.group <- data.frame(species_name = NA, length_mm = NA,
+                         date = NA, wk = NA, year = NA, Group = NA)
 
 for(i in 1:length(biolims$species_name)){
   spec.use <- as.character(biolims$species_name[i])
   len.use <- lengths[lengths$species_name == paste0(spec.use),]
   
   yearlist <- split(len.use, f=len.use$year)
+  
+  if(spec.use == 'atlantic herring'){
+    yearlist <- yearlist[-9]
+  }
   
   Big.Cohort <- 
     data.frame(
@@ -161,25 +154,7 @@ for(i in 1:length(biolims$species_name)){
     
     # Remove weeks with fewer than 5 fish caught
     temp.wk <- split(yearlist[[j]], f=yearlist[[j]]$wk)
-    temp.wk <- temp.wk[sapply(temp.wk, nrow) > 7]
-    
-    # Remove 2022 for alewife (never caught 8 fish or more)
-    if(yearlist[[j]]$species_name[1] == 'alewife' &
-       yearlist[[j]]$year[1] == 2022){
-     next() 
-    }
-    
-    # Remove 2019 for mummuchog (never caught 8 fish or more)
-    if(yearlist[[j]]$species_name[1] == 'mummichog' &
-       yearlist[[j]]$year[1] == 2019){
-      next() 
-    }
-    
-    # Remove 2018-2023for tomcod (never caught 8 fish or more)
-    if(yearlist[[j]]$species_name[1] == 'tomcod' &
-       yearlist[[j]]$year[1] >= 2018){
-      next() 
-    }
+    temp.wk <- temp.wk[sapply(temp.wk, nrow) > 5]
     
     Cohort.Tracking <- data.frame(
       species_name=NA,
@@ -200,34 +175,14 @@ for(i in 1:length(biolims$species_name)){
         group_by(wk) %>% 
         rstatix::identify_outliers("length_mm") 
       
-      temp <- temp[temp$length_mm %notin%
-                     df_outliers$length_mm[df_outliers$is.extreme == TRUE],]
+      #temp <- temp[temp$length_mm %notin%
+      #               df_outliers$length_mm[df_outliers$is.outlier == TRUE],]
       
-      if(nrow(temp) < 7){
+      if(nrow(temp) < 5){
         next()
       }
       
       nmodes <- length(Modes(temp$length_mm)$modes)
-      
-      # These weeks do not converge with their given nmodes
-      # Subtract 1 from nmodes and try again
-      if(temp.wk[[k]]$species_name[1] == 'alewife' &
-         temp.wk[[k]]$year[1] == 2014 &
-         temp.wk[[k]]$wk[1] == '34'){
-        nmodes = 1
-      }
-      
-      if(temp.wk[[k]]$species_name[1] == 'alewife' &
-         temp.wk[[k]]$year[1] == 2018 &
-         temp.wk[[k]]$wk[1] == '32'){
-        nmodes = 1
-      }
-      
-      if(temp.wk[[k]]$species_name[1] == 'mummichog' &
-         temp.wk[[k]]$year[1] == 2021 &
-         temp.wk[[k]]$wk[1] == '26'){
-        nmodes = 3
-      }
       
       if(nmodes >= 2){
         out <- normalmixEM(temp$length_mm,
@@ -235,6 +190,14 @@ for(i in 1:length(biolims$species_name)){
                                 arbmean = TRUE,
                            maxit = 10000000000,
                            maxrestarts = 10000000)
+        
+        posterio <- as.data.frame(out$posterior)
+        Group <- data.frame(Group = rep(NA, nrow(posterio)))
+        for(z in 1:nrow(posterio)){
+          Group$Group[z] <- max.col(posterio[z,])
+        }
+        
+        temp <- cbind(temp, Group)
         
         out <- cbind(out$mu, out$sigma, out$lambda)
         out <- as.data.frame(out)
@@ -247,9 +210,10 @@ for(i in 1:length(biolims$species_name)){
         
         out$species_name = temp$species_name[1]
         out$year = temp$year[1]
+        temp.wk[[k]] <- temp
       }
       
-      if(nmodes == 1){
+      if(nmodes == 1){ 
         # Find modes assuming normal distribution of lengths around means
         # Regroup data
         out <- data.frame(
@@ -268,6 +232,9 @@ for(i in 1:length(biolims$species_name)){
         
         out$species_name = temp$species_name[1]
         out$year = temp$year[1]
+        
+        temp$Group[temp$length_mm >=out$ll & temp$length_mm<= out$ul] <- 1
+        temp.wk[[k]] <- temp
       }
       
       out <- out[with(out, order(ul)),]
@@ -320,9 +287,24 @@ for(i in 1:length(biolims$species_name)){
         labs(color='Group')
     )
     
+    plotuse <- do.call(rbind, temp.wk)
+    
+    print(
+      ggplot(data = plotuse) +
+        geom_jitter(aes(x=wk, y=length_mm, col=as.factor(Group)),
+                    alpha = 0.5, width = 0.2, height = 0 , stroke = NA, cex=2) +
+        scale_x_continuous(breaks = seq(min(plotuse$wk), max(plotuse$wk), 1)) +
+        ggtitle(paste0(plotuse$species_name[1], ' ', plotuse$year[1]))
+    )
+    
     rm(Cohort.Tracking, nrecords, times)
+    
+    yearlist[[j]] <- plotuse
 
   }
+  
+  len.use <- do.call(rbind, yearlist)
+  sort.group <- rbind(sort.group, len.use)
   
   Out.Cohort <- rbind(Out.Cohort, Big.Cohort)
   rm(Big.Cohort)
@@ -345,9 +327,9 @@ for(i in 1:length(weekly.spec)){
   if(nrow(weekly.spec[[i]]) ==1){
     next()
   }
-  
+
   contained <- NA
-  
+
   if(nrow(weekly.spec[[i]]) > 1){
     for(q in 1:nrow(weekly.spec[[i]])){
       for(z in 1:nrow(weekly.spec[[i]])){
@@ -357,20 +339,20 @@ for(i in 1:length(weekly.spec)){
         if(q != z){
           if(weekly.spec[[i]]$ll[q] >= weekly.spec[[i]]$ll[z] &
              weekly.spec[[i]]$ul[q] <= weekly.spec[[i]]$ul[z]){
-            
+
             contained <- c(contained, q)
           }
         }
       }
     }
-    
+
     contained <- contained[!is.na(contained)]
-    
+
     if(length(contained) != 0){
       weekly.spec[[i]] <- weekly.spec[[i]][-contained,]
       weekly.spec[[i]]$Group <- seq(1, nrow(weekly.spec[[i]]), 1)
     }
-    
+
     contained <- NA
   }
 }
@@ -396,9 +378,9 @@ test.split <- split(test, f=paste0(test$species_name, '-', test$year))
 #     ggtitle(paste0(str_to_sentence(test.split[[i]]$species_name[1]), ' ',
 #                    test.split[[i]]$year[1])) +
 #     coord_cartesian(xlim=c(22, 39),
-#                     ylim=c(biolims$min.length[biolims$species_name == 
+#                     ylim=c(biolims$min.length[biolims$species_name ==
 #                             paste0(test.split[[i]]$species_name[1])],
-#                            biolims$max.length[biolims$species_name == 
+#                            biolims$max.length[biolims$species_name ==
 #                             paste0(test.split[[i]]$species_name[1])])
 #                     )
 #   )
@@ -533,5 +515,5 @@ test4 <- test4[with(test4, order(species_name,
 rownames(test4) <- NULL
 
 write.csv(test4,
-          here('Clean_Data/Cohort_Tracking_MTI_2024.csv'),
+          here('Data/Clean_Data/Cohort/Cohort_Tracking_MTI_2024_march26.csv'),
           row.names = F)

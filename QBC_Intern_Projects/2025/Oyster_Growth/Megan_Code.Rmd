@@ -176,6 +176,13 @@ oyster <- oyster %>%
   # Change oyster ID number to a factor
   mutate(number = factor(paste0(condition, '_', number)))
 
+# Calculate week 1 SD
+o.sd <- oyster %>% 
+  filter(date == as.Date('2025-06-19')) %>% 
+  group_by(condition) %>% 
+  summarise(sd.width = sd(width),
+            sd.length = sd(length))
+
 # Plot changes in length per each oyster
 ggplot(data=oyster)+
   geom_line(aes(x=date, y=length, color=as.factor(number)))+
@@ -416,7 +423,7 @@ hobo.daily <- hobo %>%
 
 # Plot
 ggplot(hobo.daily) +
-  geom_line(aes(x=date, y=meanT, col=condition)) +
+  geom_line(aes(x=date, y=meanT, col=condition), lwd=1) +
   labs(x='Date', y='Daily Avg. Temp (C)',
        col='Treatment')
 
@@ -456,7 +463,8 @@ buoy.daily <- buoy %>%
             buoy.temp = mean(buoy.temp, na.rm=T))
 
 # Pivot so we can more easily plot all these variables at once
-buoy.for.plotting <- buoy.daily %>% 
+buoy.for.plotting <- buoy.daily %>%
+  filter(date >= as.Date('2025-06-19') & date<= as.Date('2025-08-07')) %>% 
   pivot_longer(cols=c(cdom, current.spd,
                      fluor, sal, buoy.temp),
               names_to='variable',
@@ -498,6 +506,7 @@ aw <- aw %>%
 # Daily averages
 aw.daily <- aw %>% 
   mutate(date = as.Date(timestamp)) %>% 
+  filter(date >= as.Date('2025-06-19') & date<= as.Date('2025-08-07')) %>% 
   group_by(date) %>% 
   summarise(Daily.Rain = mean(Daily.Rain)) %>% 
   # Convert inches to cm
